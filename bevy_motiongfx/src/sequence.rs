@@ -1,5 +1,6 @@
 use crate::{
     action::{Action, ActionMeta},
+    ease::EaseFn,
     timeline::Timeline,
 };
 use bevy::prelude::*;
@@ -41,11 +42,16 @@ impl Sequence {
     pub fn all<'a, 'w, 's>(
         &'a mut self,
         commands: &'a mut Commands<'w, 's>,
-    ) -> AllSeqBuilder<'a, 'w, 's> {
+    ) -> impl SeqBuilder<'a, 'w, 's> {
         AllSeqBuilder::<'a, 'w, 's>::new(self, commands, self.duration)
     }
 
-    // pub fn chain(&mut self) {}
+    pub fn chain<'a, 'w, 's>(
+        &'a mut self,
+        commands: &'a mut Commands<'w, 's>,
+    ) -> ChainSeqBuilder<'a, 'w, 's> {
+        ChainSeqBuilder::<'a, 'w, 's>::new(self, commands, self.duration)
+    }
 
     // pub fn delay(&mut self, delay: f32) {}
 
@@ -64,7 +70,7 @@ pub struct AllSeqBuilder<'a, 'w, 's> {
     action_metas: Vec<ActionMeta>,
 }
 
-impl<'a, 'w, 's> AllSeqBuilder<'a, 'w, 's> {
+impl<'a, 'w, 's> SeqBuilder<'a, 'w, 's> for AllSeqBuilder<'a, 'w, 's> {
     fn new(
         sequence: &'a mut Sequence,
         commands: &'a mut Commands<'w, 's>,
@@ -79,11 +85,11 @@ impl<'a, 'w, 's> AllSeqBuilder<'a, 'w, 's> {
         }
     }
 
-    pub fn add_action(
-        &mut self,
+    fn add_action(
+        mut self,
         action: Action<impl Component, impl Send + Sync + 'static>,
         duration: f32,
-    ) -> &mut Self {
+    ) -> Self {
         let action_id: Entity = self.commands.spawn(action).id();
 
         self.action_metas
@@ -94,10 +100,111 @@ impl<'a, 'w, 's> AllSeqBuilder<'a, 'w, 's> {
         self
     }
 
-    pub fn build(&mut self) {
+    fn add_action_ease(
+        mut self,
+        action: Action<impl Component, impl Send + Sync + 'static>,
+        duration: f32,
+        ease_fn: EaseFn,
+    ) -> Self {
+        let action_id: Entity = self.commands.spawn(action).id();
+
+        self.action_metas
+            .push(ActionMeta::new(action_id, self.start_time, duration).with_ease(ease_fn));
+
+        self.duration = f32::max(self.duration, duration);
+
+        self
+    }
+
+    fn build(mut self) {
         self.sequence.action_metas.append(&mut self.action_metas);
         self.sequence.duration += self.duration;
     }
+}
+
+pub struct ChainSeqBuilder<'a, 'w, 's> {
+    sequence: &'a mut Sequence,
+    commands: &'a mut Commands<'w, 's>,
+    start_time: f32,
+    duration: f32,
+    action_metas: Vec<ActionMeta>,
+}
+
+impl<'a, 'w, 's> SeqBuilder<'a, 'w, 's> for ChainSeqBuilder<'a, 'w, 's> {
+    fn new(
+        sequence: &'a mut Sequence,
+        commands: &'a mut Commands<'w, 's>,
+        start_time: f32,
+    ) -> Self {
+        Self {
+            sequence,
+            commands,
+            start_time,
+            duration: 0.0,
+            action_metas: Vec::new(),
+        }
+    }
+
+    fn add_action(
+        mut self,
+        action: Action<impl Component, impl Send + Sync + 'static>,
+        duration: f32,
+    ) -> Self {
+        let action_id: Entity = self.commands.spawn(action).id();
+
+        self.action_metas.push(ActionMeta::new(
+            action_id,
+            self.start_time + self.duration,
+            duration,
+        ));
+
+        self.duration += duration;
+
+        self
+    }
+
+    fn add_action_ease(
+        mut self,
+        action: Action<impl Component, impl Send + Sync + 'static>,
+        duration: f32,
+        ease_fn: EaseFn,
+    ) -> Self {
+        let action_id: Entity = self.commands.spawn(action).id();
+
+        self.action_metas.push(
+            ActionMeta::new(action_id, self.start_time + self.duration, duration)
+                .with_ease(ease_fn),
+        );
+
+        self.duration += duration;
+
+        self
+    }
+
+    fn build(mut self) {
+        self.sequence.action_metas.append(&mut self.action_metas);
+        self.sequence.duration += self.duration;
+    }
+}
+
+pub trait SeqBuilder<'a, 'w, 's> {
+    fn new(sequence: &'a mut Sequence, commands: &'a mut Commands<'w, 's>, start_time: f32)
+        -> Self;
+
+    fn add_action(
+        self,
+        action: Action<impl Component, impl Send + Sync + 'static>,
+        duration: f32,
+    ) -> Self;
+
+    fn add_action_ease(
+        self,
+        action: Action<impl Component, impl Send + Sync + 'static>,
+        duration: f32,
+        ease_fn: EaseFn,
+    ) -> Self;
+
+    fn build(self);
 }
 
 pub fn sequence_player_system<C: Component, T: Send + Sync + 'static>(

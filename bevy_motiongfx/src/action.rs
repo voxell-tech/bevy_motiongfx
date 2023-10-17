@@ -1,7 +1,4 @@
-use crate::{
-    ease::{quad, EaseFn},
-    sequence::Sequence,
-};
+use crate::ease::{quad, EaseFn};
 use bevy::prelude::*;
 
 pub type InterpFn<C, T> = fn(component: &mut C, begin: &T, end: &T, t: f32);
@@ -51,6 +48,13 @@ impl ActionMeta {
             ease_fn: quad::ease_in_out,
         }
     }
+
+    #[inline]
+    pub fn with_ease(mut self, ease_fn: EaseFn) -> Self {
+        self.ease_fn = ease_fn;
+        self
+    }
+
     #[inline]
     pub fn start_time(&self) -> f32 {
         self.start_time
@@ -65,42 +69,4 @@ impl ActionMeta {
     pub fn duration(&self) -> f32 {
         self.duration
     }
-}
-
-// TODO: Testing only, remove when done
-fn translate_action(target_id: Entity, begin: Vec3, end: Vec3) -> Action<Transform, Vec3> {
-    Action {
-        target_id,
-        begin,
-        end,
-        interp_fn: translate_interp,
-    }
-}
-
-fn translate_interp(transform: &mut Transform, begin: &Vec3, end: &Vec3, t: f32) {
-    transform.translation = Vec3::lerp(*begin, *end, t);
-}
-
-pub fn test<'a>(
-    mut commands: Commands<'a, 'a>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut sequence: ResMut<Sequence>,
-) {
-    let target_id: Entity = commands
-        .spawn(PbrBundle {
-            mesh: meshes.add(shape::Cube::default().into()),
-            ..default()
-        })
-        .id();
-
-    let action: Action<Transform, Vec3> = translate_action(target_id, Vec3::ZERO, Vec3::ONE);
-
-    sequence
-        .all(&mut commands)
-        .add_action(action, 1.0)
-        .add_action(action, 1.0)
-        .add_action(action, 1.0)
-        .add_action(action, 1.0);
-    sequence.all(&mut commands).add_action(action.clone(), 1.0);
-    // sequence.all(&mut commands).add_action(action.clone(), 1.0);
 }

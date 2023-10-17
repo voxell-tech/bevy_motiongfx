@@ -7,7 +7,7 @@ use bevy::{
     pbr::ScreenSpaceAmbientOcclusionBundle,
     prelude::*,
 };
-use bevy_motiongfx::{action::Action, sequence::Sequence, timeline::Timeline, MotionGfx};
+use bevy_motiongfx::prelude::*;
 
 fn main() {
     App::new()
@@ -19,7 +19,7 @@ fn main() {
         // Custom plugins
         .add_plugins(MotionGfx)
         .add_systems(Startup, (setup, hello_world))
-        .add_systems(Update, timeline_movemen_system)
+        .add_systems(Update, timeline_movement_system)
         .run();
 }
 
@@ -54,15 +54,20 @@ pub fn hello_world(
         .id();
 
     sequence
-        .all(&mut commands)
-        .add_action(
+        .chain(&mut commands)
+        .add_action_ease(
             translate_action(target_id, Vec3::ZERO, Vec3::new(1.0, 0.0, 0.0)),
             1.0,
+            ease::expo::ease_in_out,
         )
-        .add_action(scale_action(target_id, Vec3::ONE, Vec3::ONE * 0.5), 1.0)
+        .add_action_ease(
+            scale_action(target_id, Vec3::ONE, Vec3::ONE * 0.5),
+            1.0,
+            ease::expo::ease_in_out,
+        )
         .build();
     sequence
-        .all(&mut commands)
+        .chain(&mut commands)
         .add_action(
             translate_action(
                 target_id,
@@ -72,18 +77,7 @@ pub fn hello_world(
             1.0,
         )
         .add_action(
-            scale_action(target_id, Vec3::ONE * 0.5, Vec3::ONE * 2.0),
-            1.0,
-        )
-        .build();
-    sequence
-        .all(&mut commands)
-        .add_action(
-            translate_action(
-                target_id,
-                Vec3::new(1.0, 0.0, 1.0),
-                Vec3::new(0.0, 0.0, 0.0),
-            ),
+            scale_action(target_id, Vec3::ONE * 0.5, Vec3::ONE * 0.2),
             1.0,
         )
         .build();
@@ -116,7 +110,7 @@ fn setup(mut commands: Commands) {
     });
 }
 
-fn timeline_movemen_system(
+fn timeline_movement_system(
     mut timeline: ResMut<Timeline>,
     keys: Res<Input<KeyCode>>,
     time: Res<Time>,
@@ -127,5 +121,13 @@ fn timeline_movemen_system(
 
     if keys.pressed(KeyCode::A) {
         timeline.target_time -= time.delta_seconds();
+    }
+
+    if keys.pressed(KeyCode::Space) && keys.pressed(KeyCode::ShiftLeft) {
+        timeline.time_scale = -1.0;
+        timeline.is_playing = true;
+    } else if keys.pressed(KeyCode::Space) {
+        timeline.time_scale = 1.0;
+        timeline.is_playing = true;
     }
 }

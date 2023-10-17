@@ -8,6 +8,14 @@ pub mod ease;
 pub mod sequence;
 pub mod timeline;
 
+pub mod prelude {
+    pub use crate::action::{Action, ActionMeta, InterpFn};
+    pub use crate::ease;
+    pub use crate::sequence::{SeqBuilder, Sequence};
+    pub use crate::timeline::Timeline;
+    pub use crate::MotionGfx;
+}
+
 pub struct MotionGfx;
 
 impl Plugin for MotionGfx {
