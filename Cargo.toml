@@ -1,0 +1,4 @@
+[workspace]
+members = ["bevy_motiongfx", "examples", ]
+
+resolver = "2"
