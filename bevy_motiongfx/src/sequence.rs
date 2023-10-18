@@ -20,7 +20,7 @@ impl Sequence {
         }
     }
 
-    pub fn add_action(
+    pub fn play(
         &mut self,
         commands: &mut Commands,
         action: Action<impl Component, impl Send + Sync + 'static>,
@@ -85,7 +85,7 @@ impl<'a, 'w, 's> SeqBuilder<'a, 'w, 's> for AllSeqBuilder<'a, 'w, 's> {
         }
     }
 
-    fn add_action(
+    fn play(
         mut self,
         action: Action<impl Component, impl Send + Sync + 'static>,
         duration: f32,
@@ -100,7 +100,7 @@ impl<'a, 'w, 's> SeqBuilder<'a, 'w, 's> for AllSeqBuilder<'a, 'w, 's> {
         self
     }
 
-    fn add_action_ease(
+    fn play_ease(
         mut self,
         action: Action<impl Component, impl Send + Sync + 'static>,
         duration: f32,
@@ -145,7 +145,7 @@ impl<'a, 'w, 's> SeqBuilder<'a, 'w, 's> for ChainSeqBuilder<'a, 'w, 's> {
         }
     }
 
-    fn add_action(
+    fn play(
         mut self,
         action: Action<impl Component, impl Send + Sync + 'static>,
         duration: f32,
@@ -163,7 +163,7 @@ impl<'a, 'w, 's> SeqBuilder<'a, 'w, 's> for ChainSeqBuilder<'a, 'w, 's> {
         self
     }
 
-    fn add_action_ease(
+    fn play_ease(
         mut self,
         action: Action<impl Component, impl Send + Sync + 'static>,
         duration: f32,
@@ -191,13 +191,13 @@ pub trait SeqBuilder<'a, 'w, 's> {
     fn new(sequence: &'a mut Sequence, commands: &'a mut Commands<'w, 's>, start_time: f32)
         -> Self;
 
-    fn add_action(
+    fn play(
         self,
         action: Action<impl Component, impl Send + Sync + 'static>,
         duration: f32,
     ) -> Self;
 
-    fn add_action_ease(
+    fn play_ease(
         self,
         action: Action<impl Component, impl Send + Sync + 'static>,
         duration: f32,

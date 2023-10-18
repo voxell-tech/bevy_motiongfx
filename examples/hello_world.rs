@@ -55,20 +55,17 @@ pub fn hello_world(
 
     sequence
         .chain(&mut commands)
-        .add_action_ease(
+        .play_ease(
             translate_action(target_id, Vec3::ZERO, Vec3::new(1.0, 0.0, 0.0)),
             1.0,
             ease::expo::ease_in_out,
         )
-        .add_action_ease(
+        .play_ease(
             scale_action(target_id, Vec3::ONE, Vec3::ONE * 0.5),
             1.0,
             ease::expo::ease_in_out,
         )
-        .build();
-    sequence
-        .chain(&mut commands)
-        .add_action(
+        .play(
             translate_action(
                 target_id,
                 Vec3::new(1.0, 0.0, 0.0),
@@ -76,7 +73,7 @@ pub fn hello_world(
             ),
             1.0,
         )
-        .add_action(
+        .play(
             scale_action(target_id, Vec3::ONE * 0.5, Vec3::ONE * 0.2),
             1.0,
         )
