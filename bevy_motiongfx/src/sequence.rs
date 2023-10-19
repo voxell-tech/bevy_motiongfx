@@ -20,191 +20,158 @@ impl Sequence {
         }
     }
 
-    pub fn play(
-        &mut self,
-        commands: &mut Commands,
-        action: Action<impl Component, impl Send + Sync + 'static>,
-        duration: f32,
-    ) {
-        // Spawn action into a new entity
-        let action_id: Entity = commands.spawn(action).id();
-
-        self.action_metas.push(ActionMeta::new(
-            action_id,
-            self.duration,
-            self.duration + duration,
-        ));
-
-        // Increment the total duration
-        self.duration += duration;
-    }
-
-    pub fn all<'a, 'w, 's>(
-        &'a mut self,
-        commands: &'a mut Commands<'w, 's>,
-    ) -> impl SeqBuilder<'a, 'w, 's> {
-        AllSeqBuilder::<'a, 'w, 's>::new(self, commands, self.duration)
-    }
-
-    pub fn chain<'a, 'w, 's>(
-        &'a mut self,
-        commands: &'a mut Commands<'w, 's>,
-    ) -> ChainSeqBuilder<'a, 'w, 's> {
-        ChainSeqBuilder::<'a, 'w, 's>::new(self, commands, self.duration)
-    }
-
-    // pub fn delay(&mut self, delay: f32) {}
-
-    // pub fn flow(&mut self, delay: f32) {}
-
     pub fn duration(&self) -> f32 {
         self.duration
     }
+
+    pub fn play(&mut self, action_grp: ActionMetaGroup) {
+        let mut max_duration: f32 = 0.0;
+
+        for action_meta in action_grp.action_metas {
+            self.action_metas.push(
+                action_meta
+                    .clone()
+                    .with_start_time(action_meta.start_time() + self.duration),
+            );
+
+            max_duration = f32::max(
+                max_duration,
+                action_meta.start_time() + action_meta.duration(),
+            );
+        }
+
+        self.duration = max_duration;
+    }
 }
 
-pub struct AllSeqBuilder<'a, 'w, 's> {
-    sequence: &'a mut Sequence,
+pub struct ActionBuilder<'a, 'w, 's> {
     commands: &'a mut Commands<'w, 's>,
-    start_time: f32,
-    duration: f32,
-    action_metas: Vec<ActionMeta>,
 }
 
-impl<'a, 'w, 's> SeqBuilder<'a, 'w, 's> for AllSeqBuilder<'a, 'w, 's> {
-    fn new(
-        sequence: &'a mut Sequence,
-        commands: &'a mut Commands<'w, 's>,
-        start_time: f32,
-    ) -> Self {
+impl<'a, 'w, 's> ActionBuilder<'a, 'w, 's> {
+    pub fn new(commands: &'a mut Commands<'w, 's>) -> Self {
+        Self { commands }
+    }
+
+    pub fn play(
+        &mut self,
+        action: Action<impl Component, impl Send + Sync + 'static>,
+        duration: f32,
+    ) -> ActionMetaGroup {
+        let action_id: Entity = self.commands.spawn(action).id();
+        let action_meta: ActionMeta = ActionMeta::new(action_id).with_duration(duration);
+
+        ActionMetaGroup::single(action_meta)
+    }
+}
+
+#[derive(Clone)]
+pub struct ActionMetaGroup {
+    action_metas: Vec<ActionMeta>,
+    duration: f32,
+}
+
+impl ActionMetaGroup {
+    pub fn new() -> Self {
         Self {
-            sequence,
-            commands,
-            start_time,
-            duration: 0.0,
             action_metas: Vec::new(),
+            duration: 0.0,
         }
     }
 
-    fn play(
-        mut self,
-        action: Action<impl Component, impl Send + Sync + 'static>,
-        duration: f32,
-    ) -> Self {
-        let action_id: Entity = self.commands.spawn(action).id();
+    /// Create an `ActionMetaGroup` with only a single `ActionMeta` in it.
+    pub fn single(action_meta: ActionMeta) -> Self {
+        let duration: f32 = action_meta.duration();
 
-        self.action_metas
-            .push(ActionMeta::new(action_id, self.start_time, duration));
-
-        self.duration = f32::max(self.duration, duration);
-
-        self
-    }
-
-    fn play_ease(
-        mut self,
-        action: Action<impl Component, impl Send + Sync + 'static>,
-        duration: f32,
-        ease_fn: EaseFn,
-    ) -> Self {
-        let action_id: Entity = self.commands.spawn(action).id();
-
-        self.action_metas
-            .push(ActionMeta::new(action_id, self.start_time, duration).with_ease(ease_fn));
-
-        self.duration = f32::max(self.duration, duration);
-
-        self
-    }
-
-    fn build(mut self) {
-        self.sequence.action_metas.append(&mut self.action_metas);
-        self.sequence.duration += self.duration;
-    }
-}
-
-pub struct ChainSeqBuilder<'a, 'w, 's> {
-    sequence: &'a mut Sequence,
-    commands: &'a mut Commands<'w, 's>,
-    start_time: f32,
-    duration: f32,
-    action_metas: Vec<ActionMeta>,
-}
-
-impl<'a, 'w, 's> SeqBuilder<'a, 'w, 's> for ChainSeqBuilder<'a, 'w, 's> {
-    fn new(
-        sequence: &'a mut Sequence,
-        commands: &'a mut Commands<'w, 's>,
-        start_time: f32,
-    ) -> Self {
         Self {
-            sequence,
-            commands,
-            start_time,
-            duration: 0.0,
-            action_metas: Vec::new(),
-        }
-    }
-
-    fn play(
-        mut self,
-        action: Action<impl Component, impl Send + Sync + 'static>,
-        duration: f32,
-    ) -> Self {
-        let action_id: Entity = self.commands.spawn(action).id();
-
-        self.action_metas.push(ActionMeta::new(
-            action_id,
-            self.start_time + self.duration,
+            action_metas: vec![action_meta],
             duration,
-        ));
-
-        self.duration += duration;
-
-        self
+        }
     }
 
-    fn play_ease(
-        mut self,
-        action: Action<impl Component, impl Send + Sync + 'static>,
-        duration: f32,
-        ease_fn: EaseFn,
-    ) -> Self {
-        let action_id: Entity = self.commands.spawn(action).id();
-
-        self.action_metas.push(
-            ActionMeta::new(action_id, self.start_time + self.duration, duration)
-                .with_ease(ease_fn),
-        );
-
-        self.duration += duration;
+    pub fn with_ease(mut self, ease_fn: EaseFn) -> Self {
+        for action_meta in &mut self.action_metas {
+            action_meta.ease_fn = ease_fn;
+        }
 
         self
-    }
-
-    fn build(mut self) {
-        self.sequence.action_metas.append(&mut self.action_metas);
-        self.sequence.duration += self.duration;
     }
 }
 
-pub trait SeqBuilder<'a, 'w, 's> {
-    fn new(sequence: &'a mut Sequence, commands: &'a mut Commands<'w, 's>, start_time: f32)
-        -> Self;
+// CONTROL FLOW FUNCTIONS
 
-    fn play(
-        self,
-        action: Action<impl Component, impl Send + Sync + 'static>,
-        duration: f32,
-    ) -> Self;
+pub fn chain(action_grps: &[ActionMetaGroup]) -> ActionMetaGroup {
+    let mut final_action_grp: ActionMetaGroup = ActionMetaGroup::new();
+    let mut chain_duration: f32 = 0.0;
 
-    fn play_ease(
-        self,
-        action: Action<impl Component, impl Send + Sync + 'static>,
-        duration: f32,
-        ease_fn: EaseFn,
-    ) -> Self;
+    for action_grp in action_grps {
+        for action_meta in &action_grp.action_metas {
+            final_action_grp.action_metas.push(
+                action_meta
+                    .clone()
+                    .with_start_time(action_meta.start_time() + chain_duration),
+            );
+        }
 
-    fn build(self);
+        chain_duration += action_grp.duration;
+    }
+
+    final_action_grp.duration += chain_duration;
+    final_action_grp
+}
+
+pub fn all(action_grps: &[ActionMetaGroup]) -> ActionMetaGroup {
+    let mut final_action_grp: ActionMetaGroup = ActionMetaGroup::new();
+    let mut max_duration: f32 = 0.0;
+
+    for action_grp in action_grps {
+        for action_meta in &action_grp.action_metas {
+            final_action_grp.action_metas.push(action_meta.clone());
+        }
+
+        max_duration = f32::max(max_duration, action_grp.duration);
+    }
+
+    final_action_grp.duration = max_duration;
+    final_action_grp
+}
+
+pub fn flow(delay: f32, action_grps: &[ActionMetaGroup]) -> ActionMetaGroup {
+    let mut final_action_grp: ActionMetaGroup = ActionMetaGroup::new();
+    let mut flow_duration: f32 = 0.0;
+    let mut final_duration: f32 = 0.0;
+
+    for action_grp in action_grps {
+        for action_meta in &action_grp.action_metas {
+            final_action_grp.action_metas.push(
+                action_meta
+                    .clone()
+                    .with_start_time(action_meta.start_time() + flow_duration),
+            );
+        }
+
+        flow_duration += delay;
+        final_duration = f32::max(final_duration, flow_duration + action_grp.duration);
+    }
+
+    final_action_grp.duration = final_duration;
+    final_action_grp
+}
+
+pub fn delay(delay: f32, action_grp: ActionMetaGroup) -> ActionMetaGroup {
+    let mut final_action_grp: ActionMetaGroup = ActionMetaGroup::new();
+
+    for action_meta in &action_grp.action_metas {
+        final_action_grp.action_metas.push(
+            action_meta
+                .clone()
+                .with_start_time(action_meta.start_time() + delay),
+        );
+    }
+
+    final_action_grp.duration = delay + action_grp.duration;
+
+    final_action_grp
 }
 
 pub fn sequence_player_system<C: Component, T: Send + Sync + 'static>(
@@ -240,7 +207,7 @@ pub fn sequence_player_system<C: Component, T: Send + Sync + 'static>(
         }
 
         let action_meta: &ActionMeta = &scene.action_metas[action_index];
-        let action_id: Entity = action_meta.action_id;
+        let action_id: Entity = action_meta.id();
 
         action_index = (action_index as i32 + direction) as usize;
 

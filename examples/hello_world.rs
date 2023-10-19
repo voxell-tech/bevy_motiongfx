@@ -7,7 +7,7 @@ use bevy::{
     pbr::ScreenSpaceAmbientOcclusionBundle,
     prelude::*,
 };
-use bevy_motiongfx::prelude::*;
+use bevy_motiongfx::{prelude::*, sequence::*};
 
 fn main() {
     App::new()
@@ -53,31 +53,39 @@ pub fn hello_world(
         })
         .id();
 
-    sequence
-        .chain(&mut commands)
-        .play_ease(
-            translate_action(target_id, Vec3::ZERO, Vec3::new(1.0, 0.0, 0.0)),
-            1.0,
-            ease::expo::ease_in_out,
-        )
-        .play_ease(
-            scale_action(target_id, Vec3::ONE, Vec3::ONE * 0.5),
-            1.0,
-            ease::expo::ease_in_out,
-        )
-        .play(
-            translate_action(
-                target_id,
-                Vec3::new(1.0, 0.0, 0.0),
-                Vec3::new(1.0, 0.0, 1.0),
-            ),
-            1.0,
-        )
-        .play(
-            scale_action(target_id, Vec3::ONE * 0.5, Vec3::ONE * 0.2),
-            1.0,
-        )
-        .build();
+    let mut action_builder: ActionBuilder = ActionBuilder::new(&mut commands);
+
+    let action_grp: ActionMetaGroup = chain(&[
+        action_builder
+            .play(
+                translate_action(target_id, Vec3::ZERO, Vec3::new(1.0, 0.0, 0.0)),
+                1.0,
+            )
+            .with_ease(ease::cubic::ease_in_out),
+        action_builder
+            .play(
+                translate_action(
+                    target_id,
+                    Vec3::new(1.0, 0.0, 0.0),
+                    Vec3::new(1.0, 1.0, 0.0),
+                ),
+                1.0,
+            )
+            .with_ease(ease::cubic::ease_in_out),
+        all(&[
+            action_builder
+                .play(
+                    translate_action(target_id, Vec3::new(1.0, 1.0, 0.0), Vec3::ZERO),
+                    1.0,
+                )
+                .with_ease(ease::expo::ease_in_out),
+            action_builder
+                .play(scale_action(target_id, Vec3::ONE, Vec3::ONE * 0.5), 1.0)
+                .with_ease(ease::expo::ease_in_out),
+        ]),
+    ]);
+
+    sequence.play(action_grp);
 }
 
 fn setup(mut commands: Commands) {

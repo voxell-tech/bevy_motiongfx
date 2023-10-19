@@ -30,7 +30,7 @@ impl<C: Component, T: Send + Sync + 'static> Action<C, T> {
 #[derive(Clone)]
 pub struct ActionMeta {
     /// Target `Entity` for `Action`.
-    pub(super) action_id: Entity,
+    action_id: Entity,
     /// Time at which animation should begin.
     start_time: f32,
     /// Duration of animation in seconds.
@@ -40,13 +40,29 @@ pub struct ActionMeta {
 }
 
 impl ActionMeta {
-    pub fn new(action_id: Entity, start_time: f32, duration: f32) -> Self {
+    pub fn new(action_id: Entity) -> Self {
         Self {
             action_id,
-            start_time,
-            duration,
+            start_time: 0.0,
+            duration: 0.0,
             ease_fn: quad::ease_in_out,
         }
+    }
+
+    pub fn id(&self) -> Entity {
+        self.action_id
+    }
+
+    #[inline]
+    pub fn with_start_time(mut self, start_time: f32) -> Self {
+        self.start_time = start_time;
+        self
+    }
+
+    #[inline]
+    pub fn with_duration(mut self, duration: f32) -> Self {
+        self.duration = duration;
+        self
     }
 
     #[inline]
