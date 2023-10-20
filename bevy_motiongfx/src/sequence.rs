@@ -1,6 +1,5 @@
 use crate::{
-    action::{Action, ActionMeta},
-    ease::EaseFn,
+    action::{Action, ActionMeta, ActionMetaGroup},
     timeline::Timeline,
 };
 use bevy::prelude::*;
@@ -44,62 +43,9 @@ impl Sequence {
     }
 }
 
-pub struct ActionBuilder<'a, 'w, 's> {
-    commands: &'a mut Commands<'w, 's>,
-}
+// ANIMATION FLOW FUNCTIONS
 
-impl<'a, 'w, 's> ActionBuilder<'a, 'w, 's> {
-    pub fn new(commands: &'a mut Commands<'w, 's>) -> Self {
-        Self { commands }
-    }
-
-    pub fn play(
-        &mut self,
-        action: Action<impl Component, impl Send + Sync + 'static>,
-        duration: f32,
-    ) -> ActionMetaGroup {
-        let action_id: Entity = self.commands.spawn(action).id();
-        let action_meta: ActionMeta = ActionMeta::new(action_id).with_duration(duration);
-
-        ActionMetaGroup::single(action_meta)
-    }
-}
-
-#[derive(Clone)]
-pub struct ActionMetaGroup {
-    action_metas: Vec<ActionMeta>,
-    duration: f32,
-}
-
-impl ActionMetaGroup {
-    pub fn new() -> Self {
-        Self {
-            action_metas: Vec::new(),
-            duration: 0.0,
-        }
-    }
-
-    /// Create an `ActionMetaGroup` with only a single `ActionMeta` in it.
-    pub fn single(action_meta: ActionMeta) -> Self {
-        let duration: f32 = action_meta.duration();
-
-        Self {
-            action_metas: vec![action_meta],
-            duration,
-        }
-    }
-
-    pub fn with_ease(mut self, ease_fn: EaseFn) -> Self {
-        for action_meta in &mut self.action_metas {
-            action_meta.ease_fn = ease_fn;
-        }
-
-        self
-    }
-}
-
-// CONTROL FLOW FUNCTIONS
-
+/// Run one action after another.
 pub fn chain(action_grps: &[ActionMetaGroup]) -> ActionMetaGroup {
     let mut final_action_grp: ActionMetaGroup = ActionMetaGroup::new();
     let mut chain_duration: f32 = 0.0;
@@ -120,6 +66,7 @@ pub fn chain(action_grps: &[ActionMetaGroup]) -> ActionMetaGroup {
     final_action_grp
 }
 
+/// Run all actions concurrently and wait for all of them to finish.
 pub fn all(action_grps: &[ActionMetaGroup]) -> ActionMetaGroup {
     let mut final_action_grp: ActionMetaGroup = ActionMetaGroup::new();
     let mut max_duration: f32 = 0.0;
@@ -133,6 +80,23 @@ pub fn all(action_grps: &[ActionMetaGroup]) -> ActionMetaGroup {
     }
 
     final_action_grp.duration = max_duration;
+    final_action_grp
+}
+
+/// Run all actions concurrently and wait for any of them to finish.
+pub fn any(action_grps: &[ActionMetaGroup]) -> ActionMetaGroup {
+    let mut final_action_grp: ActionMetaGroup = ActionMetaGroup::new();
+    let mut min_duration: f32 = 0.0;
+
+    for action_grp in action_grps {
+        for action_meta in &action_grp.action_metas {
+            final_action_grp.action_metas.push(action_meta.clone());
+        }
+
+        min_duration = f32::min(min_duration, action_grp.duration);
+    }
+
+    final_action_grp.duration = min_duration;
     final_action_grp
 }
 
