@@ -9,9 +9,9 @@ pub mod sequence;
 pub mod timeline;
 
 pub mod prelude {
-    pub use crate::action::{Action, ActionMeta, InterpFn};
+    pub use crate::action::{Action, ActionBuilder, ActionMeta, ActionMetaGroup, InterpFn};
     pub use crate::ease;
-    pub use crate::sequence::Sequence;
+    pub use crate::sequence::{all, any, chain, delay, flow, Sequence};
     pub use crate::timeline::Timeline;
     pub use crate::MotionGfx;
 }

@@ -138,7 +138,7 @@ pub fn delay(delay: f32, action_grp: ActionMetaGroup) -> ActionMetaGroup {
     final_action_grp
 }
 
-pub fn sequence_player_system<C: Component, T: Send + Sync + 'static>(
+pub(crate) fn sequence_player_system<C: Component, T: Send + Sync + 'static>(
     mut q_component: Query<&mut C>,
     q_actions: Query<&Action<C, T>>,
     scene: Res<Sequence>,

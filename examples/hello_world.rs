@@ -7,7 +7,7 @@ use bevy::{
     pbr::ScreenSpaceAmbientOcclusionBundle,
     prelude::*,
 };
-use bevy_motiongfx::{prelude::*, sequence::*};
+use bevy_motiongfx::prelude::*;
 
 fn main() {
     App::new()
