@@ -94,7 +94,7 @@ pub mod quart {
     #[inline]
     pub fn ease_in_out(t: f32) -> f32 {
         if t < 0.5 {
-            8.0 * t * t * t
+            8.0 * t * t * t * t
         } else {
             let t = 1.0 - t;
             1.0 - t * t * t * t * 8.0

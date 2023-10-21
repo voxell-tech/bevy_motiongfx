@@ -69,7 +69,7 @@ pub fn hello_world(
                 act.play(cube_translations[c].translate(Vec3::X), 1.0),
                 act.play(cube_scales[c].scale_all(0.5), 1.0),
             ])
-            .with_ease(ease::circ::ease_in_out),
+            .with_ease(ease::quart::ease_in_out),
         );
     }
     for c in 0..10 {
