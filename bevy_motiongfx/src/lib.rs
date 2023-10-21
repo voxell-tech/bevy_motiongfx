@@ -4,16 +4,19 @@ use timeline::Timeline;
 
 pub mod action;
 pub mod action_group;
+pub mod animation_state;
 pub mod ease;
 pub mod sequence;
 pub mod timeline;
 
 pub mod prelude {
-    pub use crate::action::{Action, ActionBuilder, ActionMeta, ActionMetaGroup, InterpFn};
-    pub use crate::ease;
-    pub use crate::sequence::{all, any, chain, delay, flow, Sequence};
-    pub use crate::timeline::Timeline;
-    pub use crate::MotionGfx;
+    pub use super::action::{Action, ActionBuilder, ActionMeta, ActionMetaGroup, InterpFn};
+    pub use super::ease;
+    pub use super::sequence::{all, any, chain, delay, flow, sequence_player_system, Sequence};
+    pub use super::timeline::Timeline;
+    pub use super::MotionGfx;
+
+    pub use super::animation_state::prelude::*;
 }
 
 pub struct MotionGfx;

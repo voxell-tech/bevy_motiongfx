@@ -23,67 +23,66 @@ fn main() {
         .run();
 }
 
-fn translate_action(target_id: Entity, begin: Vec3, end: Vec3) -> Action<Transform, Vec3> {
-    Action::new(target_id, begin, end, translate_interp)
-}
-
-fn translate_interp(transform: &mut Transform, begin: &Vec3, end: &Vec3, t: f32) {
-    transform.translation = Vec3::lerp(*begin, *end, t);
-}
-
-fn scale_action(target_id: Entity, begin: Vec3, end: Vec3) -> Action<Transform, Vec3> {
-    Action::new(target_id, begin, end, scale_interp)
-}
-
-fn scale_interp(transform: &mut Transform, begin: &Vec3, end: &Vec3, t: f32) {
-    transform.scale = Vec3::lerp(*begin, *end, t);
-}
-
 pub fn hello_world(
     mut commands: Commands,
     mut sequence: ResMut<Sequence>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let target_id: Entity = commands
-        .spawn(PbrBundle {
-            mesh: meshes.add(shape::Cube::default().into()),
-            material: materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
-            ..default()
-        })
-        .id();
+    let mut cubes: Vec<Entity> = Vec::with_capacity(10);
+    let mut cube_translations: Vec<Translation> = Vec::with_capacity(10);
+    let mut cube_scales: Vec<Scale> = Vec::with_capacity(10);
+    let mut cube_actions: Vec<ActionMetaGroup> = Vec::with_capacity(10);
 
-    let mut action_builder: ActionBuilder = ActionBuilder::new(&mut commands);
+    // Create cube objects (Entity)
+    for c in 0..10 {
+        let cube = commands
+            .spawn(PbrBundle {
+                transform: Transform::from_scale(Vec3::ONE * 0.2).with_translation(Vec3::new(
+                    -1.0,
+                    (c as f32) * 0.21 - 0.5,
+                    0.0,
+                )),
+                mesh: meshes.add(shape::Cube::default().into()),
+                material: materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
+                ..default()
+            })
+            .id();
+        cubes.push(cube);
+    }
 
-    let action_grp: ActionMetaGroup = chain(&[
-        action_builder
-            .play(
-                translate_action(target_id, Vec3::ZERO, Vec3::new(1.0, 0.0, 0.0)),
-                1.0,
-            )
-            .with_ease(ease::cubic::ease_in_out),
-        action_builder
-            .play(
-                translate_action(
-                    target_id,
-                    Vec3::new(1.0, 0.0, 0.0),
-                    Vec3::new(1.0, 1.0, 0.0),
-                ),
-                1.0,
-            )
-            .with_ease(ease::cubic::ease_in_out),
-        all(&[
-            action_builder
-                .play(
-                    translate_action(target_id, Vec3::new(1.0, 1.0, 0.0), Vec3::ZERO),
-                    1.0,
-                )
-                .with_ease(ease::expo::ease_in_out),
-            action_builder
-                .play(scale_action(target_id, Vec3::ONE, Vec3::ONE * 0.5), 1.0)
-                .with_ease(ease::expo::ease_in_out),
-        ]),
-    ]);
+    let mut act: ActionBuilder = ActionBuilder::new(&mut commands);
+
+    // Initialize translation
+    for c in 0..10 {
+        cube_translations.push(Translation::new(
+            cubes[c],
+            Vec3::new(-1.0, (c as f32) * 0.21 - 0.5, 0.0),
+        ));
+        cube_scales.push(Scale::new(cubes[c], Vec3::ONE * 0.2));
+    }
+
+    // Generate cube animations
+    for c in 0..10 {
+        cube_actions.push(
+            all(&[
+                act.play(cube_translations[c].translate(Vec3::X), 1.0),
+                act.play(cube_scales[c].scale_all(0.5), 1.0),
+            ])
+            .with_ease(ease::circ::ease_in_out),
+        );
+    }
+    for c in 0..10 {
+        cube_actions.push(
+            all(&[
+                act.play(cube_translations[c].translate(-Vec3::X), 1.0),
+                act.play(cube_scales[c].scale_all(2.0), 1.0),
+            ])
+            .with_ease(ease::circ::ease_in_out),
+        );
+    }
+
+    let action_grp: ActionMetaGroup = flow(0.1, &cube_actions);
 
     sequence.play(action_grp);
 }
