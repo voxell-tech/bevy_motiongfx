@@ -4,7 +4,7 @@ use timeline::Timeline;
 
 pub mod action;
 pub mod action_group;
-pub mod animation_state;
+pub mod animation_states;
 pub mod ease;
 pub mod sequence;
 pub mod timeline;
@@ -16,7 +16,7 @@ pub mod prelude {
     pub use super::timeline::Timeline;
     pub use super::MotionGfx;
 
-    pub use super::animation_state::prelude::*;
+    pub use super::animation_states::prelude::*;
 }
 
 pub struct MotionGfx;
