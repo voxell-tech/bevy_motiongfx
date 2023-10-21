@@ -1,11 +1,17 @@
 use crate::ease::{quad, EaseFn};
 use bevy::prelude::*;
 
-pub type InterpFn<C, T> = fn(component: &mut C, begin: &T, end: &T, t: f32);
+pub type InterpFn<C, T, R> =
+    fn(component: &mut C, begin: &T, end: &T, t: f32, resource: &mut ResMut<R>);
 
 /// Basic data structure to describe an animation action.
 #[derive(Component, Clone, Copy)]
-pub struct Action<C: Component, T: Send + Sync + 'static> {
+pub struct Action<C, T, R>
+where
+    C: Component,
+    T: Send + Sync + 'static,
+    R: Resource,
+{
     /// Target `Entity` for `Component` manipulation.
     pub(crate) target_id: Entity,
     /// Initial state of the animation.
@@ -13,11 +19,16 @@ pub struct Action<C: Component, T: Send + Sync + 'static> {
     /// Final state of the animation.
     pub(crate) end: T,
     /// Interpolation function to be used for animation.
-    pub(crate) interp_fn: InterpFn<C, T>,
+    pub(crate) interp_fn: InterpFn<C, T, R>,
 }
 
-impl<C: Component, T: Send + Sync + 'static> Action<C, T> {
-    pub fn new(target_id: Entity, begin: T, end: T, interp_fn: InterpFn<C, T>) -> Self {
+impl<C, T, R> Action<C, T, R>
+where
+    C: Component,
+    T: Send + Sync + 'static,
+    R: Resource,
+{
+    pub fn new(target_id: Entity, begin: T, end: T, interp_fn: InterpFn<C, T, R>) -> Self {
         Self {
             target_id,
             begin,
@@ -98,7 +109,7 @@ impl<'a, 'w, 's> ActionBuilder<'a, 'w, 's> {
 
     pub fn play(
         &mut self,
-        action: Action<impl Component, impl Send + Sync + 'static>,
+        action: Action<impl Component, impl Send + Sync + 'static, impl Resource>,
         duration: f32,
     ) -> ActionMetaGroup {
         let action_id: Entity = self.commands.spawn(action).id();

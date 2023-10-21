@@ -139,12 +139,17 @@ pub fn delay(delay: f32, action_grp: ActionMetaGroup) -> ActionMetaGroup {
 }
 
 /// System for playing the `Action`s that are inside the `Sequence`.
-pub fn sequence_player_system<C: Component, T: Send + Sync + 'static>(
+pub fn sequence_player_system<C, T, R>(
     mut q_component: Query<&mut C>,
-    q_actions: Query<&Action<C, T>>,
+    q_actions: Query<&Action<C, T, R>>,
     scene: Res<Sequence>,
     timeline: Res<Timeline>,
-) {
+    mut resource: ResMut<R>,
+) where
+    C: Component,
+    T: Send + Sync + 'static,
+    R: Resource,
+{
     // Do not perform any actions if there are no changes to the timeline timings.
     if timeline.curr_time == timeline.target_time {
         return;
@@ -202,7 +207,13 @@ pub fn sequence_player_system<C: Component, T: Send + Sync + 'static>(
                 unit_time = (action_meta.ease_fn)(unit_time);
 
                 // Mutate the component using interpolate function
-                (action.interp_fn)(&mut component, &action.begin, &action.end, unit_time);
+                (action.interp_fn)(
+                    &mut component,
+                    &action.begin,
+                    &action.end,
+                    unit_time,
+                    &mut resource,
+                );
             }
         }
     }

@@ -1,3 +1,4 @@
+use super::EmptyRes;
 use crate::action::Action;
 use bevy::prelude::*;
 
@@ -14,10 +15,10 @@ impl Translation {
         }
     }
 
-    pub fn translate(&mut self, translation: Vec3) -> Action<Transform, Vec3> {
+    pub fn translate(&mut self, translation: Vec3) -> Action<Transform, Vec3, EmptyRes> {
         let new_translation: Vec3 = self.translation + translation;
 
-        let action: Action<Transform, Vec3> = Action::new(
+        let action: Action<Transform, Vec3, EmptyRes> = Action::new(
             self.target_id,
             self.translation,
             new_translation,
@@ -29,8 +30,8 @@ impl Translation {
         action
     }
 
-    pub fn translate_to(&mut self, translation: Vec3) -> Action<Transform, Vec3> {
-        let action: Action<Transform, Vec3> =
+    pub fn translate_to(&mut self, translation: Vec3) -> Action<Transform, Vec3, EmptyRes> {
+        let action: Action<Transform, Vec3, EmptyRes> =
             Action::new(self.target_id, self.translation, translation, Self::interp);
 
         self.translation = translation;
@@ -38,7 +39,13 @@ impl Translation {
         action
     }
 
-    fn interp(transform: &mut Transform, begin: &Vec3, end: &Vec3, t: f32) {
+    fn interp(
+        transform: &mut Transform,
+        begin: &Vec3,
+        end: &Vec3,
+        t: f32,
+        _: &mut ResMut<EmptyRes>,
+    ) {
         transform.translation = Vec3::lerp(*begin, *end, t);
     }
 }
@@ -53,10 +60,10 @@ impl Scale {
         Self { target_id, scale }
     }
 
-    pub fn scale(&mut self, scale: Vec3) -> Action<Transform, Vec3> {
+    pub fn scale(&mut self, scale: Vec3) -> Action<Transform, Vec3, EmptyRes> {
         let new_scale: Vec3 = self.scale * scale;
 
-        let action: Action<Transform, Vec3> =
+        let action: Action<Transform, Vec3, EmptyRes> =
             Action::new(self.target_id, self.scale, new_scale, Self::interp);
 
         self.scale = new_scale;
@@ -64,10 +71,10 @@ impl Scale {
         action
     }
 
-    pub fn scale_all(&mut self, scale: f32) -> Action<Transform, Vec3> {
+    pub fn scale_all(&mut self, scale: f32) -> Action<Transform, Vec3, EmptyRes> {
         let new_scale: Vec3 = self.scale * scale;
 
-        let action: Action<Transform, Vec3> =
+        let action: Action<Transform, Vec3, EmptyRes> =
             Action::new(self.target_id, self.scale, new_scale, Self::interp);
 
         self.scale = new_scale;
@@ -75,8 +82,8 @@ impl Scale {
         action
     }
 
-    pub fn scale_to(&mut self, scale: Vec3) -> Action<Transform, Vec3> {
-        let action: Action<Transform, Vec3> =
+    pub fn scale_to(&mut self, scale: Vec3) -> Action<Transform, Vec3, EmptyRes> {
+        let action: Action<Transform, Vec3, EmptyRes> =
             Action::new(self.target_id, self.scale, scale, Self::interp);
 
         self.scale = scale;
@@ -84,10 +91,10 @@ impl Scale {
         action
     }
 
-    pub fn scale_all_to(&mut self, scale: f32) -> Action<Transform, Vec3> {
+    pub fn scale_all_to(&mut self, scale: f32) -> Action<Transform, Vec3, EmptyRes> {
         let new_scale: Vec3 = Vec3::ONE * scale;
 
-        let action: Action<Transform, Vec3> =
+        let action: Action<Transform, Vec3, EmptyRes> =
             Action::new(self.target_id, self.scale, new_scale, Self::interp);
 
         self.scale = new_scale;
@@ -95,7 +102,57 @@ impl Scale {
         action
     }
 
-    fn interp(transform: &mut Transform, begin: &Vec3, end: &Vec3, t: f32) {
+    fn interp(
+        transform: &mut Transform,
+        begin: &Vec3,
+        end: &Vec3,
+        t: f32,
+        _: &mut ResMut<EmptyRes>,
+    ) {
         transform.scale = Vec3::lerp(*begin, *end, t);
+    }
+}
+
+pub struct Rotation {
+    target_id: Entity,
+    rotation: Quat,
+}
+
+impl Rotation {
+    pub fn new(target_id: Entity, rotation: Quat) -> Self {
+        Self {
+            target_id,
+            rotation,
+        }
+    }
+
+    pub fn rotate(&mut self, rotation: Quat) -> Action<Transform, Quat, EmptyRes> {
+        let new_rotation: Quat = self.rotation * rotation;
+
+        let action: Action<Transform, Quat, EmptyRes> =
+            Action::new(self.target_id, self.rotation, new_rotation, Self::interp);
+
+        self.rotation = new_rotation;
+
+        action
+    }
+
+    pub fn rotate_to(&mut self, rotation: Quat) -> Action<Transform, Quat, EmptyRes> {
+        let action: Action<Transform, Quat, EmptyRes> =
+            Action::new(self.target_id, self.rotation, rotation, Self::interp);
+
+        self.rotation = rotation;
+
+        action
+    }
+
+    fn interp(
+        transform: &mut Transform,
+        begin: &Quat,
+        end: &Quat,
+        t: f32,
+        _: &mut ResMut<EmptyRes>,
+    ) {
+        transform.rotation = Quat::lerp(*begin, *end, t);
     }
 }

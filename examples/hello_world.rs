@@ -6,6 +6,7 @@ use bevy::{
     log::LogPlugin,
     pbr::ScreenSpaceAmbientOcclusionBundle,
     prelude::*,
+    render::view::ViewTarget,
 };
 use bevy_motiongfx::prelude::*;
 
@@ -32,9 +33,12 @@ pub fn hello_world(
     let mut cubes: Vec<Entity> = Vec::with_capacity(10);
     let mut cube_translations: Vec<Translation> = Vec::with_capacity(10);
     let mut cube_scales: Vec<Scale> = Vec::with_capacity(10);
+    let mut cube_colors: Vec<BaseColor> = Vec::with_capacity(10);
     let mut cube_actions: Vec<ActionMetaGroup> = Vec::with_capacity(10);
 
     // Create cube objects (Entity)
+    let green_color: Color = Color::rgb(0.3, 0.5, 0.3);
+
     for c in 0..10 {
         let cube = commands
             .spawn(PbrBundle {
@@ -44,7 +48,7 @@ pub fn hello_world(
                     0.0,
                 )),
                 mesh: meshes.add(shape::Cube::default().into()),
-                material: materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
+                material: materials.add(green_color.into()),
                 ..default()
             })
             .id();
@@ -55,11 +59,13 @@ pub fn hello_world(
 
     // Initialize translation
     for c in 0..10 {
+        let id: Entity = cubes[c];
         cube_translations.push(Translation::new(
-            cubes[c],
+            id,
             Vec3::new(-1.0, (c as f32) * 0.21 - 0.5, 0.0),
         ));
-        cube_scales.push(Scale::new(cubes[c], Vec3::ONE * 0.2));
+        cube_scales.push(Scale::new(id, Vec3::ONE * 0.2));
+        cube_colors.push(BaseColor::new(id, green_color.into()));
     }
 
     // Generate cube animations
@@ -68,6 +74,7 @@ pub fn hello_world(
             all(&[
                 act.play(cube_translations[c].translate(Vec3::X), 1.0),
                 act.play(cube_scales[c].scale_all(0.5), 1.0),
+                act.play(cube_colors[c].color_to(Color::WHITE.into()), 1.0),
             ])
             .with_ease(ease::quart::ease_in_out),
         );
@@ -77,6 +84,7 @@ pub fn hello_world(
             all(&[
                 act.play(cube_translations[c].translate(-Vec3::X), 1.0),
                 act.play(cube_scales[c].scale_all(2.0), 1.0),
+                act.play(cube_colors[c].color_to(green_color.into()), 1.0),
             ])
             .with_ease(ease::circ::ease_in_out),
         );

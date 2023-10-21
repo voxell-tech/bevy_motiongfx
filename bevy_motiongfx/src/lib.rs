@@ -1,6 +1,5 @@
 use bevy::prelude::*;
-use sequence::Sequence;
-use timeline::Timeline;
+use prelude::*;
 
 pub mod action;
 pub mod action_group;
@@ -25,10 +24,19 @@ impl Plugin for MotionGfx {
     fn build(&self, app: &mut App) {
         app.insert_resource(Timeline::new())
             .insert_resource(Sequence::new())
+            .insert_resource(EmptyRes)
             .add_systems(PreUpdate, timeline::timeline_update_system)
             .add_systems(
                 PostUpdate,
-                (sequence::sequence_player_system::<Transform, Vec3>,),
+                (
+                    sequence::sequence_player_system::<Transform, Vec3, EmptyRes>,
+                    sequence::sequence_player_system::<Transform, Quat, EmptyRes>,
+                    sequence::sequence_player_system::<
+                        Handle<StandardMaterial>,
+                        Vec4,
+                        Assets<StandardMaterial>,
+                    >,
+                ),
             );
     }
 }
