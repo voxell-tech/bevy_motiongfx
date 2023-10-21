@@ -1,12 +1,11 @@
 use bevy::{
     core_pipeline::{
-        bloom::BloomSettings,
+        bloom::{BloomCompositeMode, BloomSettings},
         experimental::taa::{TemporalAntiAliasBundle, TemporalAntiAliasPlugin},
     },
     log::LogPlugin,
     pbr::ScreenSpaceAmbientOcclusionBundle,
     prelude::*,
-    render::view::ViewTarget,
 };
 use bevy_motiongfx::prelude::*;
 
@@ -33,7 +32,7 @@ pub fn hello_world(
     let mut cubes: Vec<Entity> = Vec::with_capacity(10);
     let mut cube_translations: Vec<Translation> = Vec::with_capacity(10);
     let mut cube_scales: Vec<Scale> = Vec::with_capacity(10);
-    let mut cube_colors: Vec<BaseColor> = Vec::with_capacity(10);
+    let mut cube_colors: Vec<Emissive> = Vec::with_capacity(10);
     let mut cube_actions: Vec<ActionMetaGroup> = Vec::with_capacity(10);
 
     // Create cube objects (Entity)
@@ -65,7 +64,7 @@ pub fn hello_world(
             Vec3::new(-1.0, (c as f32) * 0.21 - 0.5, 0.0),
         ));
         cube_scales.push(Scale::new(id, Vec3::ONE * 0.2));
-        cube_colors.push(BaseColor::new(id, green_color.into()));
+        cube_colors.push(Emissive::new(id, green_color.into()));
     }
 
     // Generate cube animations
@@ -74,7 +73,10 @@ pub fn hello_world(
             all(&[
                 act.play(cube_translations[c].translate(Vec3::X), 1.0),
                 act.play(cube_scales[c].scale_all(0.5), 1.0),
-                act.play(cube_colors[c].color_to(Color::WHITE.into()), 1.0),
+                act.play(
+                    cube_colors[c].color_to((Color::AQUAMARINE * 5.0).into()),
+                    1.0,
+                ),
             ])
             .with_ease(ease::quart::ease_in_out),
         );
@@ -84,7 +86,7 @@ pub fn hello_world(
             all(&[
                 act.play(cube_translations[c].translate(-Vec3::X), 1.0),
                 act.play(cube_scales[c].scale_all(2.0), 1.0),
-                act.play(cube_colors[c].color_to(green_color.into()), 1.0),
+                act.play(cube_colors[c].color_to((green_color * 5.0).into()), 1.0),
             ])
             .with_ease(ease::circ::ease_in_out),
         );
@@ -99,11 +101,18 @@ fn setup(mut commands: Commands) {
     // Camera
     commands
         .spawn(Camera3dBundle {
+            camera: Camera {
+                hdr: true,
+                ..default()
+            },
             transform: Transform::from_xyz(2.0, 2.0, 4.0).looking_at(Vec3::ZERO, Vec3::Y),
             tonemapping: bevy::core_pipeline::tonemapping::Tonemapping::AcesFitted,
             ..default()
         })
-        .insert(BloomSettings::default())
+        .insert(BloomSettings {
+            composite_mode: BloomCompositeMode::EnergyConserving,
+            ..default()
+        })
         .insert(FogSettings {
             color: Color::rgba(0.05, 0.05, 0.05, 1.0),
             falloff: FogFalloff::Linear {

@@ -4,7 +4,7 @@ pub mod standard_material;
 pub mod transform;
 
 pub mod prelude {
-    pub use super::standard_material::BaseColor;
+    pub use super::standard_material::{BaseColor, Emissive};
     pub use super::transform::{Rotation, Scale, Translation};
     pub use super::EmptyRes;
 }
