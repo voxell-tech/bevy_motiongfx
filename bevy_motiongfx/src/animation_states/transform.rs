@@ -15,6 +15,13 @@ impl Translation {
         }
     }
 
+    pub fn from_transform(target_id: Entity, transform: &Transform) -> Self {
+        Self {
+            target_id,
+            translation: transform.translation,
+        }
+    }
+
     pub fn translate(&mut self, translation: Vec3) -> Action<Transform, Vec3, EmptyRes> {
         let new_translation: Vec3 = self.translation + translation;
 
@@ -58,6 +65,13 @@ pub struct Scale {
 impl Scale {
     pub fn new(target_id: Entity, scale: Vec3) -> Self {
         Self { target_id, scale }
+    }
+
+    pub fn from_transform(target_id: Entity, transform: &Transform) -> Self {
+        Self {
+            target_id,
+            scale: transform.scale,
+        }
     }
 
     pub fn scale(&mut self, scale: Vec3) -> Action<Transform, Vec3, EmptyRes> {
@@ -126,6 +140,13 @@ impl Rotation {
         }
     }
 
+    pub fn from_transform(target_id: Entity, transform: &Transform) -> Self {
+        Self {
+            target_id,
+            rotation: transform.rotation,
+        }
+    }
+
     pub fn rotate(&mut self, rotation: Quat) -> Action<Transform, Quat, EmptyRes> {
         let new_rotation: Quat = self.rotation * rotation;
 
@@ -153,6 +174,6 @@ impl Rotation {
         t: f32,
         _: &mut ResMut<EmptyRes>,
     ) {
-        transform.rotation = Quat::lerp(*begin, *end, t);
+        transform.rotation = Quat::slerp(*begin, *end, t);
     }
 }
