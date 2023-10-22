@@ -6,12 +6,14 @@ pub mod action_group;
 pub mod animation_states;
 pub mod ease;
 pub mod sequence;
+pub mod style;
 pub mod timeline;
 
 pub mod prelude {
     pub use super::action::{Action, ActionBuilder, ActionMeta, ActionMetaGroup, InterpFn};
     pub use super::ease;
     pub use super::sequence::{all, any, chain, delay, flow, sequence_player_system, Sequence};
+    pub use super::style;
     pub use super::timeline::Timeline;
     pub use super::MotionGfx;
 
