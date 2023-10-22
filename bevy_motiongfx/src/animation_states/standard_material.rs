@@ -14,6 +14,13 @@ impl BaseColor {
         Self { target_id, color }
     }
 
+    pub fn from_material(target_id: Entity, material: &StandardMaterial) -> Self {
+        Self {
+            target_id,
+            color: material.base_color.into(),
+        }
+    }
+
     pub fn multiply(&mut self, color: Vec4) -> Action<StdMatHandle, Vec4, StdMatAsset> {
         let new_color: Vec4 = self.color * color;
 
@@ -45,6 +52,18 @@ impl BaseColor {
         action
     }
 
+    pub fn alpha_to(&mut self, alpha: f32) -> Action<StdMatHandle, Vec4, StdMatAsset> {
+        let mut new_color: Vec4 = self.color;
+        new_color.w = alpha;
+
+        let action: Action<StdMatHandle, Vec4, StdMatAsset> =
+            Action::new(self.target_id, self.color, new_color, Self::interp);
+
+        self.color = new_color;
+
+        action
+    }
+
     fn interp(
         material_handle: &mut StdMatHandle,
         begin: &Vec4,
@@ -66,6 +85,13 @@ pub struct Emissive {
 impl Emissive {
     pub fn new(target_id: Entity, color: Vec4) -> Self {
         Self { target_id, color }
+    }
+
+    pub fn from_material(target_id: Entity, material: &StandardMaterial) -> Self {
+        Self {
+            target_id,
+            color: material.emissive.into(),
+        }
     }
 
     pub fn multiply(&mut self, color: Vec4) -> Action<StdMatHandle, Vec4, StdMatAsset> {
