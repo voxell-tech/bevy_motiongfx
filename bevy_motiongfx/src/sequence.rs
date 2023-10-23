@@ -171,6 +171,7 @@ pub fn sequence_player_system<C, T, R>(
 
     let mut action_index: usize = start_index;
 
+    // Loop through `Action`s in the direction that the timeline is going towards.
     loop {
         if action_index == (end_index as i32 + direction) as usize {
             break;
@@ -191,30 +192,37 @@ pub fn sequence_player_system<C, T, R>(
             continue;
         }
 
-        if let Ok(action) = q_actions.get(action_id) {
-            // Get component to mutate based on action id
-            if let Ok(mut component) = q_component.get_mut(action.target_id) {
-                let mut unit_time: f32 =
-                    (timeline.target_time - action_meta.start_time()) / action_meta.duration();
+        // Ignore if `Action` does not exists
+        let action: &Action<C, T, R>;
 
-                // In case of division by 0.0
-                if f32::is_nan(unit_time) {
-                    unit_time = 0.0;
-                }
+        if let Ok(act) = q_actions.get(action_id) {
+            action = act;
+        } else {
+            continue;
+        }
 
-                unit_time = f32::clamp(unit_time, 0.0, 1.0);
-                // Calculate unit time using ease function
-                unit_time = (action_meta.ease_fn)(unit_time);
+        // Get component to mutate based on action id
+        if let Ok(mut component) = q_component.get_mut(action.target_id) {
+            let mut unit_time: f32 =
+                (timeline.target_time - action_meta.start_time()) / action_meta.duration();
 
-                // Mutate the component using interpolate function
-                (action.interp_fn)(
-                    &mut component,
-                    &action.begin,
-                    &action.end,
-                    unit_time,
-                    &mut resource,
-                );
+            // In case of division by 0.0
+            if f32::is_nan(unit_time) {
+                unit_time = 0.0;
             }
+
+            unit_time = f32::clamp(unit_time, 0.0, 1.0);
+            // Calculate unit time using ease function
+            unit_time = (action_meta.ease_fn)(unit_time);
+
+            // Mutate the component using interpolate function
+            (action.interp_fn)(
+                &mut component,
+                &action.begin,
+                &action.end,
+                unit_time,
+                &mut resource,
+            );
         }
     }
 }
