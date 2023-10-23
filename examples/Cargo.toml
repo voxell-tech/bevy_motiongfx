@@ -11,3 +11,7 @@ bevy_motiongfx = {version="0.1", path="../bevy_motiongfx"}
 [[example]]
 name = "hello_world"
 path = "hello_world.rs"
+
+[[example]]
+name = "easings"
+path = "easings.rs"
