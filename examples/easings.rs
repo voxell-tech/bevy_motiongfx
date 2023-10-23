@@ -1,6 +1,6 @@
 use bevy::{
     core_pipeline::{
-        bloom::{BloomCompositeMode, BloomSettings},
+        bloom::BloomSettings,
         experimental::taa::{TemporalAntiAliasBundle, TemporalAntiAliasPlugin},
     },
     log::LogPlugin,
@@ -29,81 +29,80 @@ pub fn easings(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    const WIDTH: usize = 10;
-    const HEIGHT: usize = 10;
+    const CAPACITY: usize = 10;
 
-    const CAPACITY: usize = WIDTH * HEIGHT;
-
-    let mut cubes: Vec<Entity> = Vec::with_capacity(CAPACITY);
+    let mut spheres: Vec<Entity> = Vec::with_capacity(CAPACITY);
     // States
     let mut cube_translations: Vec<Translation> = Vec::with_capacity(CAPACITY);
-    let mut cube_scales: Vec<Scale> = Vec::with_capacity(CAPACITY);
     let mut cube_colors: Vec<BaseColor> = Vec::with_capacity(CAPACITY);
-    // let mut cube_emissives: Vec<Emissive> = Vec::with_capacity(CAPACITY);
-    // Actions
-    let mut cube_actions: Vec<ActionMetaGroup> = Vec::with_capacity(CAPACITY);
 
     // Create cube objects (Entity)
     let material: StandardMaterial = StandardMaterial {
-        base_color: style::GREEN.into(),
-        // emissive: Vec4::ZERO.into(),
-        // alpha_mode: AlphaMode::Multiply,
-        // unlit: true,
+        base_color: style::BLUE.into(),
         ..default()
     };
 
-    for w in 0..WIDTH {
-        for h in 0..HEIGHT {
-            let transform: Transform = Transform::from_translation(Vec3::new(
-                (w as f32) - (WIDTH as f32) * 0.5,
-                (h as f32) - (HEIGHT as f32) * 0.5,
-                0.0,
-            ))
-            // .with_scale(Vec3::ONE * 0.25);
-            .with_scale(Vec3::ZERO);
+    for i in 0..CAPACITY {
+        let transform: Transform = Transform::from_translation(Vec3::new(
+            -10.0,
+            (i as f32) - (CAPACITY as f32) * 0.5,
+            0.0,
+        ))
+        .with_scale(Vec3::ONE * 0.48);
 
-            let cube = commands
-                .spawn(PbrBundle {
-                    transform,
-                    mesh: meshes.add(shape::Cube::default().into()),
-                    material: materials.add(material.clone()),
-                    ..default()
-                })
-                .insert(NotShadowCaster)
-                .id();
+        let cube = commands
+            .spawn(PbrBundle {
+                transform,
+                mesh: meshes.add(shape::UVSphere::default().into()),
+                material: materials.add(material.clone()),
+                ..default()
+            })
+            .insert(NotShadowCaster)
+            .id();
 
-            cube_translations.push(Translation::from_transform(cube, &transform));
-            cube_scales.push(Scale::from_transform(cube, &transform));
-            cube_colors.push(BaseColor::from_material(cube, &material));
-            // cube_emissives.push(Emissive::from_material(cube, &material));
+        cube_translations.push(Translation::from_transform(cube, &transform));
+        cube_colors.push(BaseColor::from_material(cube, &material));
 
-            cubes.push(cube);
-        }
+        spheres.push(cube);
     }
 
     let mut act: ActionBuilder = ActionBuilder::new(&mut commands);
 
-    // Generate cube animations
-    for w in 0..WIDTH {
-        for h in 0..HEIGHT {
-            let c = w * WIDTH + h;
-
-            cube_actions.push(
-                all(&[
-                    // act.play(cube_translations[c].translate(Vec3::X), 1.0),
-                    act.play(cube_scales[c].scale_all_to(0.9), 1.0),
-                    // act.play(cube_colors[c].color_to(style::GREEN), 1.0),
-                    // act.play(
-                    //     cube_emissives[c].color_to((Color::aquamarine * 2.0).into()),
-                    //     1.0,
-                    // ),
-                ])
-                .with_ease(ease::expo::ease_in_out),
-            );
-        }
+    fn generate_cube_action(
+        act: &mut ActionBuilder,
+        cube_translations: &mut Vec<Translation>,
+        cube_colors: &mut Vec<BaseColor>,
+        index: usize,
+    ) -> ActionMetaGroup {
+        all(&[
+            act.play(cube_translations[index].translate(Vec3::X * 20.0), 1.0),
+            act.play(cube_colors[index].color_to(style::RED), 1.0),
+        ])
     }
 
-    let action_grp: ActionMetaGroup = flow(0.01, &cube_actions);
+    // Generate cube animations
+    let action_grp: ActionMetaGroup = chain(&[
+        generate_cube_action(&mut act, &mut cube_translations, &mut cube_colors, 0)
+            .with_ease(ease::linear),
+        generate_cube_action(&mut act, &mut cube_translations, &mut cube_colors, 1)
+            .with_ease(ease::sine::ease_in_out),
+        generate_cube_action(&mut act, &mut cube_translations, &mut cube_colors, 2)
+            .with_ease(ease::quad::ease_in_out),
+        generate_cube_action(&mut act, &mut cube_translations, &mut cube_colors, 3)
+            .with_ease(ease::cubic::ease_in_out),
+        generate_cube_action(&mut act, &mut cube_translations, &mut cube_colors, 4)
+            .with_ease(ease::quart::ease_in_out),
+        generate_cube_action(&mut act, &mut cube_translations, &mut cube_colors, 5)
+            .with_ease(ease::quint::ease_in_out),
+        generate_cube_action(&mut act, &mut cube_translations, &mut cube_colors, 6)
+            .with_ease(ease::expo::ease_in_out),
+        generate_cube_action(&mut act, &mut cube_translations, &mut cube_colors, 7)
+            .with_ease(ease::circ::ease_in_out),
+        generate_cube_action(&mut act, &mut cube_translations, &mut cube_colors, 8)
+            .with_ease(ease::back::ease_in_out),
+        generate_cube_action(&mut act, &mut cube_translations, &mut cube_colors, 9)
+            .with_ease(ease::elastic::ease_in_out),
+    ]);
 
     sequence.play(action_grp);
 }
@@ -116,22 +115,11 @@ fn setup(mut commands: Commands) {
                 hdr: true,
                 ..default()
             },
-            transform: Transform::from_xyz(-0.5, -0.5, 15.0),
+            transform: Transform::from_xyz(0.0, 0.0, 15.0),
             tonemapping: bevy::core_pipeline::tonemapping::Tonemapping::AcesFitted,
             ..default()
         })
-        .insert(BloomSettings {
-            composite_mode: BloomCompositeMode::EnergyConserving,
-            ..default()
-        })
-        // .insert(FogSettings {
-        //     color: Color::rgba(0.05, 0.05, 0.05, 1.0),
-        //     falloff: FogFalloff::Linear {
-        //         start: 5.0,
-        //         end: 20.0,
-        //     },
-        //     ..default()
-        // })
+        .insert(BloomSettings::default())
         .insert(ScreenSpaceAmbientOcclusionBundle::default())
         .insert(TemporalAntiAliasBundle::default());
 
