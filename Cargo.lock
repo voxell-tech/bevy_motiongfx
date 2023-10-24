@@ -685,7 +685,6 @@ name = "bevy_motiongfx"
 version = "0.1.0"
 dependencies = [
  "bevy",
- "pennereq",
 ]
 
 [[package]]
@@ -2537,15 +2536,6 @@ name = "peeking_take_while"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "19b17cddbe7ec3f8bc800887bab5e717348c95ea2ca0b1bf0837fb964dc67099"
-
-[[package]]
-name = "pennereq"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2174a8f4566f0f8cdce1af08dc29d78fc93880f70962a1e49385831b9550dc8b"
-dependencies = [
- "num-traits",
-]
 
 [[package]]
 name = "percent-encoding"
