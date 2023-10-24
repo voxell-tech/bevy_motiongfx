@@ -2,7 +2,6 @@ use bevy::prelude::*;
 use prelude::*;
 
 pub mod action;
-pub mod action_group;
 pub mod animation_states;
 pub mod ease;
 pub mod sequence;
