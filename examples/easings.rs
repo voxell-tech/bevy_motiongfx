@@ -68,43 +68,34 @@ pub fn easings(
 
     let mut act: ActionBuilder = ActionBuilder::new(&mut commands);
 
-    fn generate_cube_action(
-        act: &mut ActionBuilder,
-        cube_translations: &mut Vec<Translation>,
-        cube_colors: &mut Vec<BaseColor>,
-        index: usize,
-    ) -> ActionMetaGroup {
-        all(&[
-            act.play(cube_translations[index].translate(Vec3::X * 20.0), 1.0),
-            act.play(cube_colors[index].color_to(style::RED), 1.0),
-        ])
+    // Generate cube animations
+    // Actions
+    let mut cube_actions: Vec<ActionMetaGroup> = Vec::with_capacity(CAPACITY);
+
+    let easings: [ease::EaseFn; CAPACITY] = [
+        ease::linear,
+        ease::sine::ease_in_out,
+        ease::quad::ease_in_out,
+        ease::cubic::ease_in_out,
+        ease::quart::ease_in_out,
+        ease::quint::ease_in_out,
+        ease::expo::ease_in_out,
+        ease::circ::ease_in_out,
+        ease::back::ease_in_out,
+        ease::elastic::ease_in_out,
+    ];
+
+    for i in 0..CAPACITY {
+        cube_actions.push(
+            all(&[
+                act.play(cube_translations[i].translate(Vec3::X * 20.0), 1.0),
+                act.play(cube_colors[i].color_to(style::RED), 1.0),
+            ])
+            .with_ease(easings[i]),
+        );
     }
 
-    // Generate cube animations
-    let action_grp: ActionMetaGroup = chain(&[
-        generate_cube_action(&mut act, &mut cube_translations, &mut cube_colors, 0)
-            .with_ease(ease::linear),
-        generate_cube_action(&mut act, &mut cube_translations, &mut cube_colors, 1)
-            .with_ease(ease::sine::ease_in_out),
-        generate_cube_action(&mut act, &mut cube_translations, &mut cube_colors, 2)
-            .with_ease(ease::quad::ease_in_out),
-        generate_cube_action(&mut act, &mut cube_translations, &mut cube_colors, 3)
-            .with_ease(ease::cubic::ease_in_out),
-        generate_cube_action(&mut act, &mut cube_translations, &mut cube_colors, 4)
-            .with_ease(ease::quart::ease_in_out),
-        generate_cube_action(&mut act, &mut cube_translations, &mut cube_colors, 5)
-            .with_ease(ease::quint::ease_in_out),
-        generate_cube_action(&mut act, &mut cube_translations, &mut cube_colors, 6)
-            .with_ease(ease::expo::ease_in_out),
-        generate_cube_action(&mut act, &mut cube_translations, &mut cube_colors, 7)
-            .with_ease(ease::circ::ease_in_out),
-        generate_cube_action(&mut act, &mut cube_translations, &mut cube_colors, 8)
-            .with_ease(ease::back::ease_in_out),
-        generate_cube_action(&mut act, &mut cube_translations, &mut cube_colors, 9)
-            .with_ease(ease::elastic::ease_in_out),
-    ]);
-
-    sequence.play(action_grp);
+    sequence.play(chain(&cube_actions));
 }
 
 fn setup(mut commands: Commands) {

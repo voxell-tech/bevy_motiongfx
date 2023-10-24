@@ -39,8 +39,6 @@ pub fn hello_world(
     let mut cube_translations: Vec<Translation> = Vec::with_capacity(CAPACITY);
     let mut cube_scales: Vec<Scale> = Vec::with_capacity(CAPACITY);
     let mut cube_rotations: Vec<Rotation> = Vec::with_capacity(CAPACITY);
-    // Actions
-    let mut cube_actions: Vec<ActionMetaGroup> = Vec::with_capacity(CAPACITY);
 
     // Create cube objects (Entity)
     let material: StandardMaterial = StandardMaterial {
@@ -78,6 +76,9 @@ pub fn hello_world(
     let mut act: ActionBuilder = ActionBuilder::new(&mut commands);
 
     // Generate cube animations
+    // Actions
+    let mut cube_actions: Vec<ActionMetaGroup> = Vec::with_capacity(CAPACITY);
+
     for w in 0..WIDTH {
         for h in 0..HEIGHT {
             let c = w * WIDTH + h;
