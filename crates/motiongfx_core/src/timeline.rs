@@ -1,5 +1,6 @@
 use crate::sequence::Sequence;
-use bevy::prelude::*;
+use bevy_ecs::prelude::*;
+use bevy_time::Time;
 
 #[derive(Resource)]
 pub struct Timeline {
@@ -21,7 +22,7 @@ impl Timeline {
 }
 
 /// Safely update the timings in the `Timeline` after performing all the necessary actions.
-pub fn timeline_update_system(
+pub(crate) fn timeline_update_system(
     mut timeline: ResMut<Timeline>,
     sequence: Res<Sequence>,
     time: Res<Time>,

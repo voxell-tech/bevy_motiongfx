@@ -17,7 +17,7 @@ fn main() {
             TemporalAntiAliasPlugin,
         ))
         // Custom plugins
-        .add_plugins(MotionGfx)
+        .add_plugins((MotionGfx, MotionGfxBevy))
         .add_systems(Startup, (setup, hello_world))
         .add_systems(Update, timeline_movement_system)
         .run();

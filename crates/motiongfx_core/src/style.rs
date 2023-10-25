@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy_math::prelude::*;
 
 pub const DARK: Vec4 = Vec4::new(0.15, 0.15, 0.15, 1.0);
 pub const BRIGHT: Vec4 = Vec4::new(0.85, 0.85, 0.85, 1.0);

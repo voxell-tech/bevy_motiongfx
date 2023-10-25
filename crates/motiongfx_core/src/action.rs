@@ -1,5 +1,5 @@
 use crate::ease::{quad, EaseFn};
-use bevy::prelude::*;
+use bevy_ecs::prelude::*;
 
 pub type InterpFn<C, T, R> =
     fn(component: &mut C, begin: &T, end: &T, t: f32, resource: &mut ResMut<R>);

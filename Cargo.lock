@@ -685,6 +685,8 @@ name = "bevy_motiongfx"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "motiongfx_bevy",
+ "motiongfx_core",
 ]
 
 [[package]]
@@ -1472,14 +1474,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0206175f82b8d6bf6652ff7d71a1e27fd2e4efde587fd368662814d6ec1d9ce0"
 
 [[package]]
-name = "examples"
-version = "0.1.0"
-dependencies = [
- "bevy",
- "bevy_motiongfx",
-]
-
-[[package]]
 name = "fastrand"
 version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2155,6 +2149,29 @@ dependencies = [
  "log",
  "wasi",
  "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "motiongfx_bevy"
+version = "0.1.0"
+dependencies = [
+ "bevy_app",
+ "bevy_asset",
+ "bevy_ecs",
+ "bevy_math",
+ "bevy_pbr",
+ "bevy_transform",
+ "motiongfx_core",
+]
+
+[[package]]
+name = "motiongfx_core"
+version = "0.1.0"
+dependencies = [
+ "bevy_app",
+ "bevy_ecs",
+ "bevy_math",
+ "bevy_time",
 ]
 
 [[package]]

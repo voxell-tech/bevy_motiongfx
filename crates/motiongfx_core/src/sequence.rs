@@ -2,7 +2,7 @@ use crate::{
     action::{Action, ActionMeta, ActionMetaGroup},
     timeline::Timeline,
 };
-use bevy::prelude::*;
+use bevy_ecs::prelude::*;
 
 /// An array of `Action`.
 #[derive(Resource)]
