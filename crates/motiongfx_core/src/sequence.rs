@@ -193,13 +193,9 @@ pub fn sequence_player_system<C, T, R>(
         }
 
         // Ignore if `Action` does not exists
-        let action: &Action<C, T, R>;
-
-        if let Ok(act) = q_actions.get(action_id) {
-            action = act;
-        } else {
+        let Ok(action) = q_actions.get(action_id) else {
             continue;
-        }
+        };
 
         // Get component to mutate based on action id
         if let Ok(mut component) = q_component.get_mut(action.target_id) {
