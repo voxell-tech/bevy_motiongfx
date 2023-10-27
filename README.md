@@ -12,6 +12,7 @@ The goal of this tool is to procedurally generate animations with code. Below ar
 - Performance by default.
 - Real-time preview.
 - First class support for Bevy ECS.
+- 2 way playback support.
 - Robust (can be used not just for animation productions, but for all sorts of applications e.g. game development).
 
 ## Why this tool?
@@ -25,6 +26,10 @@ Procedurally coded animations can be easily scaled to larger projects (e.g. code
 
 - **Seamless version control.** With most of our assets represented as code or serialized values, we seamlessly integrate version control using [Git](https://git-scm.com/)!
 - **Unleashing the full power of programming for animation.** In animation, tasks such as handling repetitions, reusing common effects, and more become a breeze by harnessing programming concepts like loops and functions.
+
+### 2 way playback support
+
+In addition to all of the above, Bevy MotionGfx also provides 2 way playback support. This means that the animations you created can be played in both forward and backward directions without any extra computational cost! This is a feature that is very lacking in other code-based animation libraries.
 
 ## Easing Functions
 
