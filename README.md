@@ -1,6 +1,6 @@
 # Bevy MotionGfx
 
-Bevy Motiongfx is a motion graphics creation tool in [Bevy](https://github.com/bevyengine/bevy). It is highly inspired by [Motion Canvas](https://motioncanvas.io/) & [Manim](https://github.com/3b1b/manim).
+Bevy Motiongfx is a motion graphics creation tool in [Bevy](https://bevyengine.org/). It is highly inspired by [Motion Canvas](https://motioncanvas.io/) & [Manim](https://github.com/3b1b/manim).
 
 ![hello_world gif](./.github/assets/hello_world.gif)
 
