@@ -74,7 +74,7 @@ impl BaseColor {
         t: f32,
         materials: &mut ResMut<StdMatAsset>,
     ) {
-        if let Some(material) = materials.get_mut(&material_handle) {
+        if let Some(material) = materials.get_mut(material_handle.id()) {
             material.base_color = Vec4::lerp(*begin, *end, t).into();
         }
     }
@@ -135,7 +135,7 @@ impl Emissive {
         t: f32,
         materials: &mut ResMut<StdMatAsset>,
     ) {
-        if let Some(material) = materials.get_mut(&material_handle) {
+        if let Some(material) = materials.get_mut(material_handle.id()) {
             material.emissive = Vec4::lerp(*begin, *end, t).into();
         }
     }
