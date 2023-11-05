@@ -1,4 +1,31 @@
-[workspace]
-members = ["bevy_motiongfx", "examples", ]
+[package]
+name = "bevy_motiongfx"
+version = "0.1.0"
+edition = "2021"
+categories = ["graphics", "gui", "rendering", "motion-graphics"]
+description = "Motion graphics creation tool in Bevy. (Highly inspired by Motion Canvas and Manim)"
+exclude = ["assets/", "tools/", ".github/", "crates/", "examples/wasm/assets/"]
+keywords = ["motion-graphics", "game", "gamedev", "graphics", "bevy"]
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/nixon-voxell/bevy_motiongfx"
+rust-version = "1.70.0"
 
+[workspace]
+members = ["crates/*", ]
 resolver = "2"
+
+[dependencies]
+motiongfx_core = { path = "crates/motiongfx_core", version = "0.1.0" }
+motiongfx_bevy = { path = "crates/motiongfx_bevy", version = "0.1.0" }
+
+[dev-dependencies]
+bevy = "0.11"
+
+[[example]]
+name = "hello_world"
+path = "examples/hello_world.rs"
+
+[[example]]
+name = "easings"
+path = "examples/easings.rs"

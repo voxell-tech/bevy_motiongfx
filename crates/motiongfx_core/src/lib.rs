@@ -1,8 +1,8 @@
-use bevy::prelude::*;
+use bevy_app::prelude::*;
+use bevy_ecs::prelude::*;
 use prelude::*;
 
 pub mod action;
-pub mod animation_states;
 pub mod ease;
 pub mod sequence;
 pub mod style;
@@ -14,9 +14,9 @@ pub mod prelude {
     pub use super::sequence::{all, any, chain, delay, flow, sequence_player_system, Sequence};
     pub use super::style;
     pub use super::timeline::Timeline;
+    pub use super::EmptyComp;
+    pub use super::EmptyRes;
     pub use super::MotionGfx;
-
-    pub use super::animation_states::prelude::*;
 }
 
 pub struct MotionGfx;
@@ -26,18 +26,12 @@ impl Plugin for MotionGfx {
         app.insert_resource(Timeline::new())
             .insert_resource(Sequence::new())
             .insert_resource(EmptyRes)
-            .add_systems(PreUpdate, timeline::timeline_update_system)
-            .add_systems(
-                PostUpdate,
-                (
-                    sequence::sequence_player_system::<Transform, Vec3, EmptyRes>,
-                    sequence::sequence_player_system::<Transform, Quat, EmptyRes>,
-                    sequence::sequence_player_system::<
-                        Handle<StandardMaterial>,
-                        Vec4,
-                        Assets<StandardMaterial>,
-                    >,
-                ),
-            );
+            .add_systems(PreUpdate, timeline::timeline_update_system);
     }
 }
+
+#[derive(Resource)]
+pub struct EmptyRes;
+
+#[derive(Component)]
+pub struct EmptyComp;
