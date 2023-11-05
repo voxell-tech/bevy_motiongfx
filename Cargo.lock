@@ -729,6 +729,7 @@ dependencies = [
  "bevy",
  "motiongfx_bevy",
  "motiongfx_core",
+ "motiongfx_vello",
 ]
 
 [[package]]

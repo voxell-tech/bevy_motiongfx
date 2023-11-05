@@ -3,7 +3,6 @@ use bevy::{
         bloom::BloomSettings,
         experimental::taa::{TemporalAntiAliasBundle, TemporalAntiAliasPlugin},
     },
-    log::LogPlugin,
     pbr::{NotShadowCaster, ScreenSpaceAmbientOcclusionBundle},
     prelude::*,
 };
@@ -12,10 +11,8 @@ use bevy_motiongfx::prelude::*;
 fn main() {
     App::new()
         // Bevy plugins
-        .add_plugins((
-            DefaultPlugins.build().disable::<LogPlugin>(),
-            TemporalAntiAliasPlugin,
-        ))
+        .add_plugins((DefaultPlugins, TemporalAntiAliasPlugin))
+        .insert_resource(Msaa::Off)
         // Custom plugins
         .add_plugins((MotionGfx, MotionGfxBevy))
         .add_systems(Startup, (setup, hello_world))
