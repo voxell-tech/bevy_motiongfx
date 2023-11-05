@@ -9,14 +9,14 @@ pub mod style;
 pub mod timeline;
 
 pub mod prelude {
-    pub use super::action::{Action, ActionBuilder, ActionMeta, ActionMetaGroup, InterpFn};
-    pub use super::ease;
-    pub use super::sequence::{all, any, chain, delay, flow, sequence_player_system, Sequence};
-    pub use super::style;
-    pub use super::timeline::Timeline;
-    pub use super::EmptyComp;
-    pub use super::EmptyRes;
-    pub use super::MotionGfx;
+    pub use crate::{
+        action::{Action, ActionBuilder, ActionMeta, ActionMetaGroup, InterpFn},
+        ease,
+        sequence::{all, any, chain, delay, flow, sequence_player_system, Sequence},
+        style,
+        timeline::Timeline,
+        EmptyComp, EmptyRes, MotionGfx,
+    };
 }
 
 pub struct MotionGfx;
