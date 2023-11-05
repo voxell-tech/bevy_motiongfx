@@ -1,5 +1,5 @@
 [package]
-name = "motiongfx_bevy"
+name = "motiongfx_vello"
 version = "0.1.0"
 edition = "2021"
 
@@ -10,4 +10,8 @@ bevy_math = { version = "0.12", default-features = false }
 bevy_transform = { version = "0.12", default-features = false }
 bevy_pbr = { version = "0.12", default-features = false }
 bevy_asset = { version = "0.12", default-features = false }
+bevy_log = { version = "0.12", default-features = false }
+bevy_utils = { version = "0.12", default-features = false }
+bevy_reflect = { version = "0.12", default-features = false }
 motiongfx_core = { version = "0.1.0", path = "../motiongfx_core" }
+bevy_vello_renderer = { git = "https://github.com/nixon-voxell/bevy_vello_renderer", rev = "4ebf312e55c32b8a5dbe51a16c4df781098dd222" }
