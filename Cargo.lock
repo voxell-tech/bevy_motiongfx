@@ -1027,7 +1027,7 @@ dependencies = [
 [[package]]
 name = "bevy_vello_renderer"
 version = "0.1.0"
-source = "git+https://github.com/nixon-voxell/bevy_vello_renderer?rev=4ebf312e55c32b8a5dbe51a16c4df781098dd222#4ebf312e55c32b8a5dbe51a16c4df781098dd222"
+source = "git+https://github.com/nixon-voxell/bevy_vello_renderer?rev=edad3a50d1238ca9a0bf4a8c87b8574ed775be1d#edad3a50d1238ca9a0bf4a8c87b8574ed775be1d"
 dependencies = [
  "bevy_app",
  "bevy_asset",
@@ -3562,7 +3562,7 @@ checksum = "f1bddf1187be692e79c5ffeab891132dfb0f236ed36a43c7ed39f1165ee20191"
 [[package]]
 name = "vello"
 version = "0.0.1"
-source = "git+https://github.com/nixon-voxell/vello?rev=ec8867a8bbb1dffffc2e79223723193344284106#ec8867a8bbb1dffffc2e79223723193344284106"
+source = "git+https://github.com/nixon-voxell/vello?rev=78aa9e805d68288bc72c5f74dfe2159b7538bf30#78aa9e805d68288bc72c5f74dfe2159b7538bf30"
 dependencies = [
  "bytemuck",
  "fello",
@@ -3577,7 +3577,7 @@ dependencies = [
 [[package]]
 name = "vello_encoding"
 version = "0.1.0"
-source = "git+https://github.com/nixon-voxell/vello?rev=ec8867a8bbb1dffffc2e79223723193344284106#ec8867a8bbb1dffffc2e79223723193344284106"
+source = "git+https://github.com/nixon-voxell/vello?rev=78aa9e805d68288bc72c5f74dfe2159b7538bf30#78aa9e805d68288bc72c5f74dfe2159b7538bf30"
 dependencies = [
  "bytemuck",
  "fello",
@@ -3588,7 +3588,7 @@ dependencies = [
 [[package]]
 name = "vello_svg"
 version = "0.0.1"
-source = "git+https://github.com/nixon-voxell/vello?rev=ec8867a8bbb1dffffc2e79223723193344284106#ec8867a8bbb1dffffc2e79223723193344284106"
+source = "git+https://github.com/nixon-voxell/vello?rev=78aa9e805d68288bc72c5f74dfe2159b7538bf30#78aa9e805d68288bc72c5f74dfe2159b7538bf30"
 dependencies = [
  "usvg",
  "vello",
