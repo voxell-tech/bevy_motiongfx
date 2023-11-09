@@ -4,6 +4,7 @@ use prelude::*;
 
 pub mod action;
 pub mod ease;
+pub mod lerp;
 pub mod sequence;
 pub mod style;
 pub mod timeline;
@@ -12,6 +13,7 @@ pub mod prelude {
     pub use crate::{
         action::{Action, ActionBuilder, ActionMeta, ActionMetaGroup, InterpFn},
         ease,
+        lerp::*,
         sequence::{all, any, chain, delay, flow, sequence_player_system, Sequence},
         style,
         timeline::Timeline,

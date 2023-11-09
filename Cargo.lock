@@ -2324,6 +2324,7 @@ dependencies = [
  "bevy_ecs",
  "bevy_math",
  "bevy_pbr",
+ "bevy_render",
  "bevy_transform",
  "motiongfx_core",
 ]
@@ -2335,6 +2336,7 @@ dependencies = [
  "bevy_app",
  "bevy_ecs",
  "bevy_math",
+ "bevy_render",
  "bevy_time",
 ]
 
