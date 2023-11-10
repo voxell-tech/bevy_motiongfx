@@ -10,8 +10,8 @@ pub mod transform;
 
 pub mod prelude {
     pub use crate::{
-        standard_material::{BaseColor, Emissive},
-        transform::{Rotation, Scale, Translation},
+        standard_material::{BaseColor, Emissive, StandardMaterialMotion},
+        transform::{Rotation, Scale, TransformMotion, Translation},
         MotionGfxBevy,
     };
 }

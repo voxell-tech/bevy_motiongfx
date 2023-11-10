@@ -57,17 +57,15 @@ fn vello_basic(
     let fragment_id: Entity = commands.spawn(fragment_bundle.clone()).id();
 
     // States
-    let mut fragment_translation: Translation =
-        Translation::from_transform(fragment_id, &fragment_bundle.transform.local);
-    let mut fragment_rotation: Rotation =
-        Rotation::from_transform(fragment_id, &fragment_bundle.transform.local);
+    let mut transform_motion: TransformMotion =
+        TransformMotion::new(fragment_id, fragment_bundle.transform.local);
 
     let mut act: ActionBuilder = ActionBuilder::new(&mut commands);
 
     let action_grp: ActionMetaGroup = all(&[
-        act.play(fragment_translation.translate(Vec3::X * 1000.0), 1.0),
+        act.play(transform_motion.translate_add(Vec3::X * 1000.0), 1.0),
         act.play(
-            fragment_rotation.rotate_to(Quat::from_rotation_z(std::f32::consts::PI)),
+            transform_motion.rotate_to(Quat::from_rotation_z(std::f32::consts::PI)),
             1.0,
         ),
     ])

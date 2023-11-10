@@ -17,6 +17,7 @@ impl Lerp for Color {
 }
 
 impl Lerp for f32 {
+    #[inline]
     fn lerp(&self, other: &Self, t: f32) -> Self {
         (other - self) * t + self
     }
