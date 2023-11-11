@@ -75,6 +75,12 @@ impl VelloRect {
     }
 }
 
+impl Into<kurbo::RoundedRect> for VelloRect {
+    fn into(self) -> kurbo::RoundedRect {
+        self.rounded_rect
+    }
+}
+
 pub struct VelloRectMotion {
     target_id: Entity,
     rounded_rect: kurbo::RoundedRect,
@@ -86,6 +92,28 @@ impl VelloRectMotion {
             target_id,
             rounded_rect: vello_rect.rounded_rect,
         }
+    }
+
+    pub fn inflate(
+        &mut self,
+        inflation: impl Into<DVec2>,
+    ) -> Action<VelloRect, kurbo::RoundedRect, EmptyRes> {
+        let inflation: DVec2 = inflation.into();
+        let new_rect: kurbo::Rect = self.rounded_rect.rect().inflate(inflation.x, inflation.y);
+
+        let new_rounded_rect: kurbo::RoundedRect =
+            kurbo::RoundedRect::from_rect(new_rect, self.rounded_rect.radii());
+
+        let action: Action<VelloRect, kurbo::RoundedRect, EmptyRes> = Action::new(
+            self.target_id,
+            self.rounded_rect,
+            new_rounded_rect,
+            Self::interp,
+        );
+
+        self.rounded_rect = new_rounded_rect;
+
+        action
     }
 
     pub fn expand_left(
@@ -176,12 +204,50 @@ impl VelloRectMotion {
         action
     }
 
+    pub fn rect_to(
+        &mut self,
+        rect: impl Into<kurbo::Rect>,
+    ) -> Action<VelloRect, kurbo::RoundedRect, EmptyRes> {
+        let rect: kurbo::Rect = rect.into();
+        let new_rounded_rect: kurbo::RoundedRect =
+            kurbo::RoundedRect::from_rect(rect, self.rounded_rect.radii());
+
+        let action: Action<VelloRect, kurbo::RoundedRect, EmptyRes> = Action::new(
+            self.target_id,
+            self.rounded_rect,
+            new_rounded_rect,
+            Self::interp,
+        );
+
+        self.rounded_rect = new_rounded_rect;
+
+        action
+    }
+
     pub fn radii_to(
         &mut self,
         radii: impl Into<kurbo::RoundedRectRadii>,
     ) -> Action<VelloRect, kurbo::RoundedRect, EmptyRes> {
         let new_rounded_rect: kurbo::RoundedRect =
             kurbo::RoundedRect::from_rect(self.rounded_rect.rect(), radii);
+
+        let action: Action<VelloRect, kurbo::RoundedRect, EmptyRes> = Action::new(
+            self.target_id,
+            self.rounded_rect,
+            new_rounded_rect,
+            Self::interp,
+        );
+
+        self.rounded_rect = new_rounded_rect;
+
+        action
+    }
+
+    pub fn rounded_rect_to(
+        &mut self,
+        new_rounded_rect: impl Into<kurbo::RoundedRect>,
+    ) -> Action<VelloRect, kurbo::RoundedRect, EmptyRes> {
+        let new_rounded_rect: kurbo::RoundedRect = new_rounded_rect.into();
 
         let action: Action<VelloRect, kurbo::RoundedRect, EmptyRes> = Action::new(
             self.target_id,
