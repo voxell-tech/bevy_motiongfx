@@ -6,20 +6,20 @@ pub type InterpFn<C, T, R> =
 
 /// Basic data structure to describe an animation action.
 #[derive(Component, Clone, Copy)]
-pub struct Action<C, T, R>
+pub struct Action<Comp, InterpType, Res>
 where
-    C: Component,
-    T: Send + Sync + 'static,
-    R: Resource,
+    Comp: Component,
+    InterpType: Send + Sync + 'static,
+    Res: Resource,
 {
     /// Target `Entity` for `Component` manipulation.
     pub(crate) target_id: Entity,
     /// Initial state of the animation.
-    pub(crate) begin: T,
+    pub(crate) begin: InterpType,
     /// Final state of the animation.
-    pub(crate) end: T,
+    pub(crate) end: InterpType,
     /// Interpolation function to be used for animation.
-    pub(crate) interp_fn: InterpFn<C, T, R>,
+    pub(crate) interp_fn: InterpFn<Comp, InterpType, Res>,
 }
 
 impl<C, T, R> Action<C, T, R>
