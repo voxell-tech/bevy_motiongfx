@@ -1,10 +1,10 @@
 use bevy_render::prelude::*;
 
-pub trait Lerp {
-    fn lerp(&self, other: &Self, t: f32) -> Self;
+pub trait Lerp<T> {
+    fn lerp(&self, other: &Self, t: T) -> Self;
 }
 
-impl Lerp for Color {
+impl Lerp<f32> for Color {
     #[inline]
     fn lerp(&self, other: &Self, t: f32) -> Self {
         Self::rgba(
@@ -16,9 +16,23 @@ impl Lerp for Color {
     }
 }
 
-impl Lerp for f32 {
+impl Lerp<f32> for f32 {
     #[inline]
     fn lerp(&self, other: &Self, t: f32) -> Self {
         (other - self) * t + self
+    }
+}
+
+impl Lerp<f64> for f64 {
+    #[inline]
+    fn lerp(&self, other: &Self, t: f64) -> Self {
+        (other - self) * t + self
+    }
+}
+
+impl Lerp<f32> for f64 {
+    #[inline]
+    fn lerp(&self, other: &Self, t: f32) -> Self {
+        (other - self) * (t as f64) + self
     }
 }
