@@ -1,16 +1,21 @@
 use crate::ease::{quad, EaseFn};
 use bevy_ecs::prelude::*;
 
-pub type InterpFn<C, T, R> =
-    fn(component: &mut C, begin: &T, end: &T, t: f32, resource: &mut ResMut<R>);
+pub type InterpFn<CompType, InterpType, ResType> = fn(
+    component: &mut CompType,
+    begin: &InterpType,
+    end: &InterpType,
+    t: f32,
+    resource: &mut ResMut<ResType>,
+);
 
 /// Basic data structure to describe an animation action.
 #[derive(Component, Clone, Copy)]
-pub struct Action<Comp, InterpType, Res>
+pub struct Action<CompType, InterpType, ResType>
 where
-    Comp: Component,
+    CompType: Component,
     InterpType: Send + Sync + 'static,
-    Res: Resource,
+    ResType: Resource,
 {
     /// Target `Entity` for `Component` manipulation.
     pub(crate) target_id: Entity,
@@ -19,16 +24,21 @@ where
     /// Final state of the animation.
     pub(crate) end: InterpType,
     /// Interpolation function to be used for animation.
-    pub(crate) interp_fn: InterpFn<Comp, InterpType, Res>,
+    pub(crate) interp_fn: InterpFn<CompType, InterpType, ResType>,
 }
 
-impl<C, T, R> Action<C, T, R>
+impl<CompType, InterpType, ResType> Action<CompType, InterpType, ResType>
 where
-    C: Component,
-    T: Send + Sync + 'static,
-    R: Resource,
+    CompType: Component,
+    InterpType: Send + Sync + 'static,
+    ResType: Resource,
 {
-    pub fn new(target_id: Entity, begin: T, end: T, interp_fn: InterpFn<C, T, R>) -> Self {
+    pub fn new(
+        target_id: Entity,
+        begin: InterpType,
+        end: InterpType,
+        interp_fn: InterpFn<CompType, InterpType, ResType>,
+    ) -> Self {
         Self {
             target_id,
             begin,
