@@ -30,53 +30,78 @@ fn vello_basic(
     const SPACING: f32 = 5.0;
 
     let mut rect_motions: Vec<VelloRectMotion> = Vec::with_capacity(RECT_COUNT);
+    let mut transform_motions: Vec<TransformMotion> = Vec::with_capacity(RECT_COUNT);
 
     let start_y: f32 = (RECT_COUNT as f32) * 0.5 * (RECT_SIZE + SPACING);
 
     for r in 0..RECT_COUNT {
         let rect: VelloRect = VelloRect::anchor_center(DVec2::new(0.0, 0.0), DVec4::splat(10.0));
+        let transform: Transform = Transform::from_translation(Vec3::new(
+            -500.0,
+            start_y - (r as f32) * (RECT_SIZE + SPACING),
+            0.0,
+        ));
 
-        let rect_bundle: VelloRectBundle =
-            VelloRectBundle {
-                rect: rect.clone(),
-                fragment_bundle: VelloFragmentBundle {
-                    fragment: fragments.add(VelloFragment {
-                        fragment: SceneFragment::new().into(),
-                    }),
-                    transform: TransformBundle::from_transform(Transform::from_translation(
-                        Vec3::new(-500.0, start_y - (r as f32) * (RECT_SIZE + SPACING), 0.0),
-                    )),
-                    ..default()
-                },
-            };
+        let rect_bundle: VelloRectBundle = VelloRectBundle {
+            rect: rect.clone(),
+            fragment_bundle: VelloFragmentBundle {
+                fragment: fragments.add(VelloFragment {
+                    fragment: SceneFragment::new().into(),
+                }),
+                transform: TransformBundle::from_transform(transform.clone()),
+                ..default()
+            },
+        };
 
         let fragment_id: Entity = commands.spawn(rect_bundle).id();
 
         rect_motions.push(VelloRectMotion::new(fragment_id, rect));
+        transform_motions.push(TransformMotion::new(fragment_id, transform));
     }
 
     let mut act: ActionBuilder = ActionBuilder::new(&mut commands);
 
     let mut inflate_actions: Vec<ActionMetaGroup> = Vec::with_capacity(RECT_COUNT);
-    let mut expand_actions: Vec<ActionMetaGroup> = Vec::with_capacity(RECT_COUNT);
+    let mut expand_right_actions: Vec<ActionMetaGroup> = Vec::with_capacity(RECT_COUNT);
+    let mut expand_left_actions: Vec<ActionMetaGroup> = Vec::with_capacity(RECT_COUNT);
+    let mut transform_actions: Vec<ActionMetaGroup> = Vec::with_capacity(RECT_COUNT);
 
     for r in 0..RECT_COUNT {
         inflate_actions.push(
             act.play(rect_motions[r].inflate(Vec2::splat(RECT_SIZE * 0.5)), 1.0)
                 .with_ease(ease::expo::ease_in_out),
         );
-        expand_actions.push(
+        expand_right_actions.push(
             act.play(
                 rect_motions[r].expand_right(900.0 * (r as f64) / (RECT_COUNT as f64) + 100.0),
                 1.0,
             )
             .with_ease(ease::expo::ease_in_out),
         );
+        expand_left_actions.push(
+            act.play(
+                rect_motions[r].expand_left(-(900.0 * (r as f64) / (RECT_COUNT as f64) + 100.0)),
+                1.0,
+            )
+            .with_ease(ease::expo::ease_in_out),
+        );
+
+        let mut translation: Vec3 = transform_motions[r].get_transform().translation;
+        translation.y = 0.0;
+        transform_actions.push(
+            act.play(transform_motions[r].translate_to(translation), 1.0)
+                .with_ease(ease::back::ease_in_out),
+        );
     }
 
     sequence.play(flow(
         1.0,
-        &[flow(0.1, &inflate_actions), flow(0.1, &expand_actions)],
+        &[
+            flow(0.1, &inflate_actions),
+            flow(0.1, &expand_right_actions),
+            flow(0.1, &expand_left_actions),
+            flow(0.1, &transform_actions),
+        ],
     ));
 }
 

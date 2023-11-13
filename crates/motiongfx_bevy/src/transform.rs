@@ -16,6 +16,10 @@ impl TransformMotion {
         }
     }
 
+    pub fn get_transform(&self) -> &Transform {
+        &self.transform
+    }
+
     pub fn translate_add(&mut self, translation: Vec3) -> Action<Transform, Vec3, EmptyRes> {
         let new_translation: Vec3 = self.transform.translation + translation;
 
