@@ -1,7 +1,9 @@
+use bevy::math::{DVec2, DVec4};
 use bevy::prelude::*;
 use bevy_motiongfx::prelude::*;
 use motiongfx_vello::bevy_vello_renderer::prelude::*;
-use motiongfx_vello::bevy_vello_renderer::vello::{kurbo, peniko, SceneBuilder, SceneFragment};
+use motiongfx_vello::bevy_vello_renderer::vello::SceneFragment;
+use motiongfx_vello::vello_vector::rect::{VelloRect, VelloRectBundle, VelloRectMotion};
 
 fn main() {
     App::new()
@@ -23,55 +25,59 @@ fn vello_basic(
     mut fragments: ResMut<Assets<VelloFragment>>,
     mut sequence: ResMut<Sequence>,
 ) {
-    // Create scene fragment
-    let mut fragment: SceneFragment = SceneFragment::new();
-    let mut sb: SceneBuilder = SceneBuilder::for_fragment(&mut fragment);
+    const RECT_COUNT: usize = 14;
+    const RECT_SIZE: f32 = 40.0;
+    const SPACING: f32 = 5.0;
 
-    sb.fill(
-        peniko::Fill::NonZero,
-        kurbo::Affine::default(),
-        &peniko::Color::WHITE_SMOKE,
-        None,
-        &kurbo::RoundedRect::from_rect(
-            kurbo::Rect {
-                x0: -50.0,
-                y0: -50.0,
-                x1: 50.0,
-                y1: 50.0,
-            },
-            10.0,
-        ),
-    );
+    let mut rect_motions: Vec<VelloRectMotion> = Vec::with_capacity(RECT_COUNT);
 
-    let fragment_bundle: VelloFragmentBundle = VelloFragmentBundle {
-        fragment: fragments.add(VelloFragment {
-            fragment: fragment.into(),
-        }),
-        transform: TransformBundle {
-            local: Transform::from_xyz(-500.0, 0.0, 0.0),
-            ..default()
-        },
-        ..default()
-    };
+    let start_y: f32 = (RECT_COUNT as f32) * 0.5 * (RECT_SIZE + SPACING);
 
-    let fragment_id: Entity = commands.spawn(fragment_bundle.clone()).id();
+    for r in 0..RECT_COUNT {
+        let rect: VelloRect = VelloRect::anchor_center(DVec2::new(0.0, 0.0), DVec4::splat(10.0));
 
-    // States
-    let mut transform_motion: TransformMotion =
-        TransformMotion::new(fragment_id, fragment_bundle.transform.local);
+        let rect_bundle: VelloRectBundle =
+            VelloRectBundle {
+                rect: rect.clone(),
+                fragment_bundle: VelloFragmentBundle {
+                    fragment: fragments.add(VelloFragment {
+                        fragment: SceneFragment::new().into(),
+                    }),
+                    transform: TransformBundle::from_transform(Transform::from_translation(
+                        Vec3::new(-500.0, start_y - (r as f32) * (RECT_SIZE + SPACING), 0.0),
+                    )),
+                    ..default()
+                },
+            };
+
+        let fragment_id: Entity = commands.spawn(rect_bundle).id();
+
+        rect_motions.push(VelloRectMotion::new(fragment_id, rect));
+    }
 
     let mut act: ActionBuilder = ActionBuilder::new(&mut commands);
 
-    let action_grp: ActionMetaGroup = all(&[
-        act.play(transform_motion.translate_add(Vec3::X * 1000.0), 1.0),
-        act.play(
-            transform_motion.rotate_to(Quat::from_rotation_z(std::f32::consts::PI)),
-            1.0,
-        ),
-    ])
-    .with_ease(ease::expo::ease_in_out);
+    let mut inflate_actions: Vec<ActionMetaGroup> = Vec::with_capacity(RECT_COUNT);
+    let mut expand_actions: Vec<ActionMetaGroup> = Vec::with_capacity(RECT_COUNT);
 
-    sequence.play(action_grp);
+    for r in 0..RECT_COUNT {
+        inflate_actions.push(
+            act.play(rect_motions[r].inflate(Vec2::splat(RECT_SIZE * 0.5)), 1.0)
+                .with_ease(ease::expo::ease_in_out),
+        );
+        expand_actions.push(
+            act.play(
+                rect_motions[r].expand_right(900.0 * (r as f64) / (RECT_COUNT as f64) + 100.0),
+                1.0,
+            )
+            .with_ease(ease::expo::ease_in_out),
+        );
+    }
+
+    sequence.play(flow(
+        1.0,
+        &[flow(0.1, &inflate_actions), flow(0.1, &expand_actions)],
+    ));
 }
 
 fn timeline_movement_system(
