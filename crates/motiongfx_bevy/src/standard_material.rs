@@ -4,9 +4,6 @@ use bevy_pbr::prelude::*;
 use bevy_render::prelude::*;
 use motiongfx_core::prelude::*;
 
-type StdMatAsset = Assets<StandardMaterial>;
-type StdMatHandle = Handle<StandardMaterial>;
-
 pub struct StandardMaterialMotion {
     target_id: Entity,
     material: StandardMaterial,
@@ -20,8 +17,11 @@ impl StandardMaterialMotion {
         }
     }
 
-    pub fn base_color_to(&mut self, color: Color) -> Action<StdMatHandle, Color, StdMatAsset> {
-        let action: Action<StdMatHandle, Color, StdMatAsset> = Action::new(
+    pub fn base_color_to(
+        &mut self,
+        color: Color,
+    ) -> Action<Handle<StandardMaterial>, Color, Assets<StandardMaterial>> {
+        let action: Action<Handle<StandardMaterial>, Color, Assets<StandardMaterial>> = Action::new(
             self.target_id,
             self.material.base_color,
             color,
@@ -33,11 +33,14 @@ impl StandardMaterialMotion {
         action
     }
 
-    pub fn base_alpha_to(&mut self, alpha: f32) -> Action<StdMatHandle, Color, StdMatAsset> {
+    pub fn base_alpha_to(
+        &mut self,
+        alpha: f32,
+    ) -> Action<Handle<StandardMaterial>, Color, Assets<StandardMaterial>> {
         let mut new_color: Color = self.material.base_color;
         new_color.set_a(alpha);
 
-        let action: Action<StdMatHandle, Color, StdMatAsset> = Action::new(
+        let action: Action<Handle<StandardMaterial>, Color, Assets<StandardMaterial>> = Action::new(
             self.target_id,
             self.material.base_color,
             new_color,
@@ -50,19 +53,22 @@ impl StandardMaterialMotion {
     }
 
     fn base_color_interp(
-        material_handle: &mut StdMatHandle,
+        material_handle: &mut Handle<StandardMaterial>,
         begin: &Color,
         end: &Color,
         t: f32,
-        materials: &mut ResMut<StdMatAsset>,
+        materials: &mut ResMut<Assets<StandardMaterial>>,
     ) {
         if let Some(material) = materials.get_mut(material_handle.id()) {
             material.base_color = Color::lerp(begin, end, t);
         }
     }
 
-    pub fn emissive_to(&mut self, color: Color) -> Action<StdMatHandle, Color, StdMatAsset> {
-        let action: Action<StdMatHandle, Color, StdMatAsset> = Action::new(
+    pub fn emissive_to(
+        &mut self,
+        color: Color,
+    ) -> Action<Handle<StandardMaterial>, Color, Assets<StandardMaterial>> {
+        let action: Action<Handle<StandardMaterial>, Color, Assets<StandardMaterial>> = Action::new(
             self.target_id,
             self.material.emissive,
             color,
@@ -75,11 +81,11 @@ impl StandardMaterialMotion {
     }
 
     fn emissive_interp(
-        material_handle: &mut StdMatHandle,
+        material_handle: &mut Handle<StandardMaterial>,
         begin: &Color,
         end: &Color,
         t: f32,
-        materials: &mut ResMut<StdMatAsset>,
+        materials: &mut ResMut<Assets<StandardMaterial>>,
     ) {
         if let Some(material) = materials.get_mut(material_handle.id()) {
             material.emissive = Color::lerp(begin, end, t);
