@@ -2338,6 +2338,9 @@ dependencies = [
  "bevy_math",
  "bevy_render",
  "bevy_time",
+ "bevy_utils",
+ "bevy_vello_renderer",
+ "smallvec",
 ]
 
 [[package]]

@@ -1,4 +1,5 @@
 use bevy_vello_renderer::vello::{kurbo, peniko};
+use motiongfx_core::prelude::*;
 
 #[derive(Clone)]
 pub struct FillStyle {
@@ -33,6 +34,16 @@ impl Default for FillStyle {
     }
 }
 
+impl Lerp<f32> for FillStyle {
+    fn lerp(&self, other: &Self, t: f32) -> Self {
+        FillStyle {
+            // Style cannot be interpolated
+            style: self.style,
+            brush: peniko::Brush::lerp(&self.brush, &other.brush, t),
+        }
+    }
+}
+
 #[derive(Clone)]
 pub struct StrokeStyle {
     pub style: kurbo::Stroke,
@@ -62,6 +73,15 @@ impl Default for StrokeStyle {
         Self {
             style: kurbo::Stroke::default(),
             brush: peniko::Brush::Solid(peniko::Color::WHITE_SMOKE),
+        }
+    }
+}
+
+impl Lerp<f32> for StrokeStyle {
+    fn lerp(&self, other: &Self, t: f32) -> Self {
+        StrokeStyle {
+            style: kurbo::Stroke::lerp(&self.style, &other.style, t),
+            brush: peniko::Brush::lerp(&self.brush, &other.brush, t),
         }
     }
 }

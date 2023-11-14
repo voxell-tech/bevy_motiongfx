@@ -2,7 +2,8 @@ use bevy::math::{DVec2, DVec4};
 use bevy::prelude::*;
 use bevy_motiongfx::prelude::*;
 use motiongfx_vello::bevy_vello_renderer::prelude::*;
-use motiongfx_vello::bevy_vello_renderer::vello::SceneFragment;
+use motiongfx_vello::bevy_vello_renderer::vello::{self, peniko};
+use motiongfx_vello::vector_style::{FillStyle, StrokeStyle};
 use motiongfx_vello::vello_vector::rect::{VelloRect, VelloRectBundle, VelloRectMotion};
 
 fn main() {
@@ -35,7 +36,9 @@ fn vello_basic(
     let start_y: f32 = (RECT_COUNT as f32) * 0.5 * (RECT_SIZE + SPACING);
 
     for r in 0..RECT_COUNT {
-        let rect: VelloRect = VelloRect::anchor_center(DVec2::new(0.0, 0.0), DVec4::splat(10.0));
+        let rect: VelloRect = VelloRect::anchor_center(DVec2::new(0.0, 0.0), DVec4::splat(10.0))
+            .with_fill(FillStyle::from_brush(peniko::Color::BLUE_VIOLET))
+            .with_stroke(StrokeStyle::from_brush(peniko::Color::PURPLE));
         let transform: Transform = Transform::from_translation(Vec3::new(
             -500.0,
             start_y - (r as f32) * (RECT_SIZE + SPACING),
@@ -46,7 +49,7 @@ fn vello_basic(
             rect: rect.clone(),
             fragment_bundle: VelloFragmentBundle {
                 fragment: fragments.add(VelloFragment {
-                    fragment: SceneFragment::new().into(),
+                    fragment: vello::SceneFragment::new().into(),
                 }),
                 transform: TransformBundle::from_transform(transform.clone()),
                 ..default()

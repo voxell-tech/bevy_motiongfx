@@ -294,15 +294,12 @@ impl VelloRectMotion {
             bottom_left: f64::lerp(&begin.radii.bottom_left, &end.radii.bottom_left, t),
         };
 
-        // =======================================================
-        // TODO: Interpolate fill & stroke style
-        // =======================================================
-
+        // Interpolate fill & stroke style
         let vello_rect: VelloRect = VelloRect {
             rect,
             radii,
-            fill: begin.fill.clone(),
-            stroke: begin.stroke.clone(),
+            fill: FillStyle::lerp(&begin.fill, &end.fill, t),
+            stroke: StrokeStyle::lerp(&begin.stroke, &end.stroke, t),
         };
 
         vello_rect.build(fragment);
