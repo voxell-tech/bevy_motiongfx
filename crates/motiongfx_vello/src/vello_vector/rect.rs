@@ -4,7 +4,7 @@ use bevy_math::{DVec2, DVec4};
 use bevy_utils::prelude::*;
 use bevy_vello_renderer::{
     prelude::*,
-    vello::{self, kurbo},
+    vello::{self, kurbo, peniko},
 };
 use motiongfx_core::prelude::*;
 
@@ -69,8 +69,18 @@ impl VelloRect {
         self
     }
 
+    pub fn with_fill_brush(mut self, brush: impl Into<peniko::Brush>) -> Self {
+        self.fill.brush = brush.into();
+        self
+    }
+
     pub fn with_stroke(mut self, stroke: StrokeStyle) -> Self {
         self.stroke = stroke;
+        self
+    }
+
+    pub fn with_stroke_brush(mut self, brush: impl Into<peniko::Brush>) -> Self {
+        self.stroke.brush = brush.into();
         self
     }
 
@@ -264,6 +274,42 @@ impl VelloRectMotion {
         );
 
         self.vello_rect.radii = radii;
+
+        action
+    }
+
+    pub fn fill_brush_to(
+        &mut self,
+        brush: impl Into<peniko::Brush>,
+    ) -> Action<Handle<VelloFragment>, VelloRect, Assets<VelloFragment>> {
+        let brush: peniko::Brush = brush.into();
+
+        let action: Action<Handle<VelloFragment>, VelloRect, Assets<VelloFragment>> = Action::new(
+            self.target_id,
+            self.vello_rect.clone(),
+            self.vello_rect.clone().with_fill_brush(brush.clone()),
+            Self::interp,
+        );
+
+        self.vello_rect.fill.brush = brush;
+
+        action
+    }
+
+    pub fn stroke_brush_to(
+        &mut self,
+        brush: impl Into<peniko::Brush>,
+    ) -> Action<Handle<VelloFragment>, VelloRect, Assets<VelloFragment>> {
+        let brush: peniko::Brush = brush.into();
+
+        let action: Action<Handle<VelloFragment>, VelloRect, Assets<VelloFragment>> = Action::new(
+            self.target_id,
+            self.vello_rect.clone(),
+            self.vello_rect.clone().with_stroke_brush(brush.clone()),
+            Self::interp,
+        );
+
+        self.vello_rect.stroke.brush = brush;
 
         action
     }

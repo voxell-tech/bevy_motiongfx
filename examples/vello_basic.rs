@@ -37,8 +37,8 @@ fn vello_basic(
 
     for r in 0..RECT_COUNT {
         let rect: VelloRect = VelloRect::anchor_center(DVec2::new(0.0, 0.0), DVec4::splat(10.0))
-            .with_fill(FillStyle::from_brush(peniko::Color::BLUE_VIOLET))
-            .with_stroke(StrokeStyle::from_brush(peniko::Color::PURPLE));
+            .with_fill(FillStyle::from_brush(peniko::Color::BLUE_VIOLET));
+
         let transform: Transform = Transform::from_translation(Vec3::new(
             -500.0,
             start_y - (r as f32) * (RECT_SIZE + SPACING),
@@ -62,12 +62,14 @@ fn vello_basic(
         transform_motions.push(TransformMotion::new(fragment_id, transform));
     }
 
+    // ACTIONS
     let mut act: ActionBuilder = ActionBuilder::new(&mut commands);
 
     let mut inflate_actions: Vec<ActionMetaGroup> = Vec::with_capacity(RECT_COUNT);
     let mut expand_right_actions: Vec<ActionMetaGroup> = Vec::with_capacity(RECT_COUNT);
     let mut expand_left_actions: Vec<ActionMetaGroup> = Vec::with_capacity(RECT_COUNT);
     let mut transform_actions: Vec<ActionMetaGroup> = Vec::with_capacity(RECT_COUNT);
+    let mut fill_actions: Vec<ActionMetaGroup> = Vec::with_capacity(RECT_COUNT);
 
     for r in 0..RECT_COUNT {
         inflate_actions.push(
@@ -95,6 +97,15 @@ fn vello_basic(
             act.play(transform_motions[r].translate_to(translation), 1.0)
                 .with_ease(ease::back::ease_in_out),
         );
+
+        fill_actions.push(act.play(
+            rect_motions[r].fill_brush_to(peniko::Color::rgb(
+                (r as f64) / (RECT_COUNT as f64),
+                1.0 - (r as f64) / (RECT_COUNT as f64),
+                1.0,
+            )),
+            1.0,
+        ));
     }
 
     sequence.play(flow(
@@ -103,7 +114,7 @@ fn vello_basic(
             flow(0.1, &inflate_actions),
             flow(0.1, &expand_right_actions),
             flow(0.1, &expand_left_actions),
-            flow(0.1, &transform_actions),
+            all(&[flow(0.1, &transform_actions), flow(0.1, &fill_actions)]),
         ],
     ));
 }
