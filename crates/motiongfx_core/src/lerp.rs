@@ -23,11 +23,16 @@ impl Lerp<f32> for peniko::Brush {
     fn lerp(&self, other: &Self, t: f32) -> Self {
         match self {
             peniko::Brush::Solid(self_color) => match other {
+                // =====================
                 // Solid -> Solid
+                // =====================
                 peniko::Brush::Solid(other_color) => {
                     return peniko::Brush::Solid(peniko::Color::lerp(self_color, other_color, t));
                 }
+
+                // =====================
                 // Solid -> Gradient
+                // =====================
                 peniko::Brush::Gradient(other_grad) => {
                     return peniko::Brush::Gradient(peniko::Gradient {
                         kind: other_grad.kind,
@@ -35,11 +40,15 @@ impl Lerp<f32> for peniko::Brush {
                         stops: peniko::Color::cross_lerp(self_color, &other_grad.stops, t),
                     });
                 }
+
                 // Image interpolation is not supported
                 peniko::Brush::Image(_) => {}
             },
+
             peniko::Brush::Gradient(self_grad) => match other {
+                // =====================
                 // Gradient -> Solid
+                // =====================
                 peniko::Brush::Solid(other_color) => {
                     return peniko::Brush::Gradient(peniko::Gradient {
                         kind: self_grad.kind,
@@ -47,7 +56,10 @@ impl Lerp<f32> for peniko::Brush {
                         stops: peniko::ColorStops::cross_lerp(&self_grad.stops, other_color, t),
                     });
                 }
+
+                // =====================
                 // Gradient -> Gradient
+                // =====================
                 peniko::Brush::Gradient(other_grad) => 'grad: {
                     // Gradient kind and extend must be the same, otherwise, fallback
                     if self_grad.kind != other_grad.kind && self_grad.extend != other_grad.extend {
@@ -60,9 +72,11 @@ impl Lerp<f32> for peniko::Brush {
                         stops: peniko::ColorStops::lerp(&self_grad.stops, &other_grad.stops, t),
                     });
                 }
+
                 // Image interpolation is not supported
                 peniko::Brush::Image(_) => {}
             },
+
             // Image interpolation is not supported
             peniko::Brush::Image(_) => {}
         }
