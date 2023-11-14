@@ -3,6 +3,7 @@ use bevy_ecs::prelude::*;
 use prelude::*;
 
 pub mod action;
+pub mod cross_lerp;
 pub mod ease;
 pub mod lerp;
 pub mod sequence;
@@ -12,6 +13,7 @@ pub mod timeline;
 pub mod prelude {
     pub use crate::{
         action::{Action, ActionBuilder, ActionMeta, ActionMetaGroup, InterpFn},
+        cross_lerp::*,
         ease,
         lerp::*,
         sequence::{all, any, chain, delay, flow, sequence_player_system, Sequence},

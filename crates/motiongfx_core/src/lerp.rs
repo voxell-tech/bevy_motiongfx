@@ -2,8 +2,10 @@ use bevy_render::prelude::*;
 use bevy_utils::prelude::*;
 use bevy_vello_renderer::vello::{kurbo, peniko};
 
-pub trait Lerp<T> {
-    fn lerp(&self, other: &Self, t: T) -> Self;
+use crate::CrossLerp;
+
+pub trait Lerp<Time> {
+    fn lerp(&self, other: &Self, t: Time) -> Self;
 }
 
 impl Lerp<f32> for kurbo::Stroke {
@@ -21,51 +23,51 @@ impl Lerp<f32> for peniko::Brush {
     fn lerp(&self, other: &Self, t: f32) -> Self {
         match self {
             peniko::Brush::Solid(self_color) => match other {
+                // Solid -> Solid
                 peniko::Brush::Solid(other_color) => {
                     return peniko::Brush::Solid(peniko::Color::lerp(self_color, other_color, t));
                 }
+                // Solid -> Gradient
                 peniko::Brush::Gradient(other_grad) => {
-                    let mut interp_gradient = other_grad.clone();
-                    let stop_count = other_grad.stops.len();
-
-                    for s in 0..stop_count {
-                        // Initial offsets of solid color should be 0.0
-                        // Interpolate offsets to target gradient offsets
-                        interp_gradient.stops[s].offset =
-                            f32::lerp(&0.0, &other_grad.stops[s].offset, t);
-                        // Interpolate stop colors from solid color to gradient color
-                        interp_gradient.stops[s].color =
-                            peniko::Color::lerp(self_color, &other_grad.stops[s].color, t);
-                    }
-
-                    return peniko::Brush::Gradient(interp_gradient);
+                    return peniko::Brush::Gradient(peniko::Gradient {
+                        kind: other_grad.kind,
+                        extend: other_grad.extend,
+                        stops: peniko::Color::cross_lerp(self_color, &other_grad.stops, t),
+                    });
                 }
+                // Image interpolation is not supported
                 peniko::Brush::Image(_) => {}
             },
             peniko::Brush::Gradient(self_grad) => match other {
+                // Gradient -> Solid
                 peniko::Brush::Solid(other_color) => {
-                    let mut interp_gradient = self_grad.clone();
-                    let stop_count = self_grad.stops.len();
-
-                    for s in 0..stop_count {
-                        // Interpolate offsets to 0.0
-                        interp_gradient.stops[s].offset =
-                            f32::lerp(&self_grad.stops[s].offset, &0.0, t);
-                        // Interpolate stop colors from gradient color to target solid color
-                        interp_gradient.stops[s].color =
-                            peniko::Color::lerp(&self_grad.stops[s].color, other_color, t);
+                    return peniko::Brush::Gradient(peniko::Gradient {
+                        kind: self_grad.kind,
+                        extend: self_grad.extend,
+                        stops: peniko::ColorStops::cross_lerp(&self_grad.stops, other_color, t),
+                    });
+                }
+                // Gradient -> Gradient
+                peniko::Brush::Gradient(other_grad) => 'grad: {
+                    // Gradient kind and extend must be the same, otherwise, fallback
+                    if self_grad.kind != other_grad.kind && self_grad.extend != other_grad.extend {
+                        break 'grad;
                     }
 
-                    return peniko::Brush::Gradient(interp_gradient);
+                    return peniko::Brush::Gradient(peniko::Gradient {
+                        kind: self_grad.kind,
+                        extend: self_grad.extend,
+                        stops: peniko::ColorStops::lerp(&self_grad.stops, &other_grad.stops, t),
+                    });
                 }
-                peniko::Brush::Gradient(_) => {}
+                // Image interpolation is not supported
                 peniko::Brush::Image(_) => {}
             },
+            // Image interpolation is not supported
             peniko::Brush::Image(_) => {}
         }
 
-        // If matching above did not succeed in deciding
-        // an interpolated brush, use a discrete interpolation
+        // Fallback to discrete interpolation
         if t < 0.5 {
             return self.clone();
         } else {
