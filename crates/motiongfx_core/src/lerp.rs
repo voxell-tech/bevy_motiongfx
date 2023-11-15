@@ -14,6 +14,7 @@ impl Lerp<f32> for kurbo::Stroke {
             width: f64::lerp(&self.width, &other.width, t),
             miter_limit: f64::lerp(&self.miter_limit, &other.miter_limit, t),
             dash_offset: f64::lerp(&self.dash_offset, &other.dash_offset, t),
+            dash_pattern: kurbo::Dashes::lerp(&self.dash_pattern, &other.dash_pattern, t),
             ..default()
         }
     }
@@ -92,33 +93,33 @@ impl Lerp<f32> for peniko::Brush {
 
 impl<Item, Array> Lerp<f32> for smallvec::SmallVec<Array>
 where
-    Item: Lerp<f32> + Default + Eq + Clone,
+    Item: Lerp<f32> + Default + PartialEq + Clone,
     Array: smallvec::Array<Item = Item>,
 {
     fn lerp(&self, other: &Self, t: f32) -> Self {
         let mut self_iter: std::slice::Iter<Item> = self.iter();
         let mut other_iter: std::slice::Iter<Item> = other.iter();
 
-        let mut last_self_stop: Item = Item::default();
-        let mut last_other_stop: Item = Item::default();
+        let mut last_self_item: Item = Item::default();
+        let mut last_other_item: Item = Item::default();
 
-        let mut interp_stops: smallvec::SmallVec<Array> = smallvec::SmallVec::new();
+        let mut interp_vec: smallvec::SmallVec<Array> = smallvec::SmallVec::new();
 
         loop {
-            let self_stop: Option<&Item> = self_iter.next();
-            let other_stop: Option<&Item> = other_iter.next();
+            let self_item: Option<&Item> = self_iter.next();
+            let other_item: Option<&Item> = other_iter.next();
 
-            if self_stop == None && other_stop == None {
+            if self_item == None && other_item == None {
                 break;
             }
 
-            last_self_stop = self_stop.unwrap_or(&last_self_stop).clone();
-            last_other_stop = other_stop.unwrap_or(&last_other_stop).clone();
+            last_self_item = self_item.unwrap_or(&last_self_item).clone();
+            last_other_item = other_item.unwrap_or(&last_other_item).clone();
 
-            interp_stops.push(Item::lerp(&last_self_stop, &last_other_stop, t));
+            interp_vec.push(Item::lerp(&last_self_item, &last_other_item, t));
         }
 
-        interp_stops
+        interp_vec
     }
 }
 

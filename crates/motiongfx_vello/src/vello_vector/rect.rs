@@ -69,6 +69,11 @@ impl VelloRect {
         self
     }
 
+    pub fn with_fill_style(mut self, style: peniko::Fill) -> Self {
+        self.fill.style = style;
+        self
+    }
+
     pub fn with_fill_brush(mut self, brush: impl Into<peniko::Brush>) -> Self {
         self.fill.brush = brush.into();
         self
@@ -81,6 +86,11 @@ impl VelloRect {
 
     pub fn with_stroke_brush(mut self, brush: impl Into<peniko::Brush>) -> Self {
         self.stroke.brush = brush.into();
+        self
+    }
+
+    fn with_stroke_style(mut self, style: impl Into<kurbo::Stroke>) -> VelloRect {
+        self.stroke.style = style.into();
         self
     }
 
@@ -292,6 +302,24 @@ impl VelloRectMotion {
         );
 
         self.vello_rect.fill.brush = brush;
+
+        action
+    }
+
+    pub fn stroke_style_to(
+        &mut self,
+        style: impl Into<kurbo::Stroke>,
+    ) -> Action<Handle<VelloFragment>, VelloRect, Assets<VelloFragment>> {
+        let style: kurbo::Stroke = style.into();
+
+        let action: Action<Handle<VelloFragment>, VelloRect, Assets<VelloFragment>> = Action::new(
+            self.target_id,
+            self.vello_rect.clone(),
+            self.vello_rect.clone().with_stroke_style(style.clone()),
+            Self::interp,
+        );
+
+        self.vello_rect.stroke.style = style;
 
         action
     }

@@ -2,8 +2,8 @@ use bevy::math::{DVec2, DVec4};
 use bevy::prelude::*;
 use bevy_motiongfx::prelude::*;
 use motiongfx_vello::bevy_vello_renderer::prelude::*;
-use motiongfx_vello::bevy_vello_renderer::vello::{self, peniko};
-use motiongfx_vello::vector_style::{FillStyle, StrokeStyle};
+use motiongfx_vello::bevy_vello_renderer::vello::{self, kurbo, peniko};
+use motiongfx_vello::vector_style::FillStyle;
 use motiongfx_vello::vello_vector::rect::{VelloRect, VelloRectBundle, VelloRectMotion};
 
 fn main() {
@@ -98,14 +98,28 @@ fn vello_basic(
                 .with_ease(ease::back::ease_in_out),
         );
 
-        fill_actions.push(act.play(
-            rect_motions[r].fill_brush_to(peniko::Color::rgb(
-                (r as f64) / (RECT_COUNT as f64),
-                1.0 - (r as f64) / (RECT_COUNT as f64),
+        fill_actions.push(all(&[
+            act.play(
+                rect_motions[r].fill_brush_to(peniko::Color::rgb(
+                    0.0,
+                    1.0 - (r as f64) / (RECT_COUNT as f64),
+                    (r as f64) / (RECT_COUNT as f64),
+                )),
                 1.0,
-            )),
-            1.0,
-        ));
+            ),
+            act.play(
+                rect_motions[r].stroke_brush_to(peniko::Color::rgb(
+                    0.0,
+                    1.0 - (r as f64) / (RECT_COUNT as f64),
+                    (r as f64) / (RECT_COUNT as f64),
+                )),
+                1.0,
+            ),
+            // act.play(
+            //     rect_motions[r].stroke_style_to(kurbo::Stroke::default()),
+            //     1.0,
+            // ),
+        ]));
     }
 
     sequence.play(flow(
