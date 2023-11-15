@@ -8,6 +8,28 @@ pub trait Lerp<Time> {
     fn lerp(&self, other: &Self, t: Time) -> Self;
 }
 
+impl Lerp<f32> for kurbo::RoundedRectRadii {
+    fn lerp(&self, other: &Self, t: f32) -> Self {
+        kurbo::RoundedRectRadii {
+            top_left: f64::lerp(&self.top_left, &other.top_left, t),
+            top_right: f64::lerp(&self.top_right, &other.top_right, t),
+            bottom_right: f64::lerp(&self.bottom_right, &other.bottom_right, t),
+            bottom_left: f64::lerp(&self.bottom_left, &other.bottom_left, t),
+        }
+    }
+}
+
+impl Lerp<f32> for kurbo::Rect {
+    fn lerp(&self, other: &Self, t: f32) -> Self {
+        kurbo::Rect {
+            x0: f64::lerp(&self.x0, &other.x0, t),
+            y0: f64::lerp(&self.y0, &other.y0, t),
+            x1: f64::lerp(&self.x1, &other.x1, t),
+            y1: f64::lerp(&self.y1, &other.y1, t),
+        }
+    }
+}
+
 impl Lerp<f32> for kurbo::Stroke {
     fn lerp(&self, other: &Self, t: f32) -> Self {
         Self {

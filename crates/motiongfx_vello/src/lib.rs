@@ -1,8 +1,10 @@
 pub use bevy_vello_renderer;
 
 use bevy_app::prelude::*;
-use bevy_asset::prelude::*;
-use bevy_vello_renderer::prelude::*;
+use bevy_vello_renderer::{
+    prelude::*,
+    vello::{kurbo, peniko},
+};
 use motiongfx_core::prelude::*;
 
 pub mod vector_style;
@@ -13,17 +15,28 @@ pub struct MotionGfxVello;
 impl Plugin for MotionGfxVello {
     fn build(&self, app: &mut App) {
         app.add_plugins(VelloRenderPlugin)
-            .add_systems(
-                PostStartup,
-                vello_vector::vello_rect_init::<vello_vector::rect::VelloRect>,
-            )
+            // .add_systems(PostStartup)
             .add_systems(
                 PostUpdate,
-                sequence_player_system::<
-                    Handle<VelloFragment>,
-                    vello_vector::rect::VelloRect,
-                    Assets<VelloFragment>,
-                >,
+                (
+                    vello_vector::vector_builder::<vello_vector::rect::VelloRect>,
+                    sequence_player_system::<vello_vector::rect::VelloRect, kurbo::Rect, EmptyRes>,
+                    sequence_player_system::<
+                        vello_vector::rect::VelloRect,
+                        kurbo::RoundedRectRadii,
+                        EmptyRes,
+                    >,
+                    sequence_player_system::<
+                        vello_vector::rect::VelloRect,
+                        peniko::Brush,
+                        EmptyRes,
+                    >,
+                    sequence_player_system::<
+                        vello_vector::rect::VelloRect,
+                        kurbo::Stroke,
+                        EmptyRes,
+                    >,
+                ),
             );
     }
 }

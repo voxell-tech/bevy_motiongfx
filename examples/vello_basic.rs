@@ -110,15 +110,15 @@ fn vello_basic(
             act.play(
                 rect_motions[r].stroke_brush_to(peniko::Color::rgb(
                     0.0,
-                    1.0 - (r as f64) / (RECT_COUNT as f64),
                     (r as f64) / (RECT_COUNT as f64),
+                    1.0 - (r as f64) / (RECT_COUNT as f64),
                 )),
                 1.0,
             ),
-            // act.play(
-            //     rect_motions[r].stroke_style_to(kurbo::Stroke::default()),
-            //     1.0,
-            // ),
+            act.play(
+                rect_motions[r].stroke_style_to(kurbo::Stroke::new(5.0)),
+                1.0,
+            ),
         ]));
     }
 

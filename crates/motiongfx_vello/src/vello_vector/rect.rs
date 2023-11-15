@@ -1,4 +1,3 @@
-use bevy_asset::prelude::*;
 use bevy_ecs::prelude::*;
 use bevy_math::{DVec2, DVec4};
 use bevy_utils::prelude::*;
@@ -25,6 +24,7 @@ pub struct VelloRect {
     radii: kurbo::RoundedRectRadii,
     fill: FillStyle,
     stroke: StrokeStyle,
+    should_build: bool,
 }
 
 impl VelloRect {
@@ -84,13 +84,13 @@ impl VelloRect {
         self
     }
 
-    pub fn with_stroke_brush(mut self, brush: impl Into<peniko::Brush>) -> Self {
-        self.stroke.brush = brush.into();
+    pub fn with_stroke_style(mut self, style: impl Into<kurbo::Stroke>) -> VelloRect {
+        self.stroke.style = style.into();
         self
     }
 
-    fn with_stroke_style(mut self, style: impl Into<kurbo::Stroke>) -> VelloRect {
-        self.stroke.style = style.into();
+    pub fn with_stroke_brush(mut self, brush: impl Into<peniko::Brush>) -> Self {
+        self.stroke.brush = brush.into();
         self
     }
 
@@ -163,6 +163,16 @@ impl VelloVector for VelloRect {
 
         fragment.fragment = frag.into();
     }
+
+    #[inline]
+    fn should_build(&self) -> bool {
+        self.should_build
+    }
+
+    #[inline]
+    fn set_should_build(&mut self, should_build: bool) {
+        self.should_build = should_build
+    }
 }
 
 pub struct VelloRectMotion {
@@ -178,19 +188,22 @@ impl VelloRectMotion {
         }
     }
 
+    // =====================
+    // Rect
+    // =====================
     pub fn inflate(
         &mut self,
         inflation: impl Into<DVec2>,
-    ) -> Action<Handle<VelloFragment>, VelloRect, Assets<VelloFragment>> {
+    ) -> Action<VelloRect, kurbo::Rect, EmptyRes> {
         let inflation: DVec2 = inflation.into();
 
         let new_rect: kurbo::Rect = self.vello_rect.rect.inflate(inflation.x, inflation.y);
 
-        let action: Action<Handle<VelloFragment>, VelloRect, Assets<VelloFragment>> = Action::new(
+        let action: Action<VelloRect, kurbo::Rect, EmptyRes> = Action::new(
             self.target_id,
-            self.vello_rect.clone(),
-            self.vello_rect.clone().with_rect(new_rect),
-            Self::interp,
+            self.vello_rect.rect,
+            new_rect,
+            Self::rect_interp,
         );
 
         self.vello_rect.rect = new_rect;
@@ -202,7 +215,7 @@ impl VelloRectMotion {
         &mut self,
         expansion: impl Into<DVec2>,
         percentage: impl Into<DVec2>,
-    ) -> Action<Handle<VelloFragment>, VelloRect, Assets<VelloFragment>> {
+    ) -> Action<VelloRect, kurbo::Rect, EmptyRes> {
         let expansion: DVec2 = expansion.into();
         let percentage: DVec2 = percentage.into();
 
@@ -212,11 +225,11 @@ impl VelloRectMotion {
         new_rect.x1 += expansion.x * percentage.x;
         new_rect.y1 += expansion.y * percentage.y;
 
-        let action: Action<Handle<VelloFragment>, VelloRect, Assets<VelloFragment>> = Action::new(
+        let action: Action<VelloRect, kurbo::Rect, EmptyRes> = Action::new(
             self.target_id,
-            self.vello_rect.clone(),
-            self.vello_rect.clone().with_rect(new_rect),
-            Self::interp,
+            self.vello_rect.rect,
+            new_rect,
+            Self::rect_interp,
         );
 
         self.vello_rect.rect = new_rect;
@@ -224,158 +237,176 @@ impl VelloRectMotion {
         action
     }
 
-    pub fn expand_left(
-        &mut self,
-        expansion: f64,
-    ) -> Action<Handle<VelloFragment>, VelloRect, Assets<VelloFragment>> {
+    pub fn expand_left(&mut self, expansion: f64) -> Action<VelloRect, kurbo::Rect, EmptyRes> {
         self.percentage_expand(DVec2::new(expansion, 0.0), DVec2::new(0.0, 0.0))
     }
 
-    pub fn expand_right(
-        &mut self,
-        expansion: f64,
-    ) -> Action<Handle<VelloFragment>, VelloRect, Assets<VelloFragment>> {
+    pub fn expand_right(&mut self, expansion: f64) -> Action<VelloRect, kurbo::Rect, EmptyRes> {
         self.percentage_expand(DVec2::new(expansion, 0.0), DVec2::new(1.0, 0.0))
     }
 
-    pub fn expand_bottom(
-        &mut self,
-        expansion: f64,
-    ) -> Action<Handle<VelloFragment>, VelloRect, Assets<VelloFragment>> {
+    pub fn expand_bottom(&mut self, expansion: f64) -> Action<VelloRect, kurbo::Rect, EmptyRes> {
         self.percentage_expand(DVec2::new(0.0, expansion), DVec2::new(0.0, 0.0))
     }
 
-    pub fn expand_top(
-        &mut self,
-        expansion: f64,
-    ) -> Action<Handle<VelloFragment>, VelloRect, Assets<VelloFragment>> {
+    pub fn expand_top(&mut self, expansion: f64) -> Action<VelloRect, kurbo::Rect, EmptyRes> {
         self.percentage_expand(DVec2::new(0.0, expansion), DVec2::new(0.0, 1.0))
     }
 
     pub fn rect_to(
         &mut self,
-        rect: impl Into<kurbo::Rect>,
-    ) -> Action<Handle<VelloFragment>, VelloRect, Assets<VelloFragment>> {
-        let rect: kurbo::Rect = rect.into();
+        new_rect: impl Into<kurbo::Rect>,
+    ) -> Action<VelloRect, kurbo::Rect, EmptyRes> {
+        let new_rect: kurbo::Rect = new_rect.into();
 
-        let action: Action<Handle<VelloFragment>, VelloRect, Assets<VelloFragment>> = Action::new(
+        let action: Action<VelloRect, kurbo::Rect, EmptyRes> = Action::new(
             self.target_id,
-            self.vello_rect.clone(),
-            self.vello_rect.clone().with_rect(rect),
-            Self::interp,
+            self.vello_rect.rect,
+            new_rect,
+            Self::rect_interp,
         );
 
-        self.vello_rect.rect = rect;
+        self.vello_rect.rect = new_rect;
 
         action
     }
 
+    fn rect_interp(
+        vello_rect: &mut VelloRect,
+        begin: &kurbo::Rect,
+        end: &kurbo::Rect,
+        t: f32,
+        _: &mut ResMut<EmptyRes>,
+    ) {
+        vello_rect.rect = kurbo::Rect::lerp(begin, end, t);
+        vello_rect.set_should_build(true);
+    }
+
+    // =====================
+    // Radii
+    // =====================
     pub fn radii_to(
         &mut self,
-        radii: impl Into<kurbo::RoundedRectRadii>,
-    ) -> Action<Handle<VelloFragment>, VelloRect, Assets<VelloFragment>> {
-        let radii: kurbo::RoundedRectRadii = radii.into();
+        new_radii: impl Into<kurbo::RoundedRectRadii>,
+    ) -> Action<VelloRect, kurbo::RoundedRectRadii, EmptyRes> {
+        let new_radii: kurbo::RoundedRectRadii = new_radii.into();
 
-        let action: Action<Handle<VelloFragment>, VelloRect, Assets<VelloFragment>> = Action::new(
+        let action: Action<VelloRect, kurbo::RoundedRectRadii, EmptyRes> = Action::new(
             self.target_id,
-            self.vello_rect.clone(),
-            self.vello_rect.clone().with_radii(radii),
-            Self::interp,
+            self.vello_rect.radii,
+            new_radii,
+            Self::radii_interp,
         );
 
-        self.vello_rect.radii = radii;
+        self.vello_rect.radii = new_radii;
 
         action
     }
 
+    fn radii_interp(
+        vello_rect: &mut VelloRect,
+        begin: &kurbo::RoundedRectRadii,
+        end: &kurbo::RoundedRectRadii,
+        t: f32,
+        _: &mut ResMut<EmptyRes>,
+    ) {
+        vello_rect.radii = kurbo::RoundedRectRadii::lerp(begin, end, t);
+        vello_rect.set_should_build(true);
+    }
+
+    // =====================
+    // Fill brush
+    // =====================
     pub fn fill_brush_to(
         &mut self,
-        brush: impl Into<peniko::Brush>,
-    ) -> Action<Handle<VelloFragment>, VelloRect, Assets<VelloFragment>> {
-        let brush: peniko::Brush = brush.into();
+        new_brush: impl Into<peniko::Brush>,
+    ) -> Action<VelloRect, peniko::Brush, EmptyRes> {
+        let new_brush: peniko::Brush = new_brush.into();
 
-        let action: Action<Handle<VelloFragment>, VelloRect, Assets<VelloFragment>> = Action::new(
+        let action: Action<VelloRect, peniko::Brush, EmptyRes> = Action::new(
             self.target_id,
-            self.vello_rect.clone(),
-            self.vello_rect.clone().with_fill_brush(brush.clone()),
-            Self::interp,
+            self.vello_rect.fill.brush.clone(),
+            new_brush.clone(),
+            Self::fill_brush_interp,
         );
 
-        self.vello_rect.fill.brush = brush;
+        self.vello_rect.fill.brush = new_brush;
 
         action
     }
 
-    pub fn stroke_style_to(
-        &mut self,
-        style: impl Into<kurbo::Stroke>,
-    ) -> Action<Handle<VelloFragment>, VelloRect, Assets<VelloFragment>> {
-        let style: kurbo::Stroke = style.into();
-
-        let action: Action<Handle<VelloFragment>, VelloRect, Assets<VelloFragment>> = Action::new(
-            self.target_id,
-            self.vello_rect.clone(),
-            self.vello_rect.clone().with_stroke_style(style.clone()),
-            Self::interp,
-        );
-
-        self.vello_rect.stroke.style = style;
-
-        action
+    fn fill_brush_interp(
+        vello_rect: &mut VelloRect,
+        begin: &peniko::Brush,
+        end: &peniko::Brush,
+        t: f32,
+        _: &mut ResMut<EmptyRes>,
+    ) {
+        vello_rect.fill.brush = peniko::Brush::lerp(begin, end, t);
+        vello_rect.set_should_build(true);
     }
 
+    // =====================
+    // Stroke brush
+    // =====================
     pub fn stroke_brush_to(
         &mut self,
-        brush: impl Into<peniko::Brush>,
-    ) -> Action<Handle<VelloFragment>, VelloRect, Assets<VelloFragment>> {
-        let brush: peniko::Brush = brush.into();
+        new_brush: impl Into<peniko::Brush>,
+    ) -> Action<VelloRect, peniko::Brush, EmptyRes> {
+        let new_brush: peniko::Brush = new_brush.into();
 
-        let action: Action<Handle<VelloFragment>, VelloRect, Assets<VelloFragment>> = Action::new(
+        let action: Action<VelloRect, peniko::Brush, EmptyRes> = Action::new(
             self.target_id,
-            self.vello_rect.clone(),
-            self.vello_rect.clone().with_stroke_brush(brush.clone()),
-            Self::interp,
+            self.vello_rect.stroke.brush.clone(),
+            new_brush.clone(),
+            Self::stroke_brush_interp,
         );
 
-        self.vello_rect.stroke.brush = brush;
+        self.vello_rect.stroke.brush = new_brush;
 
         action
     }
 
-    fn interp(
-        fragment: &mut Handle<VelloFragment>,
-        begin: &VelloRect,
-        end: &VelloRect,
+    fn stroke_brush_interp(
+        vello_rect: &mut VelloRect,
+        begin: &peniko::Brush,
+        end: &peniko::Brush,
         t: f32,
-        fragment_asset: &mut ResMut<Assets<VelloFragment>>,
+        _: &mut ResMut<EmptyRes>,
     ) {
-        let Some(fragment) = fragment_asset.get_mut(fragment.id()) else {
-            return;
-        };
+        vello_rect.stroke.brush = peniko::Brush::lerp(begin, end, t);
+        vello_rect.set_should_build(true);
+    }
 
-        // Interpolate rect
-        let rect: kurbo::Rect = kurbo::Rect {
-            x0: f64::lerp(&begin.rect.x0, &end.rect.x0, t),
-            y0: f64::lerp(&begin.rect.y0, &end.rect.y0, t),
-            x1: f64::lerp(&begin.rect.x1, &end.rect.x1, t),
-            y1: f64::lerp(&begin.rect.y1, &end.rect.y1, t),
-        };
-        // Interpolate radii
-        let radii: kurbo::RoundedRectRadii = kurbo::RoundedRectRadii {
-            top_left: f64::lerp(&begin.radii.top_left, &end.radii.top_left, t),
-            top_right: f64::lerp(&begin.radii.top_right, &end.radii.top_right, t),
-            bottom_right: f64::lerp(&begin.radii.bottom_right, &end.radii.bottom_right, t),
-            bottom_left: f64::lerp(&begin.radii.bottom_left, &end.radii.bottom_left, t),
-        };
+    // =====================
+    // Stroke style
+    // =====================
+    pub fn stroke_style_to(
+        &mut self,
+        new_style: impl Into<kurbo::Stroke>,
+    ) -> Action<VelloRect, kurbo::Stroke, EmptyRes> {
+        let new_style: kurbo::Stroke = new_style.into();
 
-        // Interpolate fill & stroke style
-        let vello_rect: VelloRect = VelloRect {
-            rect,
-            radii,
-            fill: FillStyle::lerp(&begin.fill, &end.fill, t),
-            stroke: StrokeStyle::lerp(&begin.stroke, &end.stroke, t),
-        };
+        let action: Action<VelloRect, kurbo::Stroke, EmptyRes> = Action::new(
+            self.target_id,
+            self.vello_rect.stroke.style.clone(),
+            new_style.clone(),
+            Self::stroke_style_interp,
+        );
 
-        vello_rect.build(fragment);
+        self.vello_rect.stroke.style = new_style;
+
+        action
+    }
+
+    fn stroke_style_interp(
+        vello_rect: &mut VelloRect,
+        begin: &kurbo::Stroke,
+        end: &kurbo::Stroke,
+        t: f32,
+        _: &mut ResMut<EmptyRes>,
+    ) {
+        vello_rect.stroke.style = kurbo::Stroke::lerp(begin, end, t);
+        vello_rect.set_should_build(true);
     }
 }
