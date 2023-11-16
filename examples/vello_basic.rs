@@ -36,8 +36,11 @@ fn vello_basic(
     let start_y: f32 = (RECT_COUNT as f32) * 0.5 * (RECT_SIZE + SPACING);
 
     for r in 0..RECT_COUNT {
+        let brush: peniko::Brush = peniko::Color::BLUE_VIOLET.into();
+
         let rect: VelloRect = VelloRect::anchor_center(DVec2::new(0.0, 0.0), DVec4::splat(10.0))
-            .with_fill(FillStyle::from_brush(peniko::Color::BLUE_VIOLET));
+            // .with_fill(FillStyle::from_brush(peniko::Color::BLUE_VIOLET));
+            .with_fill(FillStyle::from_brush(Color::CRIMSON));
 
         let transform: Transform = Transform::from_translation(Vec3::new(
             -500.0,

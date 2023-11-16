@@ -2354,6 +2354,7 @@ dependencies = [
  "bevy_math",
  "bevy_pbr",
  "bevy_reflect",
+ "bevy_render",
  "bevy_transform",
  "bevy_utils",
  "bevy_vello_renderer",

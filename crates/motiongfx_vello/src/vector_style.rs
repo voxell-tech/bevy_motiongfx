@@ -1,5 +1,27 @@
+use bevy_render::prelude::*;
+use bevy_utils::prelude::*;
 use bevy_vello_renderer::vello::{kurbo, peniko};
 use motiongfx_core::prelude::*;
+
+pub struct PenikoBrush(peniko::Brush);
+pub struct PenikoColor(peniko::Color);
+
+impl From<Color> for PenikoColor {
+    fn from(value: Color) -> Self {
+        PenikoColor(peniko::Color::rgba(
+            value.r() as f64,
+            value.g() as f64,
+            value.b() as f64,
+            value.a() as f64,
+        ))
+    }
+}
+
+impl From<Color> for PenikoBrush {
+    fn from(value: Color) -> Self {
+        PenikoBrush(peniko::Brush::Solid(PenikoColor::from(value).0))
+    }
+}
 
 #[derive(Clone)]
 pub struct FillStyle {
@@ -8,7 +30,7 @@ pub struct FillStyle {
 }
 
 impl FillStyle {
-    pub fn from_brush(brush: impl Into<peniko::Brush>) -> Self {
+    pub fn from_brush(brush: impl Into<PenikoBrush>) -> Self {
         Self::default().with_brush(brush)
     }
 
@@ -19,8 +41,8 @@ impl FillStyle {
     }
 
     #[inline]
-    pub fn with_brush(mut self, brush: impl Into<peniko::Brush>) -> Self {
-        self.brush = brush.into();
+    pub fn with_brush(mut self, brush: impl Into<PenikoBrush>) -> Self {
+        self.brush = brush.into().0;
         self
     }
 }
@@ -40,6 +62,20 @@ impl Lerp<f32> for FillStyle {
             // Style cannot be interpolated
             style: self.style,
             brush: peniko::Brush::lerp(&self.brush, &other.brush, t),
+        }
+    }
+}
+
+impl From<Color> for FillStyle {
+    fn from(value: Color) -> Self {
+        Self {
+            brush: peniko::Brush::Solid(peniko::Color::rgba(
+                value.r() as f64,
+                value.g() as f64,
+                value.b() as f64,
+                value.a() as f64,
+            )),
+            ..default()
         }
     }
 }

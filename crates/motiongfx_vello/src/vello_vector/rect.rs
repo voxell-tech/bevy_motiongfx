@@ -64,8 +64,8 @@ impl VelloRect {
         self
     }
 
-    pub fn with_fill(mut self, fill: FillStyle) -> Self {
-        self.fill = fill;
+    pub fn with_fill(mut self, fill: impl Into<FillStyle>) -> Self {
+        self.fill = fill.into();
         self
     }
 
