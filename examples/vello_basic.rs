@@ -51,9 +51,7 @@ fn vello_basic(
         let rect_bundle: VelloRectBundle = VelloRectBundle {
             rect: rect.clone(),
             fragment_bundle: VelloFragmentBundle {
-                fragment: fragments.add(VelloFragment {
-                    fragment: vello::SceneFragment::new().into(),
-                }),
+                fragment: fragments.add(VelloFragment::default()),
                 transform: TransformBundle::from_transform(transform),
                 ..default()
             },
