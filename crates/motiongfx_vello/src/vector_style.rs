@@ -11,6 +11,7 @@ pub struct FillStyle {
 }
 
 impl FillStyle {
+    #[inline]
     pub fn from_brush(brush: impl Into<PenikoBrush>) -> Self {
         Self::default().with_brush(brush)
     }
@@ -68,6 +69,7 @@ pub struct StrokeStyle {
 }
 
 impl StrokeStyle {
+    #[inline]
     pub fn from_brush(brush: impl Into<peniko::Brush>) -> Self {
         Self::default().with_brush(brush)
     }

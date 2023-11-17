@@ -7,8 +7,11 @@ use bevy_vello_renderer::{
 };
 use motiongfx_core::prelude::*;
 
-use crate::vector_style::{FillStyle, StrokeStyle};
-use crate::vello_vector::VelloVector;
+use crate::{
+    convert::*,
+    vector_style::{FillStyle, StrokeStyle},
+    vello_vector::VelloVector,
+};
 
 #[derive(Bundle, Clone, Default)]
 pub struct VelloRectBundle {
@@ -64,8 +67,8 @@ impl VelloRect {
         self
     }
 
-    pub fn with_fill(mut self, fill: impl Into<FillStyle>) -> Self {
-        self.fill = fill.into();
+    pub fn with_fill(mut self, fill: FillStyle) -> Self {
+        self.fill = fill;
         self
     }
 
@@ -74,8 +77,8 @@ impl VelloRect {
         self
     }
 
-    pub fn with_fill_brush(mut self, brush: impl Into<peniko::Brush>) -> Self {
-        self.fill.brush = brush.into();
+    pub fn with_fill_brush(mut self, brush: impl Into<PenikoBrush>) -> Self {
+        self.fill.brush = brush.into().0;
         self
     }
 
@@ -84,13 +87,13 @@ impl VelloRect {
         self
     }
 
-    pub fn with_stroke_style(mut self, style: impl Into<kurbo::Stroke>) -> VelloRect {
-        self.stroke.style = style.into();
+    pub fn with_stroke_style(mut self, style: impl Into<KurboStroke>) -> VelloRect {
+        self.stroke.style = style.into().0;
         self
     }
 
-    pub fn with_stroke_brush(mut self, brush: impl Into<peniko::Brush>) -> Self {
-        self.stroke.brush = brush.into();
+    pub fn with_stroke_brush(mut self, brush: impl Into<PenikoBrush>) -> Self {
+        self.stroke.brush = brush.into().0;
         self
     }
 
@@ -319,9 +322,9 @@ impl VelloRectMotion {
     // =====================
     pub fn fill_brush_to(
         &mut self,
-        new_brush: impl Into<peniko::Brush>,
+        new_brush: impl Into<PenikoBrush>,
     ) -> Action<VelloRect, peniko::Brush, EmptyRes> {
-        let new_brush: peniko::Brush = new_brush.into();
+        let new_brush: peniko::Brush = new_brush.into().0;
 
         let action: Action<VelloRect, peniko::Brush, EmptyRes> = Action::new(
             self.target_id,
@@ -351,9 +354,9 @@ impl VelloRectMotion {
     // =====================
     pub fn stroke_brush_to(
         &mut self,
-        new_brush: impl Into<peniko::Brush>,
+        new_brush: impl Into<PenikoBrush>,
     ) -> Action<VelloRect, peniko::Brush, EmptyRes> {
-        let new_brush: peniko::Brush = new_brush.into();
+        let new_brush: peniko::Brush = new_brush.into().0;
 
         let action: Action<VelloRect, peniko::Brush, EmptyRes> = Action::new(
             self.target_id,
@@ -383,9 +386,9 @@ impl VelloRectMotion {
     // =====================
     pub fn stroke_style_to(
         &mut self,
-        new_style: impl Into<kurbo::Stroke>,
+        new_style: impl Into<KurboStroke>,
     ) -> Action<VelloRect, kurbo::Stroke, EmptyRes> {
-        let new_style: kurbo::Stroke = new_style.into();
+        let new_style: kurbo::Stroke = new_style.into().0;
 
         let action: Action<VelloRect, kurbo::Stroke, EmptyRes> = Action::new(
             self.target_id,

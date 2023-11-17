@@ -1,10 +1,13 @@
-use bevy::math::{DVec2, DVec4};
-use bevy::prelude::*;
+use bevy::{
+    math::{DVec2, DVec4},
+    prelude::*,
+};
 use bevy_motiongfx::prelude::*;
-use motiongfx_vello::bevy_vello_renderer::prelude::*;
-use motiongfx_vello::bevy_vello_renderer::vello::{self, kurbo, peniko};
-use motiongfx_vello::vector_style::FillStyle;
-use motiongfx_vello::vello_vector::rect::{VelloRect, VelloRectBundle, VelloRectMotion};
+use motiongfx_vello::{
+    bevy_vello_renderer::{prelude::*, vello},
+    vector_style::FillStyle,
+    vello_vector::rect::{VelloRect, VelloRectBundle, VelloRectMotion},
+};
 
 fn main() {
     App::new()
@@ -36,8 +39,6 @@ fn vello_basic(
     let start_y: f32 = (RECT_COUNT as f32) * 0.5 * (RECT_SIZE + SPACING);
 
     for r in 0..RECT_COUNT {
-        let brush: peniko::Brush = peniko::Color::BLUE_VIOLET.into();
-
         let rect: VelloRect = VelloRect::anchor_center(DVec2::new(0.0, 0.0), DVec4::splat(10.0))
             // .with_fill(FillStyle::from_brush(peniko::Color::BLUE_VIOLET));
             .with_fill(FillStyle::from_brush(Color::CRIMSON));
@@ -103,25 +104,22 @@ fn vello_basic(
 
         fill_actions.push(all(&[
             act.play(
-                rect_motions[r].fill_brush_to(peniko::Color::rgb(
+                rect_motions[r].fill_brush_to(Color::rgb(
                     0.0,
-                    1.0 - (r as f64) / (RECT_COUNT as f64),
-                    (r as f64) / (RECT_COUNT as f64),
+                    1.0 - (r as f32) / (RECT_COUNT as f32),
+                    (r as f32) / (RECT_COUNT as f32),
                 )),
                 1.0,
             ),
             act.play(
-                rect_motions[r].stroke_brush_to(peniko::Color::rgb(
+                rect_motions[r].stroke_brush_to(Color::rgb(
                     0.0,
-                    (r as f64) / (RECT_COUNT as f64),
-                    1.0 - (r as f64) / (RECT_COUNT as f64),
+                    (r as f32) / (RECT_COUNT as f32),
+                    1.0 - (r as f32) / (RECT_COUNT as f32),
                 )),
                 1.0,
             ),
-            act.play(
-                rect_motions[r].stroke_style_to(kurbo::Stroke::new(5.0)),
-                1.0,
-            ),
+            act.play(rect_motions[r].stroke_style_to(5.0), 1.0),
         ]));
     }
 
