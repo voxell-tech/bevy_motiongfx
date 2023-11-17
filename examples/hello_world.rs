@@ -37,7 +37,7 @@ pub fn hello_world(
 
     // Create cube objects (Entity)
     let material: StandardMaterial = StandardMaterial {
-        base_color: style::GREEN.into(),
+        base_color: style::GREEN,
         ..default()
     };
 

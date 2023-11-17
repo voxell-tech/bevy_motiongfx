@@ -5,20 +5,13 @@ use crate::{
 use bevy_ecs::prelude::*;
 
 /// An array of `Action`.
-#[derive(Resource)]
+#[derive(Resource, Default)]
 pub struct Sequence {
     duration: f32,
     action_metas: Vec<ActionMeta>,
 }
 
 impl Sequence {
-    pub fn new() -> Self {
-        Sequence {
-            duration: 0.0,
-            action_metas: Vec::new(),
-        }
-    }
-
     pub fn duration(&self) -> f32 {
         self.duration
     }
@@ -47,7 +40,7 @@ impl Sequence {
 
 /// Run one action after another.
 pub fn chain(action_grps: &[ActionMetaGroup]) -> ActionMetaGroup {
-    let mut final_action_grp: ActionMetaGroup = ActionMetaGroup::new();
+    let mut final_action_grp: ActionMetaGroup = ActionMetaGroup::default();
     let mut chain_duration: f32 = 0.0;
 
     for action_grp in action_grps {
@@ -68,7 +61,7 @@ pub fn chain(action_grps: &[ActionMetaGroup]) -> ActionMetaGroup {
 
 /// Run all actions concurrently and wait for all of them to finish.
 pub fn all(action_grps: &[ActionMetaGroup]) -> ActionMetaGroup {
-    let mut final_action_grp: ActionMetaGroup = ActionMetaGroup::new();
+    let mut final_action_grp: ActionMetaGroup = ActionMetaGroup::default();
     let mut max_duration: f32 = 0.0;
 
     for action_grp in action_grps {
@@ -85,7 +78,7 @@ pub fn all(action_grps: &[ActionMetaGroup]) -> ActionMetaGroup {
 
 /// Run all actions concurrently and wait for any of them to finish.
 pub fn any(action_grps: &[ActionMetaGroup]) -> ActionMetaGroup {
-    let mut final_action_grp: ActionMetaGroup = ActionMetaGroup::new();
+    let mut final_action_grp: ActionMetaGroup = ActionMetaGroup::default();
     let mut min_duration: f32 = 0.0;
 
     for action_grp in action_grps {
@@ -101,7 +94,7 @@ pub fn any(action_grps: &[ActionMetaGroup]) -> ActionMetaGroup {
 }
 
 pub fn flow(delay: f32, action_grps: &[ActionMetaGroup]) -> ActionMetaGroup {
-    let mut final_action_grp: ActionMetaGroup = ActionMetaGroup::new();
+    let mut final_action_grp: ActionMetaGroup = ActionMetaGroup::default();
     let mut flow_duration: f32 = 0.0;
     let mut final_duration: f32 = 0.0;
 
@@ -123,7 +116,7 @@ pub fn flow(delay: f32, action_grps: &[ActionMetaGroup]) -> ActionMetaGroup {
 }
 
 pub fn delay(delay: f32, action_grp: ActionMetaGroup) -> ActionMetaGroup {
-    let mut final_action_grp: ActionMetaGroup = ActionMetaGroup::new();
+    let mut final_action_grp: ActionMetaGroup = ActionMetaGroup::default();
 
     for action_meta in &action_grp.action_metas {
         final_action_grp.action_metas.push(

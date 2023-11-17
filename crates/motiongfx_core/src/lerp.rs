@@ -106,9 +106,9 @@ impl Lerp<f32> for peniko::Brush {
 
         // Fallback to discrete interpolation
         if t < 0.5 {
-            return self.clone();
+            self.clone()
         } else {
-            return other.clone();
+            other.clone()
         }
     }
 }
@@ -131,7 +131,7 @@ where
             let self_item: Option<&Item> = self_iter.next();
             let other_item: Option<&Item> = other_iter.next();
 
-            if self_item == None && other_item == None {
+            if self_item.is_none() && other_item.is_none() {
                 break;
             }
 

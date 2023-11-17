@@ -129,20 +129,13 @@ impl<'a, 'w, 's> ActionBuilder<'a, 'w, 's> {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct ActionMetaGroup {
     pub(crate) action_metas: Vec<ActionMeta>,
     pub(crate) duration: f32,
 }
 
 impl ActionMetaGroup {
-    pub fn new() -> Self {
-        Self {
-            action_metas: Vec::new(),
-            duration: 0.0,
-        }
-    }
-
     /// Create an `ActionMetaGroup` with only a single `ActionMeta` in it.
     pub fn single(action_meta: ActionMeta) -> Self {
         let duration: f32 = action_meta.duration();

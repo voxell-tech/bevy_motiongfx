@@ -40,7 +40,6 @@ fn vello_basic(
 
     for r in 0..RECT_COUNT {
         let rect: VelloRect = VelloRect::anchor_center(DVec2::new(0.0, 0.0), DVec4::splat(10.0))
-            // .with_fill(FillStyle::from_brush(peniko::Color::BLUE_VIOLET));
             .with_fill(FillStyle::from_brush(Color::CRIMSON));
 
         let transform: Transform = Transform::from_translation(Vec3::new(
@@ -55,7 +54,7 @@ fn vello_basic(
                 fragment: fragments.add(VelloFragment {
                     fragment: vello::SceneFragment::new().into(),
                 }),
-                transform: TransformBundle::from_transform(transform.clone()),
+                transform: TransformBundle::from_transform(transform),
                 ..default()
             },
         };
