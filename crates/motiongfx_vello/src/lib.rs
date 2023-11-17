@@ -7,6 +7,7 @@ use bevy_vello_renderer::{
 };
 use motiongfx_core::prelude::*;
 
+pub mod convert;
 pub mod vector_style;
 pub mod vello_vector;
 
