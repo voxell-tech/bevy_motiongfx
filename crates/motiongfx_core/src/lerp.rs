@@ -30,6 +30,15 @@ impl Lerp<f32> for kurbo::Rect {
     }
 }
 
+impl Lerp<f32> for kurbo::Circle {
+    fn lerp(&self, other: &Self, t: f32) -> Self {
+        kurbo::Circle {
+            center: kurbo::Point::lerp(self.center, other.center, t as f64),
+            radius: f64::lerp(&self.radius, &other.radius, t),
+        }
+    }
+}
+
 impl Lerp<f32> for kurbo::Stroke {
     fn lerp(&self, other: &Self, t: f32) -> Self {
         Self {

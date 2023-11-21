@@ -20,21 +20,17 @@ impl Plugin for MotionGfxVello {
             .add_systems(
                 PostUpdate,
                 (
+                    // Vector builders
                     vello_vector::vector_builder::<vello_vector::rect::VelloRect>,
+                    vello_vector::vector_builder::<vello_vector::circ::VelloCircle>,
+                    // Sequences
                     sequence_player_system::<vello_vector::rect::VelloRect, kurbo::Rect, EmptyRes>,
+                    sequence_player_system::<vector_style::FillStyle, peniko::Brush, EmptyRes>,
+                    sequence_player_system::<vector_style::StrokeStyle, peniko::Brush, EmptyRes>,
+                    sequence_player_system::<vector_style::StrokeStyle, kurbo::Stroke, EmptyRes>,
                     sequence_player_system::<
                         vello_vector::rect::VelloRect,
                         kurbo::RoundedRectRadii,
-                        EmptyRes,
-                    >,
-                    sequence_player_system::<
-                        vello_vector::rect::VelloRect,
-                        peniko::Brush,
-                        EmptyRes,
-                    >,
-                    sequence_player_system::<
-                        vello_vector::rect::VelloRect,
-                        kurbo::Stroke,
                         EmptyRes,
                     >,
                 ),

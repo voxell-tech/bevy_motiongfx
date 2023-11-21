@@ -1,13 +1,17 @@
-use crate::convert::*;
+use bevy_ecs::prelude::*;
 use bevy_render::prelude::*;
 use bevy_utils::prelude::*;
 use bevy_vello_renderer::vello::{kurbo, peniko};
 use motiongfx_core::prelude::*;
 
-#[derive(Clone)]
+use crate::convert::*;
+use crate::vello_vector::VelloBuilder;
+
+#[derive(Component, Clone)]
 pub struct FillStyle {
-    pub style: peniko::Fill,
-    pub brush: peniko::Brush,
+    pub(crate) style: peniko::Fill,
+    pub(crate) brush: peniko::Brush,
+    should_build: bool,
 }
 
 impl FillStyle {
@@ -29,21 +33,24 @@ impl FillStyle {
     }
 }
 
+impl VelloBuilder for FillStyle {
+    #[inline]
+    fn should_build(&self) -> bool {
+        self.should_build
+    }
+
+    #[inline]
+    fn set_should_build(&mut self, should_build: bool) {
+        self.should_build = should_build
+    }
+}
+
 impl Default for FillStyle {
     fn default() -> Self {
         Self {
             style: peniko::Fill::NonZero,
             brush: peniko::Brush::Solid(peniko::Color::WHITE_SMOKE),
-        }
-    }
-}
-
-impl Lerp<f32> for FillStyle {
-    fn lerp(&self, other: &Self, t: f32) -> Self {
-        FillStyle {
-            // Style cannot be interpolated
-            style: self.style,
-            brush: peniko::Brush::lerp(&self.brush, &other.brush, t),
+            should_build: false,
         }
     }
 }
@@ -62,15 +69,56 @@ impl From<Color> for FillStyle {
     }
 }
 
-#[derive(Clone)]
+pub struct FillStyleMotion {
+    target_id: Entity,
+    fill: FillStyle,
+}
+
+impl FillStyleMotion {
+    pub fn new(target_id: Entity, fill: FillStyle) -> Self {
+        Self { target_id, fill }
+    }
+
+    pub fn brush_to(
+        &mut self,
+        new_brush: impl Into<PenikoBrush>,
+    ) -> Action<FillStyle, peniko::Brush, EmptyRes> {
+        let new_brush: peniko::Brush = new_brush.into().0;
+
+        let action: Action<FillStyle, peniko::Brush, EmptyRes> = Action::new(
+            self.target_id,
+            self.fill.brush.clone(),
+            new_brush.clone(),
+            Self::brush_interp,
+        );
+
+        self.fill.brush = new_brush;
+
+        action
+    }
+
+    fn brush_interp(
+        fill: &mut FillStyle,
+        begin: &peniko::Brush,
+        end: &peniko::Brush,
+        t: f32,
+        _: &mut ResMut<EmptyRes>,
+    ) {
+        fill.brush = peniko::Brush::lerp(begin, end, t);
+        fill.set_should_build(true);
+    }
+}
+
+#[derive(Component, Clone)]
 pub struct StrokeStyle {
-    pub style: kurbo::Stroke,
-    pub brush: peniko::Brush,
+    pub(crate) style: kurbo::Stroke,
+    pub(crate) brush: peniko::Brush,
+    should_build: bool,
 }
 
 impl StrokeStyle {
     #[inline]
-    pub fn from_brush(brush: impl Into<peniko::Brush>) -> Self {
+    pub fn from_brush(brush: impl Into<PenikoBrush>) -> Self {
         Self::default().with_brush(brush)
     }
 
@@ -81,9 +129,21 @@ impl StrokeStyle {
     }
 
     #[inline]
-    pub fn with_brush(mut self, brush: impl Into<peniko::Brush>) -> Self {
-        self.brush = brush.into();
+    pub fn with_brush(mut self, brush: impl Into<PenikoBrush>) -> Self {
+        self.brush = brush.into().0;
         self
+    }
+}
+
+impl VelloBuilder for StrokeStyle {
+    #[inline]
+    fn should_build(&self) -> bool {
+        self.should_build
+    }
+
+    #[inline]
+    fn set_should_build(&mut self, should_build: bool) {
+        self.should_build = should_build
     }
 }
 
@@ -92,15 +152,81 @@ impl Default for StrokeStyle {
         Self {
             style: kurbo::Stroke::default(),
             brush: peniko::Brush::Solid(peniko::Color::WHITE_SMOKE),
+            should_build: false,
         }
     }
 }
 
-impl Lerp<f32> for StrokeStyle {
-    fn lerp(&self, other: &Self, t: f32) -> Self {
-        StrokeStyle {
-            style: kurbo::Stroke::lerp(&self.style, &other.style, t),
-            brush: peniko::Brush::lerp(&self.brush, &other.brush, t),
-        }
+pub struct StrokeStyleMotion {
+    target_id: Entity,
+    stroke: StrokeStyle,
+}
+
+impl StrokeStyleMotion {
+    pub fn new(target_id: Entity, stroke: StrokeStyle) -> Self {
+        Self { target_id, stroke }
+    }
+    // =====================
+    // Stroke brush
+    // =====================
+    pub fn brush_to(
+        &mut self,
+        new_brush: impl Into<PenikoBrush>,
+    ) -> Action<StrokeStyle, peniko::Brush, EmptyRes> {
+        let new_brush: peniko::Brush = new_brush.into().0;
+
+        let action: Action<StrokeStyle, peniko::Brush, EmptyRes> = Action::new(
+            self.target_id,
+            self.stroke.brush.clone(),
+            new_brush.clone(),
+            Self::brush_interp,
+        );
+
+        self.stroke.brush = new_brush;
+
+        action
+    }
+
+    fn brush_interp(
+        stroke: &mut StrokeStyle,
+        begin: &peniko::Brush,
+        end: &peniko::Brush,
+        t: f32,
+        _: &mut ResMut<EmptyRes>,
+    ) {
+        stroke.brush = peniko::Brush::lerp(begin, end, t);
+        stroke.set_should_build(true);
+    }
+
+    // =====================
+    // Stroke style
+    // =====================
+    pub fn style_to(
+        &mut self,
+        new_style: impl Into<KurboStroke>,
+    ) -> Action<StrokeStyle, kurbo::Stroke, EmptyRes> {
+        let new_style: kurbo::Stroke = new_style.into().0;
+
+        let action: Action<StrokeStyle, kurbo::Stroke, EmptyRes> = Action::new(
+            self.target_id,
+            self.stroke.style.clone(),
+            new_style.clone(),
+            Self::style_interp,
+        );
+
+        self.stroke.style = new_style;
+
+        action
+    }
+
+    fn style_interp(
+        stroke: &mut StrokeStyle,
+        begin: &kurbo::Stroke,
+        end: &kurbo::Stroke,
+        t: f32,
+        _: &mut ResMut<EmptyRes>,
+    ) {
+        stroke.style = kurbo::Stroke::lerp(begin, end, t);
+        stroke.set_should_build(true);
     }
 }
