@@ -5,11 +5,10 @@ use bevy_vello_renderer::{
     prelude::*,
     vello::{self, kurbo},
 };
-use motiongfx_core::prelude::*;
 
 use crate::{
-    fill_style::{FillStyle, FillStyleMotion},
-    stroke_style::{StrokeStyle, StrokeStyleMotion},
+    fill_style::FillStyle,
+    stroke_style::StrokeStyle,
     vello_vector::{VelloBuilder, VelloVector},
 };
 
@@ -21,29 +20,13 @@ pub struct VelloRectBundle {
     pub fragment_bundle: VelloFragmentBundle,
 }
 
-pub struct VelloRectBundleMotion {
-    pub rect: VelloRectMotion,
-    pub fill: FillStyleMotion,
-    pub stroke: StrokeStyleMotion,
-}
-
-impl VelloRectBundleMotion {
-    pub fn new(target_id: Entity, bundle: VelloRectBundle) -> Self {
-        Self {
-            rect: VelloRectMotion::new(target_id, bundle.rect),
-            fill: FillStyleMotion::new(target_id, bundle.fill),
-            stroke: StrokeStyleMotion::new(target_id, bundle.stroke),
-        }
-    }
-}
-
 #[derive(Component, Clone, Default)]
 pub struct VelloRect {
     /// Coordinates of the rectangle.
-    rect: kurbo::Rect,
+    pub(crate) rect: kurbo::Rect,
     /// Radius of all four corners.
-    radii: kurbo::RoundedRectRadii,
-    should_build: bool,
+    pub(crate) radii: kurbo::RoundedRectRadii,
+    built: bool,
 }
 
 impl VelloRect {
@@ -153,152 +136,12 @@ impl VelloVector for VelloRect {
 
 impl VelloBuilder for VelloRect {
     #[inline]
-    fn should_build(&self) -> bool {
-        self.should_build
+    fn is_built(&self) -> bool {
+        self.built
     }
 
     #[inline]
-    fn set_should_build(&mut self, should_build: bool) {
-        self.should_build = should_build
-    }
-}
-
-pub struct VelloRectMotion {
-    target_id: Entity,
-    vello_rect: VelloRect,
-}
-
-impl VelloRectMotion {
-    pub fn new(target_id: Entity, vello_rect: VelloRect) -> Self {
-        Self {
-            target_id,
-            vello_rect,
-        }
-    }
-
-    // =====================
-    // Rect
-    // =====================
-    pub fn inflate(
-        &mut self,
-        inflation: impl Into<DVec2>,
-    ) -> Action<VelloRect, kurbo::Rect, EmptyRes> {
-        let inflation: DVec2 = inflation.into();
-
-        let new_rect: kurbo::Rect = self.vello_rect.rect.inflate(inflation.x, inflation.y);
-
-        let action: Action<VelloRect, kurbo::Rect, EmptyRes> = Action::new(
-            self.target_id,
-            self.vello_rect.rect,
-            new_rect,
-            Self::rect_interp,
-        );
-
-        self.vello_rect.rect = new_rect;
-
-        action
-    }
-
-    pub fn percentage_expand(
-        &mut self,
-        expansion: impl Into<DVec2>,
-        percentage: impl Into<DVec2>,
-    ) -> Action<VelloRect, kurbo::Rect, EmptyRes> {
-        let expansion: DVec2 = expansion.into();
-        let percentage: DVec2 = percentage.into();
-
-        let mut new_rect: kurbo::Rect = self.vello_rect.rect;
-        new_rect.x0 -= expansion.x * (1.0 - percentage.x);
-        new_rect.y0 -= expansion.y * (1.0 - percentage.y);
-        new_rect.x1 += expansion.x * percentage.x;
-        new_rect.y1 += expansion.y * percentage.y;
-
-        let action: Action<VelloRect, kurbo::Rect, EmptyRes> = Action::new(
-            self.target_id,
-            self.vello_rect.rect,
-            new_rect,
-            Self::rect_interp,
-        );
-
-        self.vello_rect.rect = new_rect;
-
-        action
-    }
-
-    pub fn expand_left(&mut self, expansion: f64) -> Action<VelloRect, kurbo::Rect, EmptyRes> {
-        self.percentage_expand(DVec2::new(expansion, 0.0), DVec2::new(0.0, 0.0))
-    }
-
-    pub fn expand_right(&mut self, expansion: f64) -> Action<VelloRect, kurbo::Rect, EmptyRes> {
-        self.percentage_expand(DVec2::new(expansion, 0.0), DVec2::new(1.0, 0.0))
-    }
-
-    pub fn expand_bottom(&mut self, expansion: f64) -> Action<VelloRect, kurbo::Rect, EmptyRes> {
-        self.percentage_expand(DVec2::new(0.0, expansion), DVec2::new(0.0, 0.0))
-    }
-
-    pub fn expand_top(&mut self, expansion: f64) -> Action<VelloRect, kurbo::Rect, EmptyRes> {
-        self.percentage_expand(DVec2::new(0.0, expansion), DVec2::new(0.0, 1.0))
-    }
-
-    pub fn rect_to(
-        &mut self,
-        new_rect: impl Into<kurbo::Rect>,
-    ) -> Action<VelloRect, kurbo::Rect, EmptyRes> {
-        let new_rect: kurbo::Rect = new_rect.into();
-
-        let action: Action<VelloRect, kurbo::Rect, EmptyRes> = Action::new(
-            self.target_id,
-            self.vello_rect.rect,
-            new_rect,
-            Self::rect_interp,
-        );
-
-        self.vello_rect.rect = new_rect;
-
-        action
-    }
-
-    fn rect_interp(
-        vello_rect: &mut VelloRect,
-        begin: &kurbo::Rect,
-        end: &kurbo::Rect,
-        t: f32,
-        _: &mut ResMut<EmptyRes>,
-    ) {
-        vello_rect.rect = kurbo::Rect::lerp(begin, end, t);
-        vello_rect.set_should_build(true);
-    }
-
-    // =====================
-    // Radii
-    // =====================
-    pub fn radii_to(
-        &mut self,
-        new_radii: impl Into<kurbo::RoundedRectRadii>,
-    ) -> Action<VelloRect, kurbo::RoundedRectRadii, EmptyRes> {
-        let new_radii: kurbo::RoundedRectRadii = new_radii.into();
-
-        let action: Action<VelloRect, kurbo::RoundedRectRadii, EmptyRes> = Action::new(
-            self.target_id,
-            self.vello_rect.radii,
-            new_radii,
-            Self::radii_interp,
-        );
-
-        self.vello_rect.radii = new_radii;
-
-        action
-    }
-
-    fn radii_interp(
-        vello_rect: &mut VelloRect,
-        begin: &kurbo::RoundedRectRadii,
-        end: &kurbo::RoundedRectRadii,
-        t: f32,
-        _: &mut ResMut<EmptyRes>,
-    ) {
-        vello_rect.radii = kurbo::RoundedRectRadii::lerp(begin, end, t);
-        vello_rect.set_should_build(true);
+    fn set_built(&mut self, built: bool) {
+        self.built = built
     }
 }

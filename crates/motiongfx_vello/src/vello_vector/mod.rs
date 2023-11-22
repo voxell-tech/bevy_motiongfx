@@ -10,15 +10,15 @@ pub mod line;
 pub mod rect;
 
 pub(crate) trait VelloVector {
-    fn build_fill(&self, fill: &FillStyle, builder: &mut vello::SceneBuilder) {}
+    fn build_fill(&self, fill: &FillStyle, builder: &mut vello::SceneBuilder);
 
-    fn build_stroke(&self, stroke: &StrokeStyle, builder: &mut vello::SceneBuilder) {}
+    fn build_stroke(&self, stroke: &StrokeStyle, builder: &mut vello::SceneBuilder);
 }
 
 pub(crate) trait VelloBuilder {
-    fn should_build(&self) -> bool;
+    fn is_built(&self) -> bool;
 
-    fn set_should_build(&mut self, should_build: bool);
+    fn set_built(&mut self, should_build: bool);
 }
 
 pub(crate) fn vector_builder<Vector: VelloVector + VelloBuilder + Component>(
@@ -43,7 +43,7 @@ pub(crate) fn vector_builder<Vector: VelloVector + VelloBuilder + Component>(
             let mut frag: vello::SceneFragment = vello::SceneFragment::new();
             let mut builder: vello::SceneBuilder = vello::SceneBuilder::for_fragment(&mut frag);
 
-            if vector.should_build() == false && fill.should_build() == false {
+            if vector.is_built() && fill.is_built() {
                 continue;
             }
 
@@ -51,8 +51,8 @@ pub(crate) fn vector_builder<Vector: VelloVector + VelloBuilder + Component>(
             vector.build_fill(&fill, &mut builder);
 
             // Set it to false after building
-            fill.set_should_build(false);
-            vector.set_should_build(false);
+            fill.set_built(true);
+            vector.set_built(true);
 
             // Replace with new fragment
             fragment.fragment = frag.into();
@@ -64,7 +64,7 @@ pub(crate) fn vector_builder<Vector: VelloVector + VelloBuilder + Component>(
             let mut frag: vello::SceneFragment = vello::SceneFragment::new();
             let mut builder: vello::SceneBuilder = vello::SceneBuilder::for_fragment(&mut frag);
 
-            if vector.should_build() == false && stroke.should_build() == false {
+            if vector.is_built() && stroke.is_built() {
                 continue;
             }
 
@@ -72,8 +72,8 @@ pub(crate) fn vector_builder<Vector: VelloVector + VelloBuilder + Component>(
             vector.build_stroke(&stroke, &mut builder);
 
             // Set it to false after building
-            stroke.set_should_build(false);
-            vector.set_should_build(false);
+            stroke.set_built(true);
+            vector.set_built(true);
 
             // Replace with new fragment
             fragment.fragment = frag.into();
@@ -86,10 +86,7 @@ pub(crate) fn vector_builder<Vector: VelloVector + VelloBuilder + Component>(
             let mut frag: vello::SceneFragment = vello::SceneFragment::new();
             let mut builder: vello::SceneBuilder = vello::SceneBuilder::for_fragment(&mut frag);
 
-            if vector.should_build() == false
-                && fill.should_build() == false
-                && stroke.should_build() == false
-            {
+            if vector.is_built() && fill.is_built() && stroke.is_built() {
                 continue;
             }
 
@@ -98,9 +95,9 @@ pub(crate) fn vector_builder<Vector: VelloVector + VelloBuilder + Component>(
             vector.build_stroke(&stroke, &mut builder);
 
             // Set it to false after building
-            fill.set_should_build(false);
-            stroke.set_should_build(false);
-            vector.set_should_build(false);
+            fill.set_built(true);
+            stroke.set_built(true);
+            vector.set_built(true);
 
             // Replace with new fragment
             fragment.fragment = frag.into();

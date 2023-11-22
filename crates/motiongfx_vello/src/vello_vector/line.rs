@@ -35,8 +35,8 @@ impl VelloLineBundleMotion {
 
 #[derive(Component, Clone)]
 pub struct VelloLine {
-    line: kurbo::Line,
-    should_build: bool,
+    pub(crate) line: kurbo::Line,
+    built: bool,
 }
 
 impl VelloLine {
@@ -69,6 +69,9 @@ impl VelloLine {
 
 impl VelloVector for VelloLine {
     #[inline]
+    fn build_fill(&self, _: &crate::fill_style::FillStyle, _: &mut vello::SceneBuilder) {}
+
+    #[inline]
     fn build_stroke(&self, stroke: &StrokeStyle, builder: &mut vello::SceneBuilder) {
         builder.stroke(
             &stroke.style,
@@ -82,13 +85,13 @@ impl VelloVector for VelloLine {
 
 impl VelloBuilder for VelloLine {
     #[inline]
-    fn should_build(&self) -> bool {
-        self.should_build
+    fn is_built(&self) -> bool {
+        self.built
     }
 
     #[inline]
-    fn set_should_build(&mut self, should_build: bool) {
-        self.should_build = should_build
+    fn set_built(&mut self, built: bool) {
+        self.built = built
     }
 }
 
@@ -96,7 +99,7 @@ impl Default for VelloLine {
     fn default() -> Self {
         Self {
             line: kurbo::Line::new(kurbo::Point::default(), kurbo::Point::default()),
-            should_build: false,
+            built: false,
         }
     }
 }
@@ -185,6 +188,6 @@ impl VelloLineMotion {
         _: &mut ResMut<EmptyRes>,
     ) {
         vello_line.line = kurbo::Line::lerp(begin, end, t);
-        vello_line.set_should_build(true);
+        vello_line.set_built(false);
     }
 }

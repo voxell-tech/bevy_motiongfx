@@ -35,12 +35,12 @@ impl FillStyle {
 
 impl VelloBuilder for FillStyle {
     #[inline]
-    fn should_build(&self) -> bool {
+    fn is_built(&self) -> bool {
         self.should_build
     }
 
     #[inline]
-    fn set_should_build(&mut self, should_build: bool) {
+    fn set_built(&mut self, should_build: bool) {
         self.should_build = should_build
     }
 }
@@ -105,6 +105,6 @@ impl FillStyleMotion {
         _: &mut ResMut<EmptyRes>,
     ) {
         fill.brush = peniko::Brush::lerp(begin, end, t);
-        fill.set_should_build(true);
+        fill.set_built(false);
     }
 }

@@ -5,11 +5,10 @@ use bevy_vello_renderer::{
     prelude::*,
     vello::{self, kurbo},
 };
-use motiongfx_core::prelude::*;
 
 use crate::{
-    fill_style::{FillStyle, FillStyleMotion},
-    stroke_style::{StrokeStyle, StrokeStyleMotion},
+    fill_style::FillStyle,
+    stroke_style::StrokeStyle,
     vello_vector::{VelloBuilder, VelloVector},
 };
 
@@ -21,26 +20,10 @@ pub struct VelloCircleBundle {
     pub fragment_bundle: VelloFragmentBundle,
 }
 
-pub struct VelloCircleBundleMotion {
-    pub circle: VelloCircleMotion,
-    pub fill: FillStyleMotion,
-    pub stroke: StrokeStyleMotion,
-}
-
-impl VelloCircleBundleMotion {
-    pub fn new(target_id: Entity, bundle: VelloCircleBundle) -> Self {
-        Self {
-            circle: VelloCircleMotion::new(target_id, bundle.circle),
-            fill: FillStyleMotion::new(target_id, bundle.fill),
-            stroke: StrokeStyleMotion::new(target_id, bundle.stroke),
-        }
-    }
-}
-
 #[derive(Component, Clone, Default)]
 pub struct VelloCircle {
-    circle: kurbo::Circle,
-    should_build: bool,
+    pub(crate) circle: kurbo::Circle,
+    built: bool,
 }
 
 impl VelloCircle {
@@ -93,74 +76,12 @@ impl VelloVector for VelloCircle {
 
 impl VelloBuilder for VelloCircle {
     #[inline]
-    fn should_build(&self) -> bool {
-        self.should_build
+    fn is_built(&self) -> bool {
+        self.built
     }
 
     #[inline]
-    fn set_should_build(&mut self, should_build: bool) {
-        self.should_build = should_build
-    }
-}
-
-pub struct VelloCircleMotion {
-    target_id: Entity,
-    vello_circle: VelloCircle,
-}
-
-impl VelloCircleMotion {
-    pub fn new(target_id: Entity, vello_circle: VelloCircle) -> Self {
-        Self {
-            target_id,
-            vello_circle,
-        }
-    }
-
-    // =====================
-    // Circle
-    // =====================
-    pub fn inflate(&mut self, inflation: f64) -> Action<VelloCircle, kurbo::Circle, EmptyRes> {
-        let mut new_circle: kurbo::Circle = self.vello_circle.circle;
-        new_circle.radius += inflation;
-
-        let action: Action<VelloCircle, kurbo::Circle, EmptyRes> = Action::new(
-            self.target_id,
-            self.vello_circle.circle,
-            new_circle,
-            Self::circle_interp,
-        );
-
-        self.vello_circle.circle = new_circle;
-
-        action
-    }
-
-    pub fn circle_to(
-        &mut self,
-        new_circle: impl Into<kurbo::Circle>,
-    ) -> Action<VelloCircle, kurbo::Circle, EmptyRes> {
-        let new_circle: kurbo::Circle = new_circle.into();
-
-        let action: Action<VelloCircle, kurbo::Circle, EmptyRes> = Action::new(
-            self.target_id,
-            self.vello_circle.circle,
-            new_circle,
-            Self::circle_interp,
-        );
-
-        self.vello_circle.circle = new_circle;
-
-        action
-    }
-
-    fn circle_interp(
-        vello_circle: &mut VelloCircle,
-        begin: &kurbo::Circle,
-        end: &kurbo::Circle,
-        t: f32,
-        _: &mut ResMut<EmptyRes>,
-    ) {
-        vello_circle.circle = kurbo::Circle::lerp(begin, end, t);
-        vello_circle.set_should_build(true);
+    fn set_built(&mut self, built: bool) {
+        self.built = built
     }
 }
