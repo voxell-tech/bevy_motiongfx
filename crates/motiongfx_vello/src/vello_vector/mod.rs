@@ -6,12 +6,13 @@ use crate::fill_style::FillStyle;
 use crate::stroke_style::StrokeStyle;
 
 pub mod circle;
+pub mod line;
 pub mod rect;
 
 pub(crate) trait VelloVector {
-    fn build_fill(&self, fill: &FillStyle, builder: &mut vello::SceneBuilder);
+    fn build_fill(&self, fill: &FillStyle, builder: &mut vello::SceneBuilder) {}
 
-    fn build_stroke(&self, stroke: &StrokeStyle, builder: &mut vello::SceneBuilder);
+    fn build_stroke(&self, stroke: &StrokeStyle, builder: &mut vello::SceneBuilder) {}
 }
 
 pub(crate) trait VelloBuilder {

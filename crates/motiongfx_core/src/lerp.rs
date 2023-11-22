@@ -42,6 +42,7 @@ impl Lerp<f32> for kurbo::Circle {
 impl Lerp<f32> for kurbo::Line {
     fn lerp(&self, other: &Self, t: f32) -> Self {
         let t: f64 = t as f64;
+
         kurbo::Line {
             p0: kurbo::Point::lerp(self.p0, other.p1, t),
             p1: kurbo::Point::lerp(self.p1, other.p1, t),
