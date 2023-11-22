@@ -154,13 +154,13 @@ impl VelloCircleMotion {
     }
 
     fn circle_interp(
-        vello_rect: &mut VelloCircle,
+        vello_circle: &mut VelloCircle,
         begin: &kurbo::Circle,
         end: &kurbo::Circle,
         t: f32,
         _: &mut ResMut<EmptyRes>,
     ) {
-        vello_rect.circle = kurbo::Circle::lerp(begin, end, t);
-        vello_rect.set_should_build(true);
+        vello_circle.circle = kurbo::Circle::lerp(begin, end, t);
+        vello_circle.set_should_build(true);
     }
 }
