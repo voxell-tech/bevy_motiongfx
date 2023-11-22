@@ -22,7 +22,7 @@ impl Plugin for MotionGfxVello {
                 (
                     // Vector builders
                     vello_vector::vector_builder::<vello_vector::rect::VelloRect>,
-                    vello_vector::vector_builder::<vello_vector::circ::VelloCircle>,
+                    vello_vector::vector_builder::<vello_vector::circle::VelloCircle>,
                     // Sequences
                     sequence_player_system::<vello_vector::rect::VelloRect, kurbo::Rect, EmptyRes>,
                     sequence_player_system::<vector_style::FillStyle, peniko::Brush, EmptyRes>,

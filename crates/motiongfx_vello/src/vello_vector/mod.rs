@@ -4,7 +4,7 @@ use bevy_vello_renderer::{prelude::*, vello};
 
 use crate::vector_style::{FillStyle, StrokeStyle};
 
-pub mod circ;
+pub mod circle;
 pub mod rect;
 
 pub(crate) trait VelloVector {
