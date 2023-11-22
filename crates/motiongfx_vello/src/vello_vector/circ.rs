@@ -8,7 +8,7 @@ use bevy_vello_renderer::{
 use motiongfx_core::prelude::*;
 
 use crate::{
-    vector_style::{FillStyle, StrokeStyle},
+    vector_style::{FillStyle, FillStyleMotion, StrokeStyle, StrokeStyleMotion},
     vello_vector::{VelloBuilder, VelloVector},
 };
 
@@ -18,6 +18,22 @@ pub struct VelloCircleBundle {
     pub fill: FillStyle,
     pub stroke: StrokeStyle,
     pub fragment_bundle: VelloFragmentBundle,
+}
+
+pub struct VelloCircleBundleMotion {
+    pub circle: VelloCircleMotion,
+    pub fill: FillStyleMotion,
+    pub stroke: StrokeStyleMotion,
+}
+
+impl VelloCircleBundleMotion {
+    pub fn new(target_id: Entity, bundle: VelloCircleBundle) -> Self {
+        Self {
+            circle: VelloCircleMotion::new(target_id, bundle.circle),
+            fill: FillStyleMotion::new(target_id, bundle.fill),
+            stroke: StrokeStyleMotion::new(target_id, bundle.stroke),
+        }
+    }
 }
 
 #[derive(Component, Clone, Default)]
