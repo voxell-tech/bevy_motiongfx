@@ -2,6 +2,7 @@ use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
 use bevy_math::DVec2;
 use bevy_vello_renderer::vello::kurbo;
+use motiongfx_bevy::prelude::*;
 use motiongfx_core::prelude::*;
 
 use crate::{
@@ -32,6 +33,7 @@ pub struct VelloRectBundleMotion {
     pub rect: VelloRectMotion,
     pub fill: FillStyleMotion,
     pub stroke: StrokeStyleMotion,
+    pub transform: TransformMotion,
 }
 
 impl VelloRectBundleMotion {
@@ -40,6 +42,7 @@ impl VelloRectBundleMotion {
             rect: VelloRectMotion::new(target_id, bundle.rect),
             fill: FillStyleMotion::new(target_id, bundle.fill),
             stroke: StrokeStyleMotion::new(target_id, bundle.stroke),
+            transform: TransformMotion::new(target_id, bundle.fragment_bundle.transform.local),
         }
     }
 }

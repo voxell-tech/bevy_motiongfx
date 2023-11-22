@@ -1,6 +1,7 @@
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
 use bevy_vello_renderer::vello::kurbo;
+use motiongfx_bevy::prelude::TransformMotion;
 use motiongfx_core::prelude::*;
 
 use crate::{
@@ -30,6 +31,7 @@ pub struct VelloCircleBundleMotion {
     pub circle: VelloCircleMotion,
     pub fill: FillStyleMotion,
     pub stroke: StrokeStyleMotion,
+    pub transform: TransformMotion,
 }
 
 impl VelloCircleBundleMotion {
@@ -38,6 +40,7 @@ impl VelloCircleBundleMotion {
             circle: VelloCircleMotion::new(target_id, bundle.circle),
             fill: FillStyleMotion::new(target_id, bundle.fill),
             stroke: StrokeStyleMotion::new(target_id, bundle.stroke),
+            transform: TransformMotion::new(target_id, bundle.fragment_bundle.transform.local),
         }
     }
 }
