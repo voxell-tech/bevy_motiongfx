@@ -1,2 +1,2 @@
-pub mod circle_motion;
-pub mod rect_motion;
+pub(crate) mod circle_motion;
+pub(crate) mod rect_motion;
