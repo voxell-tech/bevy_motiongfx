@@ -28,6 +28,7 @@ fn vello_basic(
     // Color palette
     let palette: ColorPalette<ColorKey> = ColorPalette::default();
 
+    // Spawning entities
     let rect_bundle: VelloRectBundle = VelloRectBundle {
         rect: VelloRect::anchor_center(DVec2::new(100.0, 100.0), DVec4::splat(10.0)),
         fill: FillStyle::from_brush(*palette.get_or_default(&ColorKey::Blue)),
@@ -47,23 +48,62 @@ fn vello_basic(
             .with_style(4.0),
         fragment_bundle: VelloFragmentBundle {
             fragment: fragments.add(VelloFragment::default()),
-            transform: TransformBundle::default(),
+            transform: TransformBundle::from_transform(Transform::from_xyz(200.0, 0.0, 0.0)),
             ..default()
         },
     };
 
     let rect_id: Entity = commands.spawn(rect_bundle.clone()).id();
-    let circle_id: Entity = commands.spawn(circle_bundle.clone()).id();
+    let circ_id: Entity = commands.spawn(circle_bundle.clone()).id();
 
     // Motions
-    let rect_motion: VelloRectBundleMotion = VelloRectBundleMotion::new(rect_id, rect_bundle);
-    let circle_motion: VelloCircleBundleMotion =
-        VelloCircleBundleMotion::new(circle_id, circle_bundle);
+    let mut rect_motion: VelloRectBundleMotion = VelloRectBundleMotion::new(rect_id, rect_bundle);
+    let mut circ_motion: VelloCircleBundleMotion =
+        VelloCircleBundleMotion::new(circ_id, circle_bundle);
 
     // Actions
     let mut act: ActionBuilder = ActionBuilder::new(&mut commands);
 
-    // sequence.play();
+    let actions: ActionMetaGroup = flow(
+        0.5,
+        &[
+            // Rect animation
+            chain(&[
+                all(&[
+                    act.play(rect_motion.rect.inflate(DVec2::splat(50.0)), 1.0),
+                    act.play(
+                        rect_motion.transform.rotate_to(Quat::from_euler(
+                            EulerRot::XYZ,
+                            0.0,
+                            0.0,
+                            std::f32::consts::PI,
+                        )),
+                        1.0,
+                    ),
+                ]),
+                all(&[
+                    act.play(rect_motion.rect.inflate(-DVec2::splat(50.0)), 1.0),
+                    act.play(
+                        rect_motion.transform.rotate_to(Quat::from_euler(
+                            EulerRot::XYZ,
+                            0.0,
+                            0.0,
+                            std::f32::consts::TAU,
+                        )),
+                        1.0,
+                    ),
+                ]),
+            ]),
+            // Circle animation
+            chain(&[
+                act.play(circ_motion.circle.inflate(40.0), 1.0),
+                act.play(circ_motion.circle.inflate(-50.0), 1.0),
+            ]),
+        ],
+    )
+    .with_ease(ease::cubic::ease_in_out);
+
+    sequence.play(actions);
 }
 
 fn timeline_movement_system(
