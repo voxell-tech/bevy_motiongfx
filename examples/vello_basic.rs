@@ -3,13 +3,7 @@ use bevy::{
     prelude::*,
 };
 use bevy_motiongfx::prelude::*;
-use motiongfx_vello::{
-    bevy_vello_renderer::prelude::*,
-    fill_style::FillStyle,
-    stroke_style::StrokeStyle,
-    vello_motion::rect_motion::VelloRectBundleMotion,
-    vello_vector::rect::{VelloRect, VelloRectBundle},
-};
+use motiongfx_vello::prelude::*;
 
 fn main() {
     App::new()
@@ -37,15 +31,34 @@ fn vello_basic(
     let rect_bundle: VelloRectBundle = VelloRectBundle {
         rect: VelloRect::anchor_center(DVec2::new(100.0, 100.0), DVec4::splat(10.0)),
         fill: FillStyle::from_brush(*palette.get_or_default(&ColorKey::Blue)),
-        stroke: StrokeStyle::from_brush(*palette.get_or_default(&ColorKey::Base8)).with_style(4.0),
+        stroke: StrokeStyle::from_brush(*palette.get_or_default(&ColorKey::Blue) * 1.5)
+            .with_style(4.0),
         fragment_bundle: VelloFragmentBundle {
             fragment: fragments.add(VelloFragment::default()),
-            transform: TransformBundle::from_transform(Transform::from_xyz(-100.0, 0.0, 0.0)),
+            transform: TransformBundle::from_transform(Transform::from_xyz(-200.0, 0.0, 0.0)),
             ..default()
         },
     };
 
-    let fragment_id: Entity = commands.spawn(rect_bundle.clone()).id();
+    let circle_bundle: VelloCircleBundle = VelloCircleBundle {
+        circle: VelloCircle::from_radius(50.0),
+        fill: FillStyle::from_brush(*palette.get_or_default(&ColorKey::Purple)),
+        stroke: StrokeStyle::from_brush(*palette.get_or_default(&ColorKey::Purple) * 1.5)
+            .with_style(4.0),
+        fragment_bundle: VelloFragmentBundle {
+            fragment: fragments.add(VelloFragment::default()),
+            transform: TransformBundle::default(),
+            ..default()
+        },
+    };
+
+    let rect_id: Entity = commands.spawn(rect_bundle.clone()).id();
+    let circle_id: Entity = commands.spawn(circle_bundle.clone()).id();
+
+    // Motions
+    let rect_motion: VelloRectBundleMotion = VelloRectBundleMotion::new(rect_id, rect_bundle);
+    let circle_motion: VelloCircleBundleMotion =
+        VelloCircleBundleMotion::new(circle_id, circle_bundle);
 
     // Actions
     let mut act: ActionBuilder = ActionBuilder::new(&mut commands);
