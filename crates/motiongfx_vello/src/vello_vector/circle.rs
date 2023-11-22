@@ -8,7 +8,8 @@ use bevy_vello_renderer::{
 use motiongfx_core::prelude::*;
 
 use crate::{
-    vector_style::{FillStyle, FillStyleMotion, StrokeStyle, StrokeStyleMotion},
+    fill_style::{FillStyle, FillStyleMotion},
+    stroke_style::{StrokeStyle, StrokeStyleMotion},
     vello_vector::{VelloBuilder, VelloVector},
 };
 

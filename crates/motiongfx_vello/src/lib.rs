@@ -8,7 +8,9 @@ use bevy_vello_renderer::{
 use motiongfx_core::prelude::*;
 
 pub mod convert;
-pub mod vector_style;
+pub mod fill_style;
+pub mod stroke_style;
+// pub mod vector_style;
 pub mod vello_vector;
 
 pub struct MotionGfxVello;
@@ -25,9 +27,9 @@ impl Plugin for MotionGfxVello {
                     vello_vector::vector_builder::<vello_vector::circle::VelloCircle>,
                     // Sequences
                     sequence_player_system::<vello_vector::rect::VelloRect, kurbo::Rect, EmptyRes>,
-                    sequence_player_system::<vector_style::FillStyle, peniko::Brush, EmptyRes>,
-                    sequence_player_system::<vector_style::StrokeStyle, peniko::Brush, EmptyRes>,
-                    sequence_player_system::<vector_style::StrokeStyle, kurbo::Stroke, EmptyRes>,
+                    sequence_player_system::<fill_style::FillStyle, peniko::Brush, EmptyRes>,
+                    sequence_player_system::<stroke_style::StrokeStyle, peniko::Brush, EmptyRes>,
+                    sequence_player_system::<stroke_style::StrokeStyle, kurbo::Stroke, EmptyRes>,
                     sequence_player_system::<
                         vello_vector::rect::VelloRect,
                         kurbo::RoundedRectRadii,

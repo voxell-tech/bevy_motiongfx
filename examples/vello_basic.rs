@@ -5,7 +5,8 @@ use bevy::{
 use bevy_motiongfx::prelude::*;
 use motiongfx_vello::{
     bevy_vello_renderer::prelude::*,
-    vector_style::{FillStyle, StrokeStyle},
+    fill_style::FillStyle,
+    stroke_style::StrokeStyle,
     vello_vector::rect::{VelloRect, VelloRectBundle, VelloRectBundleMotion},
 };
 

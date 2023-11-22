@@ -2,7 +2,8 @@ use bevy_asset::prelude::*;
 use bevy_ecs::prelude::*;
 use bevy_vello_renderer::{prelude::*, vello};
 
-use crate::vector_style::{FillStyle, StrokeStyle};
+use crate::fill_style::FillStyle;
+use crate::stroke_style::StrokeStyle;
 
 pub mod circle;
 pub mod rect;
