@@ -20,6 +20,7 @@ pub mod prelude {
         stroke_style::{StrokeStyle, StrokeStyleMotion},
         vello_motion::{
             circle_motion::{VelloCircleBundleMotion, VelloCircleMotion},
+            line_motion::{VelloLineBundleMotion, VelloLineMotion},
             rect_motion::{VelloRectBundleMotion, VelloRectMotion},
         },
         vello_vector::{
@@ -39,7 +40,7 @@ impl Plugin for MotionGfxVello {
             .add_plugins((
                 vello_motion::circle_motion::VelloCircleMotionPlugin,
                 vello_motion::rect_motion::VelloRectMotionPlugin,
-                // vello_motion::line_motion::VelloLineMotionPlugin,
+                vello_motion::line_motion::VelloLineMotionPlugin,
             ))
             .add_systems(
                 PostUpdate,
@@ -47,6 +48,7 @@ impl Plugin for MotionGfxVello {
                     // Vector builders
                     vello_vector::vector_builder::<vello_vector::rect::VelloRect>,
                     vello_vector::vector_builder::<vello_vector::circle::VelloCircle>,
+                    vello_vector::vector_builder::<vello_vector::line::VelloLine>,
                     // Sequences
                     sequence_player_system::<fill_style::FillStyle, peniko::Brush, EmptyRes>,
                     sequence_player_system::<stroke_style::StrokeStyle, peniko::Brush, EmptyRes>,
