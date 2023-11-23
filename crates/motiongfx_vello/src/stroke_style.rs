@@ -19,8 +19,8 @@ impl StrokeStyle {
     }
 
     #[inline]
-    pub fn with_style(mut self, style: kurbo::Stroke) -> Self {
-        self.style = style;
+    pub fn with_style(mut self, style: impl Into<KurboStroke>) -> Self {
+        self.style = style.into().0;
         self
     }
 
@@ -33,12 +33,12 @@ impl StrokeStyle {
 
 impl VelloBuilder for StrokeStyle {
     #[inline]
-    fn should_build(&self) -> bool {
+    fn is_built(&self) -> bool {
         self.should_build
     }
 
     #[inline]
-    fn set_should_build(&mut self, should_build: bool) {
+    fn set_built(&mut self, should_build: bool) {
         self.should_build = should_build
     }
 }
@@ -91,7 +91,7 @@ impl StrokeStyleMotion {
         _: &mut ResMut<EmptyRes>,
     ) {
         stroke.brush = peniko::Brush::lerp(begin, end, t);
-        stroke.set_should_build(true);
+        stroke.set_built(true);
     }
 
     // =====================
@@ -123,6 +123,6 @@ impl StrokeStyleMotion {
         _: &mut ResMut<EmptyRes>,
     ) {
         stroke.style = kurbo::Stroke::lerp(begin, end, t);
-        stroke.set_should_build(true);
+        stroke.set_built(true);
     }
 }
