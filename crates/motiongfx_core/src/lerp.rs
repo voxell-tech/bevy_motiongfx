@@ -44,7 +44,7 @@ impl Lerp<f32> for kurbo::Line {
         let t: f64 = t as f64;
 
         Self {
-            p0: kurbo::Point::lerp(self.p0, other.p1, t),
+            p0: kurbo::Point::lerp(self.p0, other.p0, t),
             p1: kurbo::Point::lerp(self.p1, other.p1, t),
         }
     }
