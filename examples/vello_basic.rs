@@ -41,7 +41,7 @@ fn vello_basic(
         },
     };
 
-    let circle_bundle: VelloCircleBundle = VelloCircleBundle {
+    let circ_bundle: VelloCircleBundle = VelloCircleBundle {
         circle: VelloCircle::from_radius(50.0),
         fill: FillStyle::from_brush(*palette.get_or_default(&ColorKey::Purple)),
         stroke: StrokeStyle::from_brush(*palette.get_or_default(&ColorKey::Purple) * 1.5)
@@ -53,13 +53,25 @@ fn vello_basic(
         },
     };
 
+    let line_bundle: VelloLineBundle = VelloLineBundle {
+        line: VelloLine::from_points(DVec2::new(-300.0, 0.0), DVec2::new(300.0, 0.0)),
+        stroke: StrokeStyle::from_brush(*palette.get_or_default(&ColorKey::Base8)),
+        fragment_bundle: VelloFragmentBundle {
+            fragment: fragments.add(VelloFragment::default()),
+            transform: TransformBundle::from_transform(Transform::from_xyz(0.0, -100.0, 0.0)),
+            ..default()
+        },
+    };
+
     let rect_id: Entity = commands.spawn(rect_bundle.clone()).id();
-    let circ_id: Entity = commands.spawn(circle_bundle.clone()).id();
+    let circ_id: Entity = commands.spawn(circ_bundle.clone()).id();
+    let line_id: Entity = commands.spawn(line_bundle.clone()).id();
 
     // Motions
     let mut rect_motion: VelloRectBundleMotion = VelloRectBundleMotion::new(rect_id, rect_bundle);
     let mut circ_motion: VelloCircleBundleMotion =
-        VelloCircleBundleMotion::new(circ_id, circle_bundle);
+        VelloCircleBundleMotion::new(circ_id, circ_bundle);
+    let mut line_motion: VelloLineBundleMotion = VelloLineBundleMotion::new(line_id, line_bundle);
 
     // Actions
     let mut act: ActionBuilder = ActionBuilder::new(&mut commands);
@@ -67,7 +79,27 @@ fn vello_basic(
     let actions: ActionMetaGroup = flow(
         0.5,
         &[
-            // Rect animation
+            // Line animation
+            chain(&[
+                all(&[
+                    act.play(
+                        line_motion
+                            .transform
+                            .translate_add(Vec3::new(0.0, -100.0, 0.0)),
+                        1.5,
+                    ),
+                    act.play(line_motion.line.extend(100.0), 1.0),
+                ]),
+                all(&[
+                    act.play(
+                        line_motion
+                            .transform
+                            .translate_add(Vec3::new(0.0, 100.0, 0.0)),
+                        1.5,
+                    ),
+                    act.play(line_motion.line.extend(-100.0), 1.0),
+                ]),
+            ]), // Rect animation
             chain(&[
                 all(&[
                     act.play(rect_motion.rect.inflate(DVec2::splat(50.0)), 1.0),
