@@ -89,6 +89,7 @@ fn vello_basic(
                         1.5,
                     ),
                     act.play(line_motion.line.extend(100.0), 1.0),
+                    act.play(line_motion.stroke.style_to(10.0), 1.0),
                 ]),
                 all(&[
                     act.play(
@@ -98,8 +99,10 @@ fn vello_basic(
                         1.5,
                     ),
                     act.play(line_motion.line.extend(-100.0), 1.0),
+                    act.play(line_motion.stroke.style_to(1.0), 1.0),
                 ]),
-            ]), // Rect animation
+            ]),
+            // Rect animation
             chain(&[
                 all(&[
                     act.play(rect_motion.rect.inflate(DVec2::splat(50.0)), 1.0),
@@ -112,6 +115,7 @@ fn vello_basic(
                         )),
                         1.0,
                     ),
+                    act.play(rect_motion.stroke.style_to(20.0), 1.0),
                 ]),
                 all(&[
                     act.play(rect_motion.rect.inflate(-DVec2::splat(50.0)), 1.0),
@@ -124,12 +128,19 @@ fn vello_basic(
                         )),
                         1.0,
                     ),
+                    act.play(rect_motion.stroke.style_to(4.0), 1.0),
                 ]),
             ]),
             // Circle animation
             chain(&[
-                act.play(circ_motion.circle.inflate(40.0), 1.0),
-                act.play(circ_motion.circle.inflate(-50.0), 1.0),
+                all(&[
+                    act.play(circ_motion.circle.inflate(50.0), 1.0),
+                    act.play(circ_motion.stroke.style_to(20.0), 1.0),
+                ]),
+                all(&[
+                    act.play(circ_motion.circle.inflate(-50.0), 1.0),
+                    act.play(circ_motion.stroke.style_to(4.0), 1.0),
+                ]),
             ]),
         ],
     )
