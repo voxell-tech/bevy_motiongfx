@@ -27,6 +27,7 @@ pub mod prelude {
             circle::{VelloCircle, VelloCircleBundle},
             line::{VelloLine, VelloLineBundle},
             rect::{VelloRect, VelloRectBundle},
+            text::{VelloText, VelloTextBundle},
         },
     };
     pub use bevy_vello_renderer::prelude::*;
@@ -49,6 +50,7 @@ impl Plugin for MotionGfxVello {
                     vello_vector::vector_builder::<vello_vector::rect::VelloRect>,
                     vello_vector::vector_builder::<vello_vector::circle::VelloCircle>,
                     vello_vector::vector_builder::<vello_vector::line::VelloLine>,
+                    vello_vector::vector_builder::<vello_vector::text::VelloText>,
                     // Sequences
                     sequence_player_system::<fill_style::FillStyle, peniko::Brush, EmptyRes>,
                     sequence_player_system::<stroke_style::StrokeStyle, peniko::Brush, EmptyRes>,
