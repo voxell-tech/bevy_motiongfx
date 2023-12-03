@@ -57,7 +57,7 @@ impl Default for VelloText {
         Self {
             font: peniko::Font::new(peniko::Blob::new(Arc::new(CONSOLAS_FONT)), 0),
             font_size: 24.0,
-            variations: &[("regular", 1.0)],
+            variations: &[],
             content: "".into(),
             built: false,
         }

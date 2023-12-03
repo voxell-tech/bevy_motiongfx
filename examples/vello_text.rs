@@ -30,7 +30,7 @@ fn vello_basic(
 
     // Spawning entities
     let text_bundle: VelloTextBundle = VelloTextBundle {
-        text: VelloText::from_content("Test"),
+        text: VelloText::from_content("Hello World!\nThis is a multiline test!"),
         fill: FillStyle::from_brush(*palette.get_or_default(&ColorKey::Blue)),
         // stroke: StrokeStyle::from_brush(*palette.get_or_default(&ColorKey::Blue) * 1.5)
         //     .with_style(4.0),
