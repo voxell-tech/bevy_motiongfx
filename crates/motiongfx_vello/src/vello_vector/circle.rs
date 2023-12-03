@@ -82,6 +82,6 @@ impl VelloBuilder for VelloCircle {
 
     #[inline]
     fn set_built(&mut self, built: bool) {
-        self.built = built
+        self.built = built;
     }
 }
