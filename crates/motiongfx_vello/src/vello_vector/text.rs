@@ -17,15 +17,20 @@ use bevy_vello_renderer::{
     },
 };
 
-use crate::{fill_style::FillStyle, prelude::StrokeStyle, vello_vector::VelloVector};
+use crate::{
+    fill_style::FillStyle,
+    prelude::StrokeStyle,
+    vello_vector::{VelloBuilder, VelloVector},
+};
 
-use super::VelloBuilder;
+const CONSOLAS_FONT: &[u8] = include_bytes!("../../fonts/consola.ttf");
 
 #[derive(Bundle, Clone, Default)]
 pub struct VelloTextBundle {
     pub text: VelloText,
     pub fill: FillStyle,
-    pub stroke: StrokeStyle,
+    // TODO: add stroke support
+    // pub stroke: StrokeStyle,
     pub fragment_bundle: VelloFragmentBundle,
 }
 
@@ -50,12 +55,9 @@ impl VelloText {
 impl Default for VelloText {
     fn default() -> Self {
         Self {
-            font: peniko::Font::new(
-                peniko::Blob::new(Arc::new(include_bytes!("../../fonts/consola.ttf"))),
-                0,
-            ),
+            font: peniko::Font::new(peniko::Blob::new(Arc::new(CONSOLAS_FONT)), 0),
             font_size: 24.0,
-            variations: &[],
+            variations: &[("regular", 1.0)],
             content: "".into(),
             built: false,
         }
@@ -64,6 +66,7 @@ impl Default for VelloText {
 
 impl VelloVector for VelloText {
     fn build_fill(&self, fill: &FillStyle, builder: &mut vello::SceneBuilder) {
+        println!("VelloVector build_fill");
         let Some(font_ref) = to_font_ref(&self.font) else {
             return;
         };
