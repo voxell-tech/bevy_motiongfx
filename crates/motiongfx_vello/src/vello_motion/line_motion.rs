@@ -21,7 +21,7 @@ impl Plugin for VelloLineMotionPlugin {
             PostUpdate,
             (
                 sequence_player_system::<VelloLine, kurbo::Line, EmptyRes>,
-                sequence_player_system::<VelloLine, f64, EmptyRes>,
+                sequence_player_system::<VelloLine, kurbo::Point, EmptyRes>,
             ),
         );
     }
