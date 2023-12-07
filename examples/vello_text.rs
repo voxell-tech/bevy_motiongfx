@@ -29,18 +29,28 @@ fn vello_basic(
     let palette: ColorPalette<ColorKey> = ColorPalette::default();
 
     // Spawning entities
-    let text_bundle: VelloTextBundle = VelloTextBundle {
-        text: VelloText::from_content("Hello World!\nThis is a multiline test!"),
+    let text_bundle: VelloTextSimpleBundle = VelloTextSimpleBundle {
+        text: VelloTextSimple::from_content("Hello world!").with_size(16.0),
         fill: FillStyle::from_brush(*palette.get_or_default(&ColorKey::Blue)),
-        // stroke: StrokeStyle::from_brush(*palette.get_or_default(&ColorKey::Blue) * 1.5)
-        //     .with_style(4.0),
+        stroke: StrokeStyle::from_brush(*palette.get_or_default(&ColorKey::default()))
+            .with_style(0.4),
         fragment_bundle: VelloFragmentBundle {
             fragment: fragments.add(VelloFragment::default()),
+            transform: TransformBundle::from_transform(Transform::from_translation(Vec3::new(
+                -500.0, 0.0, 0.0,
+            ))),
             ..default()
         },
     };
 
-    commands.spawn(text_bundle);
+    let text_id: Entity = commands.spawn(text_bundle.clone()).id();
+
+    let mut text_motion: VelloTextSimpleBundleMotion =
+        VelloTextSimpleBundleMotion::new(text_id, text_bundle);
+
+    let mut act: ActionBuilder = ActionBuilder::new(&mut commands);
+
+    sequence.play(act.play(text_motion.text.content_to("Transformed text!"), 1.0));
 }
 
 fn timeline_movement_system(
