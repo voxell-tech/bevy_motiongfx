@@ -7,7 +7,7 @@ use crate::{
     fill_style::FillStyleMotion,
     stroke_style::StrokeStyleMotion,
     vello_vector::{
-        text::{VelloTextSimple, VelloTextSimpleBundle},
+        text_simple::{VelloTextSimple, VelloTextSimpleBundle},
         VelloBuilder,
     },
 };

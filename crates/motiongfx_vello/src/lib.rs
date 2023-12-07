@@ -22,13 +22,13 @@ pub mod prelude {
             circle_motion::{VelloCircleBundleMotion, VelloCircleMotion},
             line_motion::{VelloLineBundleMotion, VelloLineMotion},
             rect_motion::{VelloRectBundleMotion, VelloRectMotion},
-            text_motion::{VelloTextSimpleBundleMotion, VelloTextSimpleMotion},
+            text_simple_motion::{VelloTextSimpleBundleMotion, VelloTextSimpleMotion},
         },
         vello_vector::{
             circle::{VelloCircle, VelloCircleBundle},
             line::{VelloLine, VelloLineBundle},
             rect::{VelloRect, VelloRectBundle},
-            text::{VelloTextSimple, VelloTextSimpleBundle},
+            text_simple::{VelloTextSimple, VelloTextSimpleBundle},
         },
     };
     pub use bevy_vello_renderer::prelude::*;
@@ -43,7 +43,7 @@ impl Plugin for MotionGfxVello {
                 vello_motion::circle_motion::VelloCircleMotionPlugin,
                 vello_motion::rect_motion::VelloRectMotionPlugin,
                 vello_motion::line_motion::VelloLineMotionPlugin,
-                vello_motion::text_motion::VelloTextSimpleMotionPlugin,
+                vello_motion::text_simple_motion::VelloTextSimpleMotionPlugin,
             ))
             .add_systems(
                 PostUpdate,
@@ -52,7 +52,7 @@ impl Plugin for MotionGfxVello {
                     vello_vector::vector_builder::<vello_vector::rect::VelloRect>,
                     vello_vector::vector_builder::<vello_vector::circle::VelloCircle>,
                     vello_vector::vector_builder::<vello_vector::line::VelloLine>,
-                    vello_vector::vector_builder::<vello_vector::text::VelloTextSimple>,
+                    vello_vector::vector_builder::<vello_vector::text_simple::VelloTextSimple>,
                     // Sequences
                     sequence_player_system::<fill_style::FillStyle, peniko::Brush, EmptyRes>,
                     sequence_player_system::<stroke_style::StrokeStyle, peniko::Brush, EmptyRes>,

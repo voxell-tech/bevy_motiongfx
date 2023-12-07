@@ -1,7 +1,4 @@
-use bevy::{
-    math::{DVec2, DVec4},
-    prelude::*,
-};
+use bevy::prelude::*;
 use bevy_motiongfx::prelude::*;
 use motiongfx_vello::prelude::*;
 

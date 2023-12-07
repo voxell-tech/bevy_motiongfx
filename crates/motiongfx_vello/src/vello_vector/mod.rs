@@ -7,7 +7,7 @@ use crate::{fill_style::FillStyle, stroke_style::StrokeStyle};
 pub(crate) mod circle;
 pub(crate) mod line;
 pub(crate) mod rect;
-pub(crate) mod text;
+pub(crate) mod text_simple;
 
 pub(crate) trait VelloVector {
     fn build_fill(&self, fill: &FillStyle, builder: &mut vello::SceneBuilder);
