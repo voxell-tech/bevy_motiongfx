@@ -14,6 +14,7 @@ fn main() {
             TypstCompilerPlugin::new(Vec::new()),
         ))
         .add_systems(Startup, (setup, typst_basic))
+        .add_systems(Update, test_movement)
         // .add_systems(Update, timeline_movement_system)
         .run();
 }
@@ -67,14 +68,22 @@ fn typst_basic(
         "###,
     );
 
-    match typst_compiler.compile(&mut commands, &mut fragment_assets, content) {
-        Ok(id) => {
-            commands
-                .entity(id)
-                .insert(Transform::from_xyz(-500.0, 600.0, 0.0));
-        }
+    match typst_compiler.compile_flatten(&mut commands, &mut fragment_assets, content) {
+        Ok(ids) => {}
         Err(err) => {
             println!("{:#?}", err);
         }
     }
+    // match typst_compiler.compile(&mut commands, &mut fragment_assets, content) {
+    //     Ok(id) => {
+    //         commands
+    //             .entity(id)
+    //             .insert(Transform::from_xyz(-500.0, 600.0, 0.0));
+    //     }
+    //     Err(err) => {
+    //         println!("{:#?}", err);
+    //     }
+    // }
 }
+
+fn test_movement(mut q_paths: Query<&Transform, With<Handle<VelloFragment>>>) {}

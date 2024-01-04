@@ -34,17 +34,62 @@ pub fn spawn_tree(
         .id()
 }
 
+pub fn spawn_tree_flatten(
+    commands: &mut Commands,
+    fragments: &mut ResMut<Assets<VelloFragment>>,
+    svg: &usvg::Tree,
+) -> Vec<Entity> {
+    let mut entities: Vec<Entity> = Vec::new();
+
+    for node in svg.root.descendants() {
+        // Only create entity for paths
+        match &*node.borrow() {
+            usvg::NodeKind::Group(_) => {}
+            usvg::NodeKind::Path(_) => {
+                let mut entity_commands: EntityCommands = commands.spawn((
+                    TransformBundle::from_transform(svg_transform(node.abs_transform())),
+                    VisibilityBundle::default(),
+                ));
+
+                populate_node(&mut entity_commands, fragments, &*node.borrow());
+
+                entities.push(entity_commands.id());
+            }
+            usvg::NodeKind::Image(_) => {}
+            usvg::NodeKind::Text(_) => {}
+        }
+    }
+
+    entities
+}
+
 fn spawn_child_recursive(
     parent: &mut ChildBuilder,
     fragments: &mut ResMut<Assets<VelloFragment>>,
     node: usvg::Node,
 ) {
-    let mut child: EntityCommands = parent.spawn((
+    let mut entity_commands: EntityCommands = parent.spawn((
         TransformBundle::from_transform(svg_transform(node.transform())),
         VisibilityBundle::default(),
     ));
 
-    match &*node.borrow() {
+    populate_node(&mut entity_commands, fragments, &*node.borrow());
+
+    if node.has_children() {
+        for child_node in node.children() {
+            entity_commands.with_children(|child_parent| {
+                spawn_child_recursive(child_parent, fragments, child_node);
+            });
+        }
+    }
+}
+
+fn populate_node(
+    entity_commands: &mut EntityCommands,
+    fragments: &mut ResMut<Assets<VelloFragment>>,
+    node: &usvg::NodeKind,
+) {
+    match node {
         usvg::NodeKind::Group(_) => {}
         usvg::NodeKind::Path(path) => {
             let mut local_path = kurbo::BezPath::new();
@@ -87,7 +132,7 @@ fn spawn_child_recursive(
                 }
             }
 
-            child.insert(VelloBezPath::new(local_path));
+            entity_commands.insert(VelloBezPath::new(local_path));
 
             // FIXME: let path.paint_order determine the fill/stroke order.
 
@@ -96,7 +141,7 @@ fn spawn_child_recursive(
                     // FIXME: Set the fill rule
                     let fill_style: FillStyle = FillStyle::from_brush(brush);
 
-                    child.insert(fill_style);
+                    entity_commands.insert(fill_style);
                 } else {
                     // on_err(sb, &elt)?;
                 }
@@ -108,24 +153,16 @@ fn spawn_child_recursive(
                     let stroke_style: StrokeStyle =
                         StrokeStyle::from_brush(brush).with_style(stroke.width.get());
 
-                    child.insert(stroke_style);
+                    entity_commands.insert(stroke_style);
                 } else {
                     // on_err(sb, &elt)?;
                 }
             }
 
-            child.insert(fragments.add(VelloFragment::default()));
+            entity_commands.insert(fragments.add(VelloFragment::default()));
         }
         usvg::NodeKind::Image(_) => {}
         usvg::NodeKind::Text(_) => {}
-    }
-
-    if node.has_children() {
-        for child_node in node.children() {
-            child.with_children(|child_parent| {
-                spawn_child_recursive(child_parent, fragments, child_node);
-            });
-        }
     }
 }
 

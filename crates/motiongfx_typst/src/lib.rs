@@ -55,19 +55,29 @@ impl TypstCompiler {
         fragment_assets: &mut ResMut<Assets<VelloFragment>>,
         text: String,
     ) -> Result<Entity, EcoVec<SourceDiagnostic>> {
+        let tree: usvg::Tree = self.compile_text(text)?;
+
+        Ok(svg::spawn_tree(commands, fragment_assets, &tree))
+    }
+
+    pub fn compile_flatten(
+        &mut self,
+        commands: &mut Commands,
+        fragment_assets: &mut ResMut<Assets<VelloFragment>>,
+        text: String,
+    ) -> Result<Vec<Entity>, EcoVec<SourceDiagnostic>> {
+        let tree: usvg::Tree = self.compile_text(text)?;
+
+        Ok(svg::spawn_tree_flatten(commands, fragment_assets, &tree))
+    }
+
+    fn compile_text(&mut self, text: String) -> Result<usvg::Tree, EcoVec<SourceDiagnostic>> {
         self.world.set_source(text);
         let document: Document = typst::compile(&self.world, &mut self.tracer)?;
 
         let svg: String = typst_svg::svg_merged(&document.pages, Abs::zero());
 
         // Svg string should not have any issue if compilation succeeded
-        let tree: usvg::Tree = usvg::Tree::from_str(&svg, &usvg::Options::default()).unwrap();
-
-        Ok(svg::spawn_tree(commands, fragment_assets, &tree))
-        // vello_svg::render_tree(&mut builder, &tree);
-
-        // Ok(VelloFragment {
-        //     fragment: Arc::new(fragment),
-        // })
+        Ok(usvg::Tree::from_str(&svg, &usvg::Options::default()).unwrap())
     }
 }
