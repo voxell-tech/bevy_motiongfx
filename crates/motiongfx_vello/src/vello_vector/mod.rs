@@ -4,6 +4,7 @@ use bevy_vello_renderer::{prelude::*, vello};
 
 use crate::{fill_style::FillStyle, stroke_style::StrokeStyle};
 
+pub(crate) mod bezpath;
 pub(crate) mod circle;
 pub(crate) mod line;
 pub(crate) mod rect;

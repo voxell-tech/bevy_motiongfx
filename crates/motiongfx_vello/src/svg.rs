@@ -1,0 +1,226 @@
+use bevy_asset::prelude::*;
+use bevy_ecs::{prelude::*, system::EntityCommands};
+use bevy_hierarchy::prelude::*;
+use bevy_math::Mat4;
+use bevy_transform::prelude::*;
+use bevy_utils::prelude::*;
+use bevy_vello_renderer::{
+    prelude::*,
+    vello::{kurbo, peniko},
+    vello_svg::usvg::{self, NodeExt},
+};
+
+use crate::{
+    fill_style::FillStyle, stroke_style::StrokeStyle, vello_vector::bezpath::VelloBezPath,
+};
+
+pub fn spawn_tree(
+    commands: &mut Commands,
+    fragments: &mut ResMut<Assets<VelloFragment>>,
+    svg: &usvg::Tree,
+) -> Entity {
+    commands
+        .spawn(TransformBundle::from_transform(svg_transform(
+            svg.root.abs_transform(),
+        )))
+        .with_children(|parent| {
+            if svg.root.has_children() {
+                for child in svg.root.children() {
+                    spawn_child_recursive(parent, fragments, child);
+                }
+            }
+        })
+        .id()
+}
+
+fn spawn_child_recursive(
+    parent: &mut ChildBuilder,
+    fragments: &mut ResMut<Assets<VelloFragment>>,
+    node: usvg::Node,
+) {
+    let mut child: EntityCommands = parent.spawn(TransformBundle::from_transform(svg_transform(
+        node.transform(),
+    )));
+
+    match &*node.borrow() {
+        usvg::NodeKind::Group(_) => {}
+        usvg::NodeKind::Path(path) => {
+            let mut local_path = kurbo::BezPath::new();
+            // The semantics of SVG paths don't line up with `BezPath`; we must manually track initial points
+            let mut just_closed: bool = false;
+            let mut most_recent_initial: kurbo::Point = kurbo::Point::default();
+
+            for elt in path.data.segments() {
+                match elt {
+                    usvg::PathSegment::MoveTo { x, y } => {
+                        if std::mem::take(&mut just_closed) {
+                            local_path.move_to(most_recent_initial);
+                        }
+                        most_recent_initial = kurbo::Point::new(x, y);
+                        local_path.move_to(most_recent_initial)
+                    }
+                    usvg::PathSegment::LineTo { x, y } => {
+                        if std::mem::take(&mut just_closed) {
+                            local_path.move_to(most_recent_initial);
+                        }
+                        local_path.line_to((x, y))
+                    }
+                    usvg::PathSegment::CurveTo {
+                        x1,
+                        y1,
+                        x2,
+                        y2,
+                        x,
+                        y,
+                    } => {
+                        if std::mem::take(&mut just_closed) {
+                            local_path.move_to(most_recent_initial);
+                        }
+                        local_path.curve_to((x1, y1), (x2, y2), (x, y))
+                    }
+                    usvg::PathSegment::ClosePath => {
+                        just_closed = true;
+                        local_path.close_path()
+                    }
+                }
+            }
+
+            child.insert(VelloBezPath::new(local_path));
+
+            // FIXME: let path.paint_order determine the fill/stroke order.
+
+            if let Some(fill) = &path.fill {
+                if let Some((brush, _)) = paint_to_brush(&fill.paint, fill.opacity) {
+                    // FIXME: Set the fill rule
+                    let fill_style: FillStyle = FillStyle::from_brush(brush);
+
+                    child.insert(fill_style);
+                } else {
+                    // on_err(sb, &elt)?;
+                }
+            }
+
+            if let Some(stroke) = &path.stroke {
+                if let Some((brush, _)) = paint_to_brush(&stroke.paint, stroke.opacity) {
+                    // FIXME: handle stroke options such as linecap, linejoin, etc.
+                    let stroke_style: StrokeStyle =
+                        StrokeStyle::from_brush(brush).with_style(stroke.width.get());
+
+                    child.insert(stroke_style);
+                } else {
+                    // on_err(sb, &elt)?;
+                }
+            }
+
+            child.insert(VelloFragmentBundle {
+                fragment: fragments.add(VelloFragment::default()),
+                ..default()
+            });
+        }
+        usvg::NodeKind::Image(_) => {}
+        usvg::NodeKind::Text(_) => {}
+    }
+
+    if node.has_children() {
+        for child_node in node.children() {
+            child.with_children(|child_parent| {
+                spawn_child_recursive(child_parent, fragments, child_node);
+            });
+        }
+    }
+}
+
+fn paint_to_brush(
+    paint: &usvg::Paint,
+    opacity: usvg::Opacity,
+) -> Option<(peniko::Brush, kurbo::Affine)> {
+    match paint {
+        usvg::Paint::Color(color) => Some((
+            peniko::Brush::Solid(peniko::Color::rgba8(
+                color.red,
+                color.green,
+                color.blue,
+                opacity.to_u8(),
+            )),
+            kurbo::Affine::IDENTITY,
+        )),
+        usvg::Paint::LinearGradient(gr) => {
+            let stops: Vec<peniko::ColorStop> = gr
+                .stops
+                .iter()
+                .map(|stop| {
+                    let mut cstop = peniko::ColorStop::default();
+                    cstop.color.r = stop.color.red;
+                    cstop.color.g = stop.color.green;
+                    cstop.color.b = stop.color.blue;
+                    cstop.color.a = (stop.opacity * opacity).to_u8();
+                    cstop.offset = stop.offset.get() as f32;
+                    cstop
+                })
+                .collect();
+            let start: kurbo::Point = (gr.x1, gr.y1).into();
+            let end: kurbo::Point = (gr.x2, gr.y2).into();
+            let transform = kurbo::Affine::new([
+                gr.transform.a,
+                gr.transform.b,
+                gr.transform.c,
+                gr.transform.d,
+                gr.transform.e,
+                gr.transform.f,
+            ]);
+            let gradient = peniko::Gradient::new_linear(start, end).with_stops(stops.as_slice());
+            Some((peniko::Brush::Gradient(gradient), transform))
+        }
+        usvg::Paint::RadialGradient(gr) => {
+            let stops: Vec<peniko::ColorStop> = gr
+                .stops
+                .iter()
+                .map(|stop| {
+                    let mut cstop = peniko::ColorStop::default();
+                    cstop.color.r = stop.color.red;
+                    cstop.color.g = stop.color.green;
+                    cstop.color.b = stop.color.blue;
+                    cstop.color.a = (stop.opacity * opacity).to_u8();
+                    cstop.offset = stop.offset.get() as f32;
+                    cstop
+                })
+                .collect();
+
+            let start_center: kurbo::Point = (gr.fx, gr.fy).into();
+            let end_center: kurbo::Point = (gr.cx, gr.cy).into();
+            let start_radius = 0_f32;
+            let end_radius = gr.r.get() as f32;
+            let transform = kurbo::Affine::new([
+                gr.transform.a,
+                gr.transform.b,
+                gr.transform.c,
+                gr.transform.d,
+                gr.transform.e,
+                gr.transform.f,
+            ]);
+            let gradient = peniko::Gradient::new_two_point_radial(
+                start_center,
+                start_radius,
+                end_center,
+                end_radius,
+            )
+            .with_stops(stops.as_slice());
+            Some((peniko::Brush::Gradient(gradient), transform))
+        }
+        usvg::Paint::Pattern(_) => None,
+    }
+}
+
+fn svg_transform(transform: usvg::Transform) -> Transform {
+    let usvg::Transform { a, b, c, d, e, f } = transform;
+
+    // https://stackoverflow.com/questions/39440369/how-to-convert-a-3x2-matrix-into-4x4-matrix
+    let transform: [f32; 16] = [
+        a as f32, b as f32, 0.0, 0.0, // row 1
+        c as f32, d as f32, 0.0, 0.0, // row 2
+        0.0, 0.0, 1.0, 0.0, // row 3
+        e as f32, -f as f32, 0.0, 1.0, // row 4
+    ];
+
+    Transform::from_matrix(Mat4::from_cols_array(&transform))
+}

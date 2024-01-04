@@ -742,6 +742,7 @@ dependencies = [
  "bevy",
  "motiongfx_bevy",
  "motiongfx_core",
+ "motiongfx_typst",
  "motiongfx_vello",
 ]
 
@@ -2995,6 +2996,7 @@ name = "motiongfx_typst"
 version = "0.1.0"
 dependencies = [
  "bevy_app",
+ "bevy_asset",
  "bevy_ecs",
  "bevy_utils",
  "bevy_vello_renderer",
@@ -3007,6 +3009,7 @@ dependencies = [
  "flate2",
  "fontdb 0.16.0",
  "motiongfx_core",
+ "motiongfx_vello",
  "parking_lot",
  "tar",
  "typst",
@@ -3021,6 +3024,7 @@ dependencies = [
  "bevy_app",
  "bevy_asset",
  "bevy_ecs",
+ "bevy_hierarchy",
  "bevy_log",
  "bevy_math",
  "bevy_pbr",

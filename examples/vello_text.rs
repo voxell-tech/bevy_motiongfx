@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 use bevy_motiongfx::prelude::*;
-use motiongfx_vello::prelude::*;
 
 fn main() {
     App::new()

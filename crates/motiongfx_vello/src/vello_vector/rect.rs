@@ -113,6 +113,7 @@ impl VelloRect {
 }
 
 impl VelloVector for VelloRect {
+    #[inline]
     fn build_fill(&self, fill: &FillStyle, builder: &mut vello::SceneBuilder) {
         builder.fill(
             fill.style,
@@ -123,6 +124,7 @@ impl VelloVector for VelloRect {
         );
     }
 
+    #[inline]
     fn build_stroke(&self, stroke: &StrokeStyle, builder: &mut vello::SceneBuilder) {
         builder.stroke(
             &stroke.style,
