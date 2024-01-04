@@ -1,9 +1,9 @@
 use bevy_asset::prelude::*;
 use bevy_ecs::{prelude::*, system::EntityCommands};
 use bevy_hierarchy::prelude::*;
-use bevy_math::Mat4;
+use bevy_math::prelude::*;
+use bevy_render::prelude::*;
 use bevy_transform::prelude::*;
-use bevy_utils::prelude::*;
 use bevy_vello_renderer::{
     prelude::*,
     vello::{kurbo, peniko},
@@ -20,9 +20,10 @@ pub fn spawn_tree(
     svg: &usvg::Tree,
 ) -> Entity {
     commands
-        .spawn(TransformBundle::from_transform(svg_transform(
-            svg.root.abs_transform(),
-        )))
+        .spawn((
+            TransformBundle::from_transform(svg_transform(svg.root.abs_transform())),
+            VisibilityBundle::default(),
+        ))
         .with_children(|parent| {
             if svg.root.has_children() {
                 for child in svg.root.children() {
@@ -38,9 +39,10 @@ fn spawn_child_recursive(
     fragments: &mut ResMut<Assets<VelloFragment>>,
     node: usvg::Node,
 ) {
-    let mut child: EntityCommands = parent.spawn(TransformBundle::from_transform(svg_transform(
-        node.transform(),
-    )));
+    let mut child: EntityCommands = parent.spawn((
+        TransformBundle::from_transform(svg_transform(node.transform())),
+        VisibilityBundle::default(),
+    ));
 
     match &*node.borrow() {
         usvg::NodeKind::Group(_) => {}
@@ -112,10 +114,7 @@ fn spawn_child_recursive(
                 }
             }
 
-            child.insert(VelloFragmentBundle {
-                fragment: fragments.add(VelloFragment::default()),
-                ..default()
-            });
+            child.insert(fragments.add(VelloFragment::default()));
         }
         usvg::NodeKind::Image(_) => {}
         usvg::NodeKind::Text(_) => {}
