@@ -14,6 +14,26 @@ use crate::{
     fill_style::FillStyle, stroke_style::StrokeStyle, vello_vector::bezpath::VelloBezPath,
 };
 
+pub struct SvgPathBundle {
+    pub entity: Entity,
+    pub transform: Transform,
+    pub path: kurbo::BezPath,
+    pub fill: Option<FillStyle>,
+    pub stroke: Option<StrokeStyle>,
+}
+
+impl SvgPathBundle {
+    pub fn new(entity: Entity, transform: Transform) -> Self {
+        Self {
+            entity,
+            transform,
+            path: kurbo::BezPath::default(),
+            fill: None,
+            stroke: None,
+        }
+    }
+}
+
 pub fn spawn_tree(
     commands: &mut Commands,
     fragments: &mut ResMut<Assets<VelloFragment>>,
@@ -38,29 +58,40 @@ pub fn spawn_tree_flatten(
     commands: &mut Commands,
     fragments: &mut ResMut<Assets<VelloFragment>>,
     svg: &usvg::Tree,
-) -> Vec<Entity> {
-    let mut entities: Vec<Entity> = Vec::new();
+) -> (Entity, Vec<SvgPathBundle>) {
+    let mut svg_paths: Vec<SvgPathBundle> = Vec::new();
 
     for node in svg.root.descendants() {
         // Only create entity for paths
         match &*node.borrow() {
             usvg::NodeKind::Group(_) => {}
-            usvg::NodeKind::Path(_) => {
+            usvg::NodeKind::Path(path) => {
+                let transform: Transform = svg_transform(node.abs_transform());
                 let mut entity_commands: EntityCommands = commands.spawn((
-                    TransformBundle::from_transform(svg_transform(node.abs_transform())),
+                    TransformBundle::from_transform(transform),
                     VisibilityBundle::default(),
                 ));
 
-                populate_node(&mut entity_commands, fragments, &*node.borrow());
+                let mut svg_path_bundle: SvgPathBundle =
+                    SvgPathBundle::new(entity_commands.id(), transform);
 
-                entities.push(entity_commands.id());
+                populate_with_path(&mut entity_commands, &mut svg_path_bundle, fragments, path);
+
+                svg_paths.push(svg_path_bundle);
             }
             usvg::NodeKind::Image(_) => {}
             usvg::NodeKind::Text(_) => {}
         }
     }
 
-    entities
+    let child_entities: &Vec<Entity> = &svg_paths.iter().map(|svg_path| svg_path.entity).collect();
+
+    let root_entity: Entity = commands
+        .spawn((TransformBundle::default(), VisibilityBundle::default()))
+        .push_children(child_entities)
+        .id();
+
+    (root_entity, svg_paths)
 }
 
 fn spawn_child_recursive(
@@ -68,12 +99,23 @@ fn spawn_child_recursive(
     fragments: &mut ResMut<Assets<VelloFragment>>,
     node: usvg::Node,
 ) {
+    let transform: Transform = svg_transform(node.transform());
     let mut entity_commands: EntityCommands = parent.spawn((
-        TransformBundle::from_transform(svg_transform(node.transform())),
+        TransformBundle::from_transform(transform),
         VisibilityBundle::default(),
     ));
 
-    populate_node(&mut entity_commands, fragments, &*node.borrow());
+    match &*node.borrow() {
+        usvg::NodeKind::Group(_) => {}
+        usvg::NodeKind::Path(path) => {
+            let mut svg_path_bundle: SvgPathBundle =
+                SvgPathBundle::new(entity_commands.id(), transform);
+
+            populate_with_path(&mut entity_commands, &mut svg_path_bundle, fragments, path);
+        }
+        usvg::NodeKind::Image(_) => {}
+        usvg::NodeKind::Text(_) => {}
+    }
 
     if node.has_children() {
         for child_node in node.children() {
@@ -84,86 +126,83 @@ fn spawn_child_recursive(
     }
 }
 
-fn populate_node(
+fn populate_with_path(
     entity_commands: &mut EntityCommands,
+    svg_path_bundle: &mut SvgPathBundle,
     fragments: &mut ResMut<Assets<VelloFragment>>,
-    node: &usvg::NodeKind,
+    path: &usvg::Path,
 ) {
-    match node {
-        usvg::NodeKind::Group(_) => {}
-        usvg::NodeKind::Path(path) => {
-            let mut local_path = kurbo::BezPath::new();
-            // The semantics of SVG paths don't line up with `BezPath`; we must manually track initial points
-            let mut just_closed: bool = false;
-            let mut most_recent_initial: kurbo::Point = kurbo::Point::default();
+    let mut local_path = kurbo::BezPath::new();
+    // The semantics of SVG paths don't line up with `BezPath`; we must manually track initial points
+    let mut just_closed: bool = false;
+    let mut most_recent_initial: kurbo::Point = kurbo::Point::default();
 
-            for elt in path.data.segments() {
-                match elt {
-                    usvg::PathSegment::MoveTo { x, y } => {
-                        if std::mem::take(&mut just_closed) {
-                            local_path.move_to(most_recent_initial);
-                        }
-                        most_recent_initial = kurbo::Point::new(x, y);
-                        local_path.move_to(most_recent_initial)
-                    }
-                    usvg::PathSegment::LineTo { x, y } => {
-                        if std::mem::take(&mut just_closed) {
-                            local_path.move_to(most_recent_initial);
-                        }
-                        local_path.line_to((x, y))
-                    }
-                    usvg::PathSegment::CurveTo {
-                        x1,
-                        y1,
-                        x2,
-                        y2,
-                        x,
-                        y,
-                    } => {
-                        if std::mem::take(&mut just_closed) {
-                            local_path.move_to(most_recent_initial);
-                        }
-                        local_path.curve_to((x1, y1), (x2, y2), (x, y))
-                    }
-                    usvg::PathSegment::ClosePath => {
-                        just_closed = true;
-                        local_path.close_path()
-                    }
+    for elt in path.data.segments() {
+        match elt {
+            usvg::PathSegment::MoveTo { x, y } => {
+                if std::mem::take(&mut just_closed) {
+                    local_path.move_to(most_recent_initial);
                 }
+                most_recent_initial = kurbo::Point::new(x, y);
+                local_path.move_to(most_recent_initial)
             }
-
-            entity_commands.insert(VelloBezPath::new(local_path));
-
-            // FIXME: let path.paint_order determine the fill/stroke order.
-
-            if let Some(fill) = &path.fill {
-                if let Some((brush, _)) = paint_to_brush(&fill.paint, fill.opacity) {
-                    // FIXME: Set the fill rule
-                    let fill_style: FillStyle = FillStyle::from_brush(brush);
-
-                    entity_commands.insert(fill_style);
-                } else {
-                    // on_err(sb, &elt)?;
+            usvg::PathSegment::LineTo { x, y } => {
+                if std::mem::take(&mut just_closed) {
+                    local_path.move_to(most_recent_initial);
                 }
+                local_path.line_to((x, y))
             }
-
-            if let Some(stroke) = &path.stroke {
-                if let Some((brush, _)) = paint_to_brush(&stroke.paint, stroke.opacity) {
-                    // FIXME: handle stroke options such as linecap, linejoin, etc.
-                    let stroke_style: StrokeStyle =
-                        StrokeStyle::from_brush(brush).with_style(stroke.width.get());
-
-                    entity_commands.insert(stroke_style);
-                } else {
-                    // on_err(sb, &elt)?;
+            usvg::PathSegment::CurveTo {
+                x1,
+                y1,
+                x2,
+                y2,
+                x,
+                y,
+            } => {
+                if std::mem::take(&mut just_closed) {
+                    local_path.move_to(most_recent_initial);
                 }
+                local_path.curve_to((x1, y1), (x2, y2), (x, y))
             }
-
-            entity_commands.insert(fragments.add(VelloFragment::default()));
+            usvg::PathSegment::ClosePath => {
+                just_closed = true;
+                local_path.close_path()
+            }
         }
-        usvg::NodeKind::Image(_) => {}
-        usvg::NodeKind::Text(_) => {}
     }
+
+    entity_commands.insert(VelloBezPath::new(local_path.clone()));
+    svg_path_bundle.path = local_path;
+
+    // FIXME: let path.paint_order determine the fill/stroke order.
+
+    if let Some(fill) = &path.fill {
+        if let Some((brush, _)) = paint_to_brush(&fill.paint, fill.opacity) {
+            // FIXME: Set the fill rule
+            let fill_style: FillStyle = FillStyle::from_brush(brush);
+
+            entity_commands.insert(fill_style.clone());
+            svg_path_bundle.fill = Some(fill_style);
+        } else {
+            // on_err(sb, &elt)?;
+        }
+    }
+
+    if let Some(stroke) = &path.stroke {
+        if let Some((brush, _)) = paint_to_brush(&stroke.paint, stroke.opacity) {
+            // FIXME: handle stroke options such as linecap, linejoin, etc.
+            let stroke_style: StrokeStyle =
+                StrokeStyle::from_brush(brush).with_style(stroke.width.get());
+
+            entity_commands.insert(stroke_style.clone());
+            svg_path_bundle.stroke = Some(stroke_style);
+        } else {
+            // on_err(sb, &elt)?;
+        }
+    }
+
+    entity_commands.insert(fragments.add(VelloFragment::default()));
 }
 
 fn paint_to_brush(

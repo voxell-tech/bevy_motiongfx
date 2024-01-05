@@ -66,7 +66,7 @@ impl TypstCompiler {
         commands: &mut Commands,
         fragment_assets: &mut ResMut<Assets<VelloFragment>>,
         text: String,
-    ) -> Result<Vec<Entity>, EcoVec<SourceDiagnostic>> {
+    ) -> Result<(Entity, Vec<svg::SvgPathBundle>), EcoVec<SourceDiagnostic>> {
         let tree: usvg::Tree = self.compile_text(text)?;
 
         Ok(svg::spawn_tree_flatten(commands, fragment_assets, &tree))

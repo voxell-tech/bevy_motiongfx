@@ -14,8 +14,7 @@ fn main() {
             TypstCompilerPlugin::new(Vec::new()),
         ))
         .add_systems(Startup, (setup, typst_basic))
-        .add_systems(Update, test_movement)
-        // .add_systems(Update, timeline_movement_system)
+        .add_systems(Update, timeline_movement_system)
         .run();
 }
 
@@ -25,8 +24,9 @@ fn setup(mut commands: Commands) {
 
 fn typst_basic(
     mut commands: Commands,
-    mut fragment_assets: ResMut<Assets<VelloFragment>>,
+    mut sequence: ResMut<Sequence>,
     mut typst_compiler: ResMut<TypstCompiler>,
+    mut fragment_assets: ResMut<Assets<VelloFragment>>,
 ) {
     let content: String = String::from(
         r###"
@@ -47,19 +47,9 @@ fn typst_basic(
             op("lim", limits: #true)_x $
 
         ```rs
-        match typst_compiler.compile(content) {
-            Ok(fragment) => {
-                commands.spawn(VelloFragmentBundle {
-                    fragment: fragment_assets.add(fragment),
-                    transform: TransformBundle {
-                        local: Transform::from_xyz(-500.0, 500.0, 0.0),
-                        ..default()
-                    },
-                    ..default()
-                });
-            }
-            Err(err) => println!("{:#?}", err),
-        };
+        fn main() {
+            println!("Hello from Typst!");
+        }
         ```
 
         = Introduction
@@ -69,7 +59,27 @@ fn typst_basic(
     );
 
     match typst_compiler.compile_flatten(&mut commands, &mut fragment_assets, content) {
-        Ok(ids) => {}
+        Ok((root_entity, svg_path_bundles)) => {
+            commands
+                .entity(root_entity)
+                .insert(Transform::from_xyz(-600.0, 600.0, 0.0));
+
+            // Motion
+            let mut transform_motions: Vec<TransformMotion> = svg_path_bundles
+                .iter()
+                .map(|bundle| TransformMotion::new(bundle.entity, bundle.transform))
+                .collect();
+
+            // Actions
+            let mut act: ActionBuilder = ActionBuilder::new(&mut commands);
+
+            let transform_actions: Vec<ActionMetaGroup> = transform_motions
+                .iter_mut()
+                .map(|motion| act.play(motion.translate_add(Vec3::Y * 50.0), 1.0))
+                .collect();
+
+            sequence.play(flow(0.1, &transform_actions).with_ease(ease::expo::ease_in_out));
+        }
         Err(err) => {
             println!("{:#?}", err);
         }
@@ -86,4 +96,25 @@ fn typst_basic(
     // }
 }
 
-fn test_movement(mut q_paths: Query<&Transform, With<Handle<VelloFragment>>>) {}
+fn timeline_movement_system(
+    mut timeline: ResMut<Timeline>,
+    keys: Res<Input<KeyCode>>,
+    time: Res<Time>,
+) {
+    println!("{:?}", time.elapsed());
+    if keys.pressed(KeyCode::D) {
+        timeline.target_time += time.delta_seconds();
+    }
+
+    if keys.pressed(KeyCode::A) {
+        timeline.target_time -= time.delta_seconds();
+    }
+
+    if keys.pressed(KeyCode::Space) && keys.pressed(KeyCode::ShiftLeft) {
+        timeline.time_scale = -1.0;
+        timeline.is_playing = true;
+    } else if keys.pressed(KeyCode::Space) {
+        timeline.time_scale = 1.0;
+        timeline.is_playing = true;
+    }
+}
