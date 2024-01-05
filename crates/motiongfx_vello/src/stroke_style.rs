@@ -7,8 +7,8 @@ use crate::vello_vector::VelloBuilder;
 
 #[derive(Component, Clone)]
 pub struct StrokeStyle {
-    pub(crate) style: kurbo::Stroke,
-    pub(crate) brush: peniko::Brush,
+    pub style: kurbo::Stroke,
+    pub brush: peniko::Brush,
     should_build: bool,
 }
 

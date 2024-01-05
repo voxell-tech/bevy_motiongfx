@@ -9,8 +9,8 @@ use crate::vello_vector::VelloBuilder;
 
 #[derive(Component, Clone)]
 pub struct FillStyle {
-    pub(crate) style: peniko::Fill,
-    pub(crate) brush: peniko::Brush,
+    pub style: peniko::Fill,
+    pub brush: peniko::Brush,
     should_build: bool,
 }
 
