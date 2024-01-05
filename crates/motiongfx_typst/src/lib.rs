@@ -61,6 +61,11 @@ impl TypstCompiler {
         Ok(svg::spawn_tree(commands, fragment_assets, &tree))
     }
 
+    /// [`SvgPathBundle`]: svg::SvgPathBundle
+    /// Returns a root entity and a flatten vector of [`SvgPathBundle`] that is accumulated from Typst's compilation.
+    /// The root entity is the parent of all the [`SvgPathBundle`]s.
+    ///
+    /// If an error occur during Typst compilation, an error message will be returned instead.
     pub fn compile_flatten(
         &mut self,
         commands: &mut Commands,
