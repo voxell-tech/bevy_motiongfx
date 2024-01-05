@@ -129,6 +129,7 @@ impl<'a, 'w, 's> ActionBuilder<'a, 'w, 's> {
     }
 }
 
+// FIXME: use Sequence instead??
 #[derive(Clone, Default)]
 pub struct ActionMetaGroup {
     pub(crate) action_metas: Vec<ActionMeta>,

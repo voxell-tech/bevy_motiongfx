@@ -4,10 +4,10 @@ use bevy_math::prelude::*;
 use bevy_pbr::prelude::*;
 use bevy_render::prelude::*;
 use bevy_transform::prelude::*;
-use motiongfx_core::prelude::*;
+use motiongfx_core::{prelude::*, sequence::sequence_player_system};
 
-mod standard_material;
-mod transform;
+pub mod standard_material;
+pub mod transform;
 
 pub mod prelude {
     pub use crate::{

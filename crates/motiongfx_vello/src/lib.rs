@@ -5,15 +5,14 @@ use bevy_vello_renderer::{
     prelude::*,
     vello::{kurbo, peniko},
 };
-use motiongfx_core::prelude::*;
+use motiongfx_core::{prelude::*, sequence::sequence_player_system};
 
+pub mod convert;
+pub mod fill_style;
+pub mod stroke_style;
 pub mod svg;
-
-mod convert;
-mod fill_style;
-mod stroke_style;
-mod vello_motion;
-mod vello_vector;
+pub mod vello_motion;
+pub mod vello_vector;
 
 pub mod prelude {
     pub use crate::{

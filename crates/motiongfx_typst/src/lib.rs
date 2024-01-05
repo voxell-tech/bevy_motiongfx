@@ -13,10 +13,11 @@ use typst::{diag::SourceDiagnostic, eval::Tracer, layout::Abs, model::Document};
 
 use crate::world::TypstWorld;
 
+pub mod world;
+
 mod download;
 mod fonts;
 mod package;
-mod world;
 
 #[derive(Default)]
 pub struct TypstCompilerPlugin {
