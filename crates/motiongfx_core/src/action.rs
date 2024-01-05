@@ -1,5 +1,6 @@
 use crate::ease::{quad, EaseFn};
 use bevy_ecs::prelude::*;
+use bevy_utils::prelude::*;
 
 pub type InterpFn<CompType, InterpType, ResType> = fn(
     component: &mut CompType,
@@ -126,6 +127,13 @@ impl<'a, 'w, 's> ActionBuilder<'a, 'w, 's> {
         let action_meta: ActionMeta = ActionMeta::new(action_id).with_duration(duration);
 
         ActionMetaGroup::single(action_meta)
+    }
+
+    pub fn sleep(&mut self, duration: f32) -> ActionMetaGroup {
+        ActionMetaGroup {
+            duration,
+            ..default()
+        }
     }
 }
 
