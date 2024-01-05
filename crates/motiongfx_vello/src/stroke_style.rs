@@ -91,7 +91,7 @@ impl StrokeStyleMotion {
         _: &mut ResMut<EmptyRes>,
     ) {
         stroke.brush = peniko::Brush::lerp(begin, end, t);
-        stroke.set_built(true);
+        stroke.set_built(false);
     }
 
     // =====================
