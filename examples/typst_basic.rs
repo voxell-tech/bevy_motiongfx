@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy_motiongfx::prelude::*;
 use motiongfx_typst::{TypstCompiler, TypstCompilerPlugin};
+use motiongfx_vello::{bevy_vello_renderer::vello::peniko, svg};
 
 fn main() {
     App::new()
@@ -65,35 +66,78 @@ fn typst_basic(
                 .insert(Transform::from_xyz(-600.0, 600.0, 0.0));
 
             // Motion
-            let mut transform_motions: Vec<TransformMotion> = svg_path_bundles
-                .iter()
-                .map(|bundle| TransformMotion::new(bundle.entity, bundle.transform))
-                .collect();
+            let path_len: usize = svg_path_bundles.len();
+
+            let mut transform_motions: Vec<TransformMotion> = Vec::with_capacity(path_len);
+            let mut fill_motions: Vec<Option<FillStyleMotion>> = Vec::with_capacity(path_len);
+            let mut stroke_motions: Vec<Option<StrokeStyleMotion>> = Vec::with_capacity(path_len);
+
+            for p in 0..path_len {
+                let path: &svg::SvgPathBundle = &svg_path_bundles[p];
+
+                transform_motions.push(TransformMotion::new(path.entity, path.transform));
+
+                if let Some(fill) = &path.fill {
+                    fill_motions.push(Some(FillStyleMotion::new(path.entity, fill.clone())));
+                } else {
+                    fill_motions.push(None);
+                }
+
+                if let Some(stroke) = &path.stroke {
+                    stroke_motions.push(Some(StrokeStyleMotion::new(path.entity, stroke.clone())));
+                } else {
+                    stroke_motions.push(None);
+                }
+            }
 
             // Actions
             let mut act: ActionBuilder = ActionBuilder::new(&mut commands);
 
-            let transform_actions: Vec<ActionMetaGroup> = transform_motions
-                .iter_mut()
-                .map(|motion| act.play(motion.translate_add(Vec3::Y * 50.0), 1.0))
-                .collect();
+            let mut setup_actions: Vec<ActionMetaGroup> = Vec::with_capacity(path_len);
+            let mut animate_actions: Vec<ActionMetaGroup> = Vec::with_capacity(path_len);
 
-            sequence.play(flow(0.1, &transform_actions).with_ease(ease::expo::ease_in_out));
+            let transform_offset: Vec3 = Vec3::Y * 50.0;
+
+            for p in 0..path_len {
+                let path: &svg::SvgPathBundle = &svg_path_bundles[p];
+
+                if let Some(motion) = &mut fill_motions[p] {
+                    setup_actions.push(act.play(motion.brush_to(Color::NONE), 0.0));
+                }
+                if let Some(motion) = &mut stroke_motions[p] {
+                    setup_actions.push(act.play(motion.brush_to(Color::NONE), 0.0));
+                }
+
+                animate_actions.push(all(&[
+                    act.play(transform_motions[p].translate_add(transform_offset), 1.0),
+                    {
+                        if let Some(motion) = &mut fill_motions[p] {
+                            let brush: peniko::Brush = path.fill.as_ref().unwrap().brush.clone();
+                            act.play(motion.brush_to(brush), 1.0)
+                        } else {
+                            act.sleep(1.0)
+                        }
+                    },
+                    {
+                        if let Some(motion) = &mut stroke_motions[p] {
+                            let brush: peniko::Brush = path.stroke.as_ref().unwrap().brush.clone();
+                            act.play(motion.brush_to(brush), 1.0)
+                        } else {
+                            act.sleep(1.0)
+                        }
+                    },
+                ]));
+            }
+
+            sequence.play(
+                all(&[all(&setup_actions), flow(0.1, &animate_actions)])
+                    .with_ease(ease::expo::ease_in_out),
+            );
         }
         Err(err) => {
             println!("{:#?}", err);
         }
     }
-    // match typst_compiler.compile(&mut commands, &mut fragment_assets, content) {
-    //     Ok(id) => {
-    //         commands
-    //             .entity(id)
-    //             .insert(Transform::from_xyz(-500.0, 600.0, 0.0));
-    //     }
-    //     Err(err) => {
-    //         println!("{:#?}", err);
-    //     }
-    // }
 }
 
 fn timeline_movement_system(
@@ -101,7 +145,6 @@ fn timeline_movement_system(
     keys: Res<Input<KeyCode>>,
     time: Res<Time>,
 ) {
-    println!("{:?}", time.elapsed());
     if keys.pressed(KeyCode::D) {
         timeline.target_time += time.delta_seconds();
     }
