@@ -14,6 +14,22 @@ use crate::{
     fill_style::FillStyle, stroke_style::StrokeStyle, vello_vector::bezpath::VelloBezPath,
 };
 
+pub struct SvgTreeBundle {
+    pub root_entity: Entity,
+    pub size: Vec2,
+    pub paths: Vec<SvgPathBundle>,
+}
+
+impl SvgTreeBundle {
+    pub fn new(root_entity: Entity, size: Vec2) -> Self {
+        Self {
+            root_entity,
+            size,
+            paths: Vec::new(),
+        }
+    }
+}
+
 pub struct SvgPathBundle {
     pub entity: Entity,
     pub transform: Transform,
@@ -58,8 +74,15 @@ pub fn spawn_tree_flatten(
     commands: &mut Commands,
     fragments: &mut ResMut<Assets<VelloFragment>>,
     svg: &usvg::Tree,
-) -> (Entity, Vec<SvgPathBundle>) {
-    let mut svg_paths: Vec<SvgPathBundle> = Vec::new();
+) -> SvgTreeBundle {
+    let root_entity: Entity = commands
+        .spawn((TransformBundle::default(), VisibilityBundle::default()))
+        .id();
+
+    let mut svg_tree_bundle = SvgTreeBundle::new(
+        root_entity,
+        Vec2::new(svg.size.width() as f32, svg.size.height() as f32),
+    );
 
     for node in svg.root.descendants() {
         // Only create entity for paths
@@ -77,21 +100,22 @@ pub fn spawn_tree_flatten(
 
                 populate_with_path(&mut entity_commands, &mut svg_path_bundle, fragments, path);
 
-                svg_paths.push(svg_path_bundle);
+                svg_tree_bundle.paths.push(svg_path_bundle);
             }
             usvg::NodeKind::Image(_) => {}
             usvg::NodeKind::Text(_) => {}
         }
     }
 
-    let child_entities: &Vec<Entity> = &svg_paths.iter().map(|svg_path| svg_path.entity).collect();
+    let child_entities: &Vec<Entity> = &svg_tree_bundle
+        .paths
+        .iter()
+        .map(|svg_path| svg_path.entity)
+        .collect();
 
-    let root_entity: Entity = commands
-        .spawn((TransformBundle::default(), VisibilityBundle::default()))
-        .push_children(child_entities)
-        .id();
+    commands.entity(root_entity).push_children(&child_entities);
 
-    (root_entity, svg_paths)
+    svg_tree_bundle
 }
 
 fn spawn_child_recursive(

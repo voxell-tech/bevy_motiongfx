@@ -60,20 +60,20 @@ fn typst_basic(
     );
 
     match typst_compiler.compile_flatten(&mut commands, &mut fragment_assets, content) {
-        Ok((root_entity, svg_path_bundles)) => {
+        Ok(tree) => {
             commands
-                .entity(root_entity)
+                .entity(tree.root_entity)
                 .insert(Transform::from_xyz(-600.0, 600.0, 0.0));
 
             // Motion
-            let path_len: usize = svg_path_bundles.len();
+            let path_len: usize = tree.paths.len();
 
             let mut transform_motions: Vec<TransformMotion> = Vec::with_capacity(path_len);
             let mut fill_motions: Vec<Option<FillStyleMotion>> = Vec::with_capacity(path_len);
             let mut stroke_motions: Vec<Option<StrokeStyleMotion>> = Vec::with_capacity(path_len);
 
             for p in 0..path_len {
-                let path: &svg::SvgPathBundle = &svg_path_bundles[p];
+                let path: &svg::SvgPathBundle = &tree.paths[p];
 
                 transform_motions.push(TransformMotion::new(path.entity, path.transform));
 
@@ -96,10 +96,10 @@ fn typst_basic(
             let mut setup_actions: Vec<ActionMetaGroup> = Vec::with_capacity(path_len);
             let mut animate_actions: Vec<ActionMetaGroup> = Vec::with_capacity(path_len);
 
-            let transform_offset: Vec3 = Vec3::Y * 50.0;
+            let transform_offset: Vec3 = Vec3::Y * 36.0;
 
             for p in 0..path_len {
-                let path: &svg::SvgPathBundle = &svg_path_bundles[p];
+                let path: &svg::SvgPathBundle = &tree.paths[p];
 
                 if let Some(motion) = &mut fill_motions[p] {
                     setup_actions.push(act.play(motion.brush_to(Color::NONE), 0.0));
