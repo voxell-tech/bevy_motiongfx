@@ -33,9 +33,13 @@ fn typst_basic(
         r###"
         #set page(width: 1120pt, margin: 8pt)
         #set raw(theme: "themes/Monokai Pro.tmTheme")
-        #set text(size: 36pt, font: "consolas", fill: rgb("#fcfcfa"))
+        #set text(size: 36pt, font: "consolas", fill: rgb("#FCFCFA"))
 
         #show raw: set text(font: "Consolas")
+
+        #box()[
+            #text(fill: gradient.linear(rgb("#13A8C1"), rgb("#21C0AA")))[Typst]
+        ]
 
         Hello World!
 
@@ -44,8 +48,7 @@ fn typst_basic(
         $ frac(a^2, 2) $
         $ vec(1, 2, delim: "[") $
         $ mat(1, 2; 3, 4) $
-        $ lim_x =
-            op("lim", limits: #true)_x $
+        $ lim_x = op("lim", limits: #true)_x $
 
         ```rs
         fn main() {

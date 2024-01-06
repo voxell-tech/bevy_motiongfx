@@ -14,9 +14,13 @@ use crate::{
     fill_style::FillStyle, stroke_style::StrokeStyle, vello_vector::bezpath::VelloBezPath,
 };
 
+/// A group of Vello Bézier paths spawned from a Svg tree.
 pub struct SvgTreeBundle {
+    /// Parent entity of all the [`SvgPathBundle`]s.
     pub root_entity: Entity,
+    /// Size of the Svg Tree.
     pub size: Vec2,
+    /// All the [`SvgPathBundle`]s.
     pub paths: Vec<SvgPathBundle>,
 }
 
@@ -30,11 +34,17 @@ impl SvgTreeBundle {
     }
 }
 
+/// A Vello Bézier path spawned from a Svg path.
 pub struct SvgPathBundle {
+    /// Entity of the Svg path.
     pub entity: Entity,
+    /// Transform of the Svg path.
     pub transform: Transform,
+    /// Bézier path.
     pub path: kurbo::BezPath,
+    /// [`FillStyle`] of the Svg.
     pub fill: Option<FillStyle>,
+    /// [`StrokeStyle`] of the Svg.
     pub stroke: Option<StrokeStyle>,
 }
 
@@ -70,6 +80,7 @@ pub fn spawn_tree(
         .id()
 }
 
+/// Flattens the Svg hierarchy into a [`SvgTreeBundle`] while spawning the associated entities with corresponding components attached to them.
 pub fn spawn_tree_flatten(
     commands: &mut Commands,
     fragments: &mut ResMut<Assets<VelloFragment>>,
@@ -202,9 +213,9 @@ fn populate_with_path(
     // FIXME: let path.paint_order determine the fill/stroke order.
 
     if let Some(fill) = &path.fill {
-        if let Some((brush, _)) = paint_to_brush(&fill.paint, fill.opacity) {
+        if let Some((brush, transform)) = paint_to_brush(&fill.paint, fill.opacity) {
             // FIXME: Set the fill rule
-            let fill_style: FillStyle = FillStyle::from_brush(brush);
+            let fill_style: FillStyle = FillStyle::new(peniko::Fill::NonZero, brush, transform);
 
             entity_commands.insert(fill_style.clone());
             svg_path_bundle.fill = Some(fill_style);
@@ -214,10 +225,9 @@ fn populate_with_path(
     }
 
     if let Some(stroke) = &path.stroke {
-        if let Some((brush, _)) = paint_to_brush(&stroke.paint, stroke.opacity) {
+        if let Some((brush, transform)) = paint_to_brush(&stroke.paint, stroke.opacity) {
             // FIXME: handle stroke options such as linecap, linejoin, etc.
-            let stroke_style: StrokeStyle =
-                StrokeStyle::from_brush(brush).with_style(stroke.width.get());
+            let stroke_style: StrokeStyle = StrokeStyle::new(stroke.width.get(), brush, transform);
 
             entity_commands.insert(stroke_style.clone());
             svg_path_bundle.stroke = Some(stroke_style);

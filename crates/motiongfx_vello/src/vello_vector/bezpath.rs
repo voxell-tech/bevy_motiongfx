@@ -1,9 +1,6 @@
 use bevy_ecs::prelude::*;
 use bevy_utils::prelude::*;
-use bevy_vello_renderer::{
-    prelude::*,
-    vello::{self, kurbo},
-};
+use bevy_vello_renderer::{prelude::*, vello::kurbo};
 
 use crate::{
     fill_style::FillStyle,
@@ -35,25 +32,8 @@ impl VelloBezPath {
 
 impl VelloVector for VelloBezPath {
     #[inline]
-    fn build_fill(&self, fill: &FillStyle, builder: &mut vello::SceneBuilder) {
-        builder.fill(
-            fill.style,
-            kurbo::Affine::default(),
-            &fill.brush,
-            None,
-            &self.path,
-        );
-    }
-
-    #[inline]
-    fn build_stroke(&self, stroke: &StrokeStyle, builder: &mut vello::SceneBuilder) {
-        builder.stroke(
-            &stroke.style,
-            kurbo::Affine::default(),
-            &stroke.brush,
-            None,
-            &self.path,
-        );
+    fn shape(&self) -> &impl kurbo::Shape {
+        &self.path
     }
 }
 

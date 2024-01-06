@@ -1,10 +1,7 @@
 use bevy_ecs::prelude::*;
 use bevy_math::{DVec2, DVec4};
 use bevy_utils::prelude::*;
-use bevy_vello_renderer::{
-    prelude::*,
-    vello::{self, kurbo},
-};
+use bevy_vello_renderer::{prelude::*, vello::kurbo};
 
 use crate::{
     fill_style::FillStyle,
@@ -114,25 +111,8 @@ impl VelloRect {
 
 impl VelloVector for VelloRect {
     #[inline]
-    fn build_fill(&self, fill: &FillStyle, builder: &mut vello::SceneBuilder) {
-        builder.fill(
-            fill.style,
-            kurbo::Affine::default(),
-            &fill.brush,
-            None,
-            &kurbo::RoundedRect::from_rect(self.rect, self.radii),
-        );
-    }
-
-    #[inline]
-    fn build_stroke(&self, stroke: &StrokeStyle, builder: &mut vello::SceneBuilder) {
-        builder.stroke(
-            &stroke.style,
-            kurbo::Affine::default(),
-            &stroke.brush,
-            None,
-            &kurbo::RoundedRect::from_rect(self.rect, self.radii),
-        );
+    fn shape(&self) -> &impl kurbo::Shape {
+        &self.rect
     }
 }
 

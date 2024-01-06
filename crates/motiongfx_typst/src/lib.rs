@@ -36,6 +36,31 @@ impl Plugin for TypstCompilerPlugin {
     }
 }
 
+/// A compiler for compiling Typst content.
+///
+/// This compiler can be accessed from the resource:
+/// ```
+/// pub fn compile_system(
+///     mut commands: Commands,
+///     mut typst_compiler: ResMut<TypstCompiler>,
+///     mut fragment_assets: ResMut<Assets<VelloFragment>>,
+/// ) {
+///     let content: String = String::from(
+///         r###"
+///         = Introduction
+///         + First element.
+///         + Second element.
+///         "###,
+///     );
+///
+///     match typst_compiler.compile_flatten(&mut commands, &mut fragment_assets, content) {
+///         Ok(tree) => {
+///             println!("{:#?}", tree.size);
+///         }
+///         Err(_) => todo!(),
+///     }
+/// }
+/// ```
 #[derive(Resource)]
 pub struct TypstCompiler {
     world: TypstWorld,
@@ -61,9 +86,8 @@ impl TypstCompiler {
         Ok(svg::spawn_tree(commands, fragment_assets, &tree))
     }
 
-    /// [`SvgPathBundle`]: svg::SvgPathBundle
-    /// Returns a root entity and a flatten vector of [`SvgPathBundle`] that is accumulated from Typst's compilation.
-    /// The root entity is the parent of all the [`SvgPathBundle`]s.
+    /// [`SvgTreeBundle`]: svg::SvgTreeBundle
+    /// Compiles the Typst content into Svg and flatten the Svg hierarchy into a [`SvgTreeBundle`].
     ///
     /// If an error occur during Typst compilation, an error message will be returned instead.
     pub fn compile_flatten(
