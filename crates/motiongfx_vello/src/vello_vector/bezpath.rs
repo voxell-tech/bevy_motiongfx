@@ -8,6 +8,7 @@ use crate::{
     vello_vector::{VelloBuilder, VelloVector},
 };
 
+/// Vello Bézier path bundle.
 #[derive(Bundle, Clone, Default)]
 pub struct VelloBezPathBundle {
     pub path: VelloBezPath,
@@ -16,6 +17,7 @@ pub struct VelloBezPathBundle {
     pub fragment_bundle: VelloFragmentBundle,
 }
 
+/// Vello Bézier path component.
 #[derive(Component, Clone)]
 pub struct VelloBezPath {
     pub(crate) path: kurbo::BezPath,

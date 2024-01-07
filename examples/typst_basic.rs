@@ -33,17 +33,13 @@ fn typst_basic(
         r###"
         #set page(width: 1120pt, margin: 8pt)
         #set raw(theme: "themes/Monokai Pro.tmTheme")
-        #set text(size: 36pt, font: "consolas", fill: rgb("#FCFCFA"))
+        #set text(size: 24pt, font: "consolas", fill: rgb("#FCFCFA"))
 
         #show raw: set text(font: "Consolas")
 
         #box()[
-            #text(fill: gradient.linear(rgb("#13A8C1"), rgb("#21C0AA")))[Typst]
+            #text(fill: gradient.linear(rgb("#13A8C1"), rgb("#21C0AA")))[= Typst]
         ]
-
-        Hello World!
-
-        Test line 2.
 
         $ frac(a^2, 2) $
         $ vec(1, 2, delim: "[") $
@@ -55,10 +51,6 @@ fn typst_basic(
             println!("Hello from Typst!");
         }
         ```
-
-        = Introduction
-        + First element.
-        + Second element.
         "###,
     );
 
@@ -66,7 +58,7 @@ fn typst_basic(
         Ok(tree) => {
             commands
                 .entity(tree.root_entity)
-                .insert(Transform::from_xyz(-600.0, 600.0, 0.0));
+                .insert(Transform::from_xyz(-500.0, 300.0, 0.0));
 
             // Motion
             let path_len: usize = tree.paths.len();
@@ -99,7 +91,7 @@ fn typst_basic(
             let mut setup_actions: Vec<ActionMetaGroup> = Vec::with_capacity(path_len);
             let mut animate_actions: Vec<ActionMetaGroup> = Vec::with_capacity(path_len);
 
-            let transform_offset: Vec3 = Vec3::Y * 36.0;
+            let transform_offset: Vec3 = Vec3::Y * 24.0;
 
             for p in 0..path_len {
                 let path: &svg::SvgPathBundle = &tree.paths[p];

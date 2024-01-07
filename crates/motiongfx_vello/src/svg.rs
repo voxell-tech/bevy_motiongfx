@@ -14,7 +14,7 @@ use crate::{
     fill_style::FillStyle, stroke_style::StrokeStyle, vello_vector::bezpath::VelloBezPath,
 };
 
-/// A group of Vello Bézier paths spawned from a Svg tree.
+/// Vello Bézier path group spawned from a Svg tree.
 pub struct SvgTreeBundle {
     /// Parent entity of all the [`SvgPathBundle`]s.
     pub root_entity: Entity,
@@ -34,7 +34,7 @@ impl SvgTreeBundle {
     }
 }
 
-/// A Vello Bézier path spawned from a Svg path.
+/// Vello Bézier path spawned from a Svg path.
 pub struct SvgPathBundle {
     /// Entity of the Svg path.
     pub entity: Entity,
