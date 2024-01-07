@@ -15,16 +15,10 @@ members = ["crates/*", ]
 resolver = "2"
 
 [dependencies]
-motiongfx_core = { path = "crates/motiongfx_core", version = "0.1.0" }
-motiongfx_bevy = { path = "crates/motiongfx_bevy", version = "0.1.0" }
+motiongfx_core = { path = "crates/motiongfx_core" }
+motiongfx_bevy = { path = "crates/motiongfx_bevy" }
+motiongfx_vello = { path = "crates/motiongfx_vello" }
+motiongfx_typst = { path = "crates/motiongfx_typst" }
 
 [dev-dependencies]
 bevy = "0.12"
-
-[[example]]
-name = "hello_world"
-path = "examples/hello_world.rs"
-
-[[example]]
-name = "easings"
-path = "examples/easings.rs"

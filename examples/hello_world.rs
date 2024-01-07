@@ -3,7 +3,6 @@ use bevy::{
         bloom::BloomSettings,
         experimental::taa::{TemporalAntiAliasBundle, TemporalAntiAliasPlugin},
     },
-    log::LogPlugin,
     pbr::{NotShadowCaster, ScreenSpaceAmbientOcclusionBundle},
     prelude::*,
 };
@@ -12,10 +11,8 @@ use bevy_motiongfx::prelude::*;
 fn main() {
     App::new()
         // Bevy plugins
-        .add_plugins((
-            DefaultPlugins.build().disable::<LogPlugin>(),
-            TemporalAntiAliasPlugin,
-        ))
+        .add_plugins((DefaultPlugins, TemporalAntiAliasPlugin))
+        .insert_resource(Msaa::Off)
         // Custom plugins
         .add_plugins((MotionGfx, MotionGfxBevy))
         .add_systems(Startup, (setup, hello_world))
@@ -34,15 +31,16 @@ pub fn hello_world(
 
     const CAPACITY: usize = WIDTH * HEIGHT;
 
+    // Color palette
+    let palette: ColorPalette<ColorKey> = ColorPalette::default();
+
     let mut cubes: Vec<Entity> = Vec::with_capacity(CAPACITY);
-    // States
-    let mut cube_translations: Vec<Translation> = Vec::with_capacity(CAPACITY);
-    let mut cube_scales: Vec<Scale> = Vec::with_capacity(CAPACITY);
-    let mut cube_rotations: Vec<Rotation> = Vec::with_capacity(CAPACITY);
+    // Motion
+    let mut cube_transform_motions: Vec<TransformMotion> = Vec::with_capacity(CAPACITY);
 
     // Create cube objects (Entity)
     let material: StandardMaterial = StandardMaterial {
-        base_color: style::GREEN.into(),
+        base_color: *palette.get_or_default(&ColorKey::Green),
         ..default()
     };
 
@@ -65,18 +63,16 @@ pub fn hello_world(
                 .insert(NotShadowCaster)
                 .id();
 
-            cube_translations.push(Translation::from_transform(cube, &transform));
-            cube_scales.push(Scale::from_transform(cube, &transform));
-            cube_rotations.push(Rotation::from_transform(cube, &transform));
+            cube_transform_motions.push(TransformMotion::new(cube, transform));
 
             cubes.push(cube);
         }
     }
 
+    // Actions
     let mut act: ActionBuilder = ActionBuilder::new(&mut commands);
 
     // Generate cube animations
-    // Actions
     let mut cube_actions: Vec<ActionMetaGroup> = Vec::with_capacity(CAPACITY);
 
     for w in 0..WIDTH {
@@ -85,10 +81,10 @@ pub fn hello_world(
 
             cube_actions.push(
                 all(&[
-                    act.play(cube_translations[c].translate(Vec3::X), 1.0),
-                    act.play(cube_scales[c].scale_all_to(0.9), 1.0),
+                    act.play(cube_transform_motions[c].translate_add(Vec3::X), 1.0),
+                    act.play(cube_transform_motions[c].scale_to(Vec3::splat(0.9)), 1.0),
                     act.play(
-                        cube_rotations[c].rotate_to(Quat::from_euler(
+                        cube_transform_motions[c].rotate_to(Quat::from_euler(
                             EulerRot::XYZ,
                             0.0,
                             f32::to_radians(90.0),

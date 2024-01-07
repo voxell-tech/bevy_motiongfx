@@ -3,7 +3,6 @@ use bevy::{
         bloom::BloomSettings,
         experimental::taa::{TemporalAntiAliasBundle, TemporalAntiAliasPlugin},
     },
-    log::LogPlugin,
     pbr::{NotShadowCaster, ScreenSpaceAmbientOcclusionBundle},
     prelude::*,
 };
@@ -12,10 +11,7 @@ use bevy_motiongfx::prelude::*;
 fn main() {
     App::new()
         // Bevy plugins
-        .add_plugins((
-            DefaultPlugins.build().disable::<LogPlugin>(),
-            TemporalAntiAliasPlugin,
-        ))
+        .add_plugins((DefaultPlugins, TemporalAntiAliasPlugin))
         // Custom plugins
         .add_plugins((MotionGfx, MotionGfxBevy))
         .add_systems(Startup, (setup, easings))
@@ -31,24 +27,24 @@ pub fn easings(
 ) {
     const CAPACITY: usize = 10;
 
+    // Color palette
+    let palette: ColorPalette<ColorKey> = ColorPalette::default();
+
     let mut spheres: Vec<Entity> = Vec::with_capacity(CAPACITY);
     // States
-    let mut cube_translations: Vec<Translation> = Vec::with_capacity(CAPACITY);
-    let mut cube_colors: Vec<BaseColor> = Vec::with_capacity(CAPACITY);
+    let mut cube_transform_motions: Vec<TransformMotion> = Vec::with_capacity(CAPACITY);
+    let mut cube_material_motion: Vec<StandardMaterialMotion> = Vec::with_capacity(CAPACITY);
 
     // Create cube objects (Entity)
     let material: StandardMaterial = StandardMaterial {
-        base_color: style::BLUE.into(),
+        emissive: *palette.get_or_default(&ColorKey::Blue) * 4.0,
         ..default()
     };
 
     for i in 0..CAPACITY {
-        let transform: Transform = Transform::from_translation(Vec3::new(
-            -10.0,
-            (i as f32) - (CAPACITY as f32) * 0.5,
-            0.0,
-        ))
-        .with_scale(Vec3::ONE * 0.48);
+        let transform: Transform =
+            Transform::from_translation(Vec3::new(-5.0, (i as f32) - (CAPACITY as f32) * 0.5, 0.0))
+                .with_scale(Vec3::ONE * 0.48);
 
         let cube = commands
             .spawn(PbrBundle {
@@ -60,16 +56,16 @@ pub fn easings(
             .insert(NotShadowCaster)
             .id();
 
-        cube_translations.push(Translation::from_transform(cube, &transform));
-        cube_colors.push(BaseColor::from_material(cube, &material));
+        cube_transform_motions.push(TransformMotion::new(cube, transform));
+        cube_material_motion.push(StandardMaterialMotion::new(cube, material.clone()));
 
         spheres.push(cube);
     }
 
+    // Actions
     let mut act: ActionBuilder = ActionBuilder::new(&mut commands);
 
     // Generate cube animations
-    // Actions
     let mut cube_actions: Vec<ActionMetaGroup> = Vec::with_capacity(CAPACITY);
 
     let easings: [ease::EaseFn; CAPACITY] = [
@@ -88,8 +84,12 @@ pub fn easings(
     for i in 0..CAPACITY {
         cube_actions.push(
             all(&[
-                act.play(cube_translations[i].translate(Vec3::X * 20.0), 1.0),
-                act.play(cube_colors[i].color_to(style::RED), 1.0),
+                act.play(cube_transform_motions[i].translate_add(Vec3::X * 10.0), 1.0),
+                act.play(
+                    cube_material_motion[i]
+                        .emissive_to(*palette.get_or_default(&ColorKey::Red) * 4.0),
+                    1.0,
+                ),
             ])
             .with_ease(easings[i]),
         );
