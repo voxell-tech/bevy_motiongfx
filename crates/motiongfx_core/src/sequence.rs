@@ -145,8 +145,9 @@ pub fn sequence_player_system<CompType, InterpType, ResType>(
     InterpType: Send + Sync + 'static,
     ResType: Resource,
 {
-    // Do not perform any actions if there are no changes to the timeline timings.
-    if timeline.curr_time == timeline.target_time {
+    // Do not perform any actions if there are no changes to the timeline timings
+    // or there are no actions at all.
+    if timeline.curr_time == timeline.target_time || scene.action_metas.len() == 0 {
         return;
     }
 
