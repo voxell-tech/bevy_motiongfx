@@ -5,7 +5,7 @@ use crate::{
 use bevy_ecs::prelude::*;
 
 /// A vector of [`ActionMeta`]s.
-#[derive(Resource, Default)]
+#[derive(Resource, Default, Component)]
 pub struct Sequence {
     duration: f32,
     action_metas: Vec<ActionMeta>,
@@ -20,6 +20,25 @@ impl Sequence {
         let mut max_duration: f32 = 0.0;
 
         for action_meta in action_grp.action_metas {
+            self.action_metas.push(
+                action_meta
+                    .clone()
+                    .with_start_time(action_meta.start_time() + self.duration),
+            );
+
+            max_duration = f32::max(
+                max_duration,
+                action_meta.start_time() + action_meta.duration(),
+            );
+        }
+
+        self.duration = max_duration;
+    }
+
+    pub fn play_sequence(&mut self, sequence: Self) {
+        let mut max_duration: f32 = 0.0;
+
+        for action_meta in sequence.action_metas {
             self.action_metas.push(
                 action_meta
                     .clone()
