@@ -7,7 +7,7 @@ use crate::{
 };
 
 /// A vector of [`ActionMeta`]s.
-#[derive(Resource, Default, Component)]
+#[derive(Resource, Component, Default)]
 pub struct Sequence {
     pub(crate) duration: f32,
     pub(crate) action_metas: Vec<ActionMeta>,
@@ -134,7 +134,7 @@ pub fn delay(delay: f32, mut sequence: Sequence) -> Sequence {
         action_meta.start_time += delay;
     }
 
-    sequence.duration = delay + sequence.duration;
+    sequence.duration += delay;
     sequence
 }
 
@@ -152,7 +152,7 @@ pub fn sequence_player_system<CompType, InterpType, ResType>(
 {
     // Do not perform any actions if there are no changes to the timeline timings
     // or there are no actions at all.
-    if timeline.curr_time == timeline.target_time || scene.action_metas.len() == 0 {
+    if timeline.curr_time == timeline.target_time || scene.action_metas.is_empty() {
         return;
     }
 
