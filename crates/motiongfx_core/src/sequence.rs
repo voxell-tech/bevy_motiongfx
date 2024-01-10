@@ -14,10 +14,6 @@ pub struct Sequence {
 }
 
 impl Sequence {
-    pub fn duration(&self) -> f32 {
-        self.duration
-    }
-
     pub fn play(&mut self, mut sequence: Sequence) {
         let mut max_duration: f32 = 0.0;
 
@@ -219,6 +215,122 @@ pub fn sequence_player_system<CompType, InterpType, ResType>(
                 &action.end,
                 unit_time,
                 &mut resource,
+            );
+        }
+    }
+}
+
+/// System for playing the [`Action`]s that are inside the [`Sequence`].
+pub fn _sequence_player_system<CompType, InterpType, ResType>(
+    mut q_components: Query<&mut CompType>,
+    q_actions: Query<&Action<CompType, InterpType, ResType>>,
+    q_sequences: Query<&Sequence>,
+    q_timelines: Query<&Timeline>,
+    mut resource: ResMut<ResType>,
+) where
+    CompType: Component,
+    InterpType: Send + Sync + 'static,
+    ResType: Resource,
+{
+    for timeline in q_timelines.iter() {
+        let Some(target_sequence) = timeline.target_sequence else {
+            return;
+        };
+
+        let Ok(sequence) = q_sequences.get(target_sequence) else {
+            return;
+        };
+
+        play_sequence(
+            &mut q_components,
+            &q_actions,
+            sequence,
+            timeline,
+            &mut resource,
+        );
+    }
+}
+
+fn play_sequence<CompType, InterpType, ResType>(
+    q_components: &mut Query<&mut CompType>,
+    q_actions: &Query<&Action<CompType, InterpType, ResType>>,
+    sequence: &Sequence,
+    timeline: &Timeline,
+    resource: &mut ResMut<ResType>,
+) where
+    CompType: Component,
+    InterpType: Send + Sync + 'static,
+    ResType: Resource,
+{
+    // Do not perform any actions if there are no changes to the timeline timings
+    // or there are no actions at all.
+    if timeline.curr_time == timeline.target_time || sequence.action_metas.is_empty() {
+        return;
+    }
+
+    let direction: i32 = f32::signum(timeline.target_time - timeline.curr_time) as i32;
+
+    let timeline_start: f32 = f32::min(timeline.curr_time, timeline.target_time);
+    let timeline_end: f32 = f32::max(timeline.curr_time, timeline.target_time);
+
+    let mut start_index: usize = 0;
+    let mut end_index: usize = sequence.action_metas.len() - 1;
+
+    // Swap direction if needed
+    if direction == -1 {
+        start_index = end_index;
+        end_index = 0;
+    }
+
+    let mut action_index: usize = start_index;
+
+    // Loop through `Action`s in the direction that the timeline is going towards.
+    loop {
+        if action_index == (end_index as i32 + direction) as usize {
+            break;
+        }
+
+        let action_meta: &ActionMeta = &sequence.action_metas[action_index];
+        let action_id: Entity = action_meta.id();
+
+        action_index = (action_index as i32 + direction) as usize;
+
+        // Ignore if `ActionMeta` not in range
+        if !time_range_overlap(
+            action_meta.start_time,
+            action_meta.end_time(),
+            timeline_start,
+            timeline_end,
+        ) {
+            continue;
+        }
+
+        // Ignore if `Action` does not exists
+        let Ok(action) = q_actions.get(action_id) else {
+            continue;
+        };
+
+        // Get component to mutate based on action id
+        if let Ok(mut component) = q_components.get_mut(action.target_id) {
+            let mut unit_time: f32 =
+                (timeline.target_time - action_meta.start_time) / action_meta.duration;
+
+            // In case of division by 0.0
+            if f32::is_nan(unit_time) {
+                unit_time = 0.0;
+            }
+
+            unit_time = f32::clamp(unit_time, 0.0, 1.0);
+            // Calculate unit time using ease function
+            unit_time = (action_meta.ease_fn)(unit_time);
+
+            // Mutate the component using interpolate function
+            (action.interp_fn)(
+                &mut component,
+                &action.begin,
+                &action.end,
+                unit_time,
+                resource,
             );
         }
     }
