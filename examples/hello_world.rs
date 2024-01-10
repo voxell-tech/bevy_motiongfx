@@ -73,7 +73,7 @@ pub fn hello_world(
     let mut act: ActionBuilder = ActionBuilder::new(&mut commands);
 
     // Generate cube animations
-    let mut cube_actions: Vec<ActionMetaGroup> = Vec::with_capacity(CAPACITY);
+    let mut cube_actions: Vec<Sequence> = Vec::with_capacity(CAPACITY);
 
     for w in 0..WIDTH {
         for h in 0..HEIGHT {
@@ -98,7 +98,7 @@ pub fn hello_world(
         }
     }
 
-    let action_grp: ActionMetaGroup = flow(0.01, &cube_actions);
+    let action_grp: Sequence = flow(0.01, &cube_actions);
 
     sequence.play(action_grp);
 }

@@ -88,8 +88,8 @@ fn typst_basic(
             // Actions
             let mut act: ActionBuilder = ActionBuilder::new(&mut commands);
 
-            let mut setup_actions: Vec<ActionMetaGroup> = Vec::with_capacity(path_len);
-            let mut animate_actions: Vec<ActionMetaGroup> = Vec::with_capacity(path_len);
+            let mut setup_actions: Vec<Sequence> = Vec::with_capacity(path_len);
+            let mut animate_actions: Vec<Sequence> = Vec::with_capacity(path_len);
 
             let transform_offset: Vec3 = Vec3::Y * 24.0;
 

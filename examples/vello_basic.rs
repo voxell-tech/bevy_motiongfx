@@ -75,7 +75,7 @@ fn vello_basic(
     // Actions
     let mut act: ActionBuilder = ActionBuilder::new(&mut commands);
 
-    let actions: ActionMetaGroup = flow(
+    let actions: Sequence = flow(
         0.5,
         &[
             // Line animation

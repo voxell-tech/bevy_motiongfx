@@ -1,7 +1,7 @@
 use bevy_ecs::prelude::*;
 
 use crate::{
-    action::{Action, ActionMeta, ActionMetaGroup},
+    action::{Action, ActionMeta},
     ease::EaseFn,
     timeline::Timeline,
 };
@@ -18,10 +18,10 @@ impl Sequence {
         self.duration
     }
 
-    pub fn play(&mut self, mut action_grp: ActionMetaGroup) {
+    pub fn play(&mut self, mut sequence: Sequence) {
         let mut max_duration: f32 = 0.0;
 
-        for action_meta in &mut action_grp.action_metas {
+        for action_meta in &mut sequence.action_metas {
             let mut action_meta: ActionMeta = action_meta.clone();
 
             action_meta.start_time += self.duration;
@@ -33,7 +33,7 @@ impl Sequence {
         self.duration = max_duration;
     }
 
-    pub fn single(action_meta: ActionMeta) -> Self {
+    pub(crate) fn single(action_meta: ActionMeta) -> Self {
         let duration: f32 = action_meta.duration;
         Self {
             action_metas: vec![action_meta],
@@ -52,28 +52,8 @@ impl Sequence {
 
 // ANIMATION FLOW FUNCTIONS
 
-/// Run one [`ActionMetaGroup`] after another.
-pub fn chain(action_grps: &[ActionMetaGroup]) -> ActionMetaGroup {
-    let mut final_action_grp: ActionMetaGroup = ActionMetaGroup::default();
-    let mut chain_duration: f32 = 0.0;
-
-    for action_grp in action_grps {
-        for action_meta in &action_grp.action_metas {
-            let mut action_meta: ActionMeta = action_meta.clone();
-
-            action_meta.start_time += chain_duration;
-            final_action_grp.action_metas.push(action_meta);
-        }
-
-        chain_duration += action_grp.duration;
-    }
-
-    final_action_grp.duration += chain_duration;
-    final_action_grp
-}
-
 /// Run one [`Sequence`] after another.
-pub fn chain_sequence(sequences: &[Sequence]) -> Sequence {
+pub fn chain(sequences: &[Sequence]) -> Sequence {
     let mut final_sequence: Sequence = Sequence::default();
     let mut chain_duration: f32 = 0.0;
 
@@ -92,25 +72,8 @@ pub fn chain_sequence(sequences: &[Sequence]) -> Sequence {
     final_sequence
 }
 
-/// Run all [`ActionMetaGroup`]s concurrently and wait for all of them to finish.
-pub fn all(action_grps: &[ActionMetaGroup]) -> ActionMetaGroup {
-    let mut final_action_grp: ActionMetaGroup = ActionMetaGroup::default();
-    let mut max_duration: f32 = 0.0;
-
-    for action_grp in action_grps {
-        for action_meta in &action_grp.action_metas {
-            final_action_grp.action_metas.push(action_meta.clone());
-        }
-
-        max_duration = f32::max(max_duration, action_grp.duration);
-    }
-
-    final_action_grp.duration = max_duration;
-    final_action_grp
-}
-
 /// Run all [`Sequence`]s concurrently and wait for all of them to finish.
-pub fn all_sequence(sequences: &[Sequence]) -> Sequence {
+pub fn all(sequences: &[Sequence]) -> Sequence {
     let mut final_sequence: Sequence = Sequence::default();
     let mut max_duration: f32 = 0.0;
 
@@ -126,25 +89,8 @@ pub fn all_sequence(sequences: &[Sequence]) -> Sequence {
     final_sequence
 }
 
-/// Run all [`ActionMetaGroup`]s concurrently and wait for any of them to finish.
-pub fn any(action_grps: &[ActionMetaGroup]) -> ActionMetaGroup {
-    let mut final_action_grp: ActionMetaGroup = ActionMetaGroup::default();
-    let mut min_duration: f32 = 0.0;
-
-    for action_grp in action_grps {
-        for action_meta in &action_grp.action_metas {
-            final_action_grp.action_metas.push(action_meta.clone());
-        }
-
-        min_duration = f32::min(min_duration, action_grp.duration);
-    }
-
-    final_action_grp.duration = min_duration;
-    final_action_grp
-}
-
 /// Run all [`Sequence`]s concurrently and wait for any of them to finish.
-pub fn any_sequence(sequences: &[Sequence]) -> Sequence {
+pub fn any(sequences: &[Sequence]) -> Sequence {
     let mut final_sequence: Sequence = Sequence::default();
     let mut min_duration: f32 = 0.0;
 
@@ -160,30 +106,8 @@ pub fn any_sequence(sequences: &[Sequence]) -> Sequence {
     final_sequence
 }
 
-/// Run one [`ActionMetaGroup`] after another with a fixed delay time.
-pub fn flow(delay: f32, action_grps: &[ActionMetaGroup]) -> ActionMetaGroup {
-    let mut final_action_grp: ActionMetaGroup = ActionMetaGroup::default();
-    let mut flow_duration: f32 = 0.0;
-    let mut final_duration: f32 = 0.0;
-
-    for action_grp in action_grps {
-        for action_meta in &action_grp.action_metas {
-            let mut action_meta: ActionMeta = action_meta.clone();
-
-            action_meta.start_time += flow_duration;
-            final_action_grp.action_metas.push(action_meta);
-        }
-
-        flow_duration += delay;
-        final_duration = f32::max(final_duration, flow_duration + action_grp.duration);
-    }
-
-    final_action_grp.duration = final_duration;
-    final_action_grp
-}
-
 /// Run one [`Sequence`] after another with a fixed delay time.
-pub fn flow_sequence(delay: f32, sequences: &[Sequence]) -> Sequence {
+pub fn flow(delay: f32, sequences: &[Sequence]) -> Sequence {
     let mut final_sequence: Sequence = Sequence::default();
     let mut flow_duration: f32 = 0.0;
     let mut final_duration: f32 = 0.0;
@@ -204,18 +128,8 @@ pub fn flow_sequence(delay: f32, sequences: &[Sequence]) -> Sequence {
     final_sequence
 }
 
-/// Run an [`ActionMetaGroup`] after a fixed delay time.
-pub fn delay(delay: f32, mut action_grp: ActionMetaGroup) -> ActionMetaGroup {
-    for action_meta in &mut action_grp.action_metas {
-        action_meta.start_time += delay;
-    }
-
-    action_grp.duration = delay + action_grp.duration;
-    action_grp
-}
-
 /// Run an [`Sequence`] after a fixed delay time.
-pub fn delay_sequence(delay: f32, mut sequence: Sequence) -> Sequence {
+pub fn delay(delay: f32, mut sequence: Sequence) -> Sequence {
     for action_meta in &mut sequence.action_metas {
         action_meta.start_time += delay;
     }

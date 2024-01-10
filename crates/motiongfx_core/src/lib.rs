@@ -11,7 +11,7 @@ pub mod timeline;
 
 pub mod prelude {
     pub use crate::{
-        action::{Action, ActionBuilder, ActionMeta, ActionMetaGroup},
+        action::{Action, ActionBuilder},
         color_palette::{ColorKey, ColorPalette},
         cross_lerp::*,
         ease,
