@@ -1,6 +1,10 @@
-use crate::ease::{quad, EaseFn};
 use bevy_ecs::prelude::*;
 use bevy_utils::prelude::*;
+
+use crate::{
+    ease::{quad, EaseFn},
+    sequence::Sequence,
+};
 
 pub type InterpFn<CompType, InterpType, ResType> = fn(
     component: &mut CompType,
@@ -54,9 +58,9 @@ pub struct ActionMeta {
     /// Target `Entity` for `Action`.
     action_id: Entity,
     /// Time at which animation should begin.
-    start_time: f32,
+    pub(crate) start_time: f32,
     /// Duration of animation in seconds.
-    duration: f32,
+    pub(crate) duration: f32,
     /// Easing function to be used for animation.
     pub(crate) ease_fn: EaseFn,
 }
@@ -75,14 +79,14 @@ impl ActionMeta {
         self.action_id
     }
 
-    #[inline]
-    pub fn with_start_time(mut self, start_time: f32) -> Self {
-        self.start_time = start_time;
-        self
-    }
+    // #[inline]
+    // pub fn with_start_time(mut self, start_time: f32) -> Self {
+    //     self.start_time = start_time;
+    //     self
+    // }
 
     #[inline]
-    pub fn with_duration(mut self, duration: f32) -> Self {
+    fn with_duration(mut self, duration: f32) -> Self {
         self.duration = duration;
         self
     }
@@ -93,20 +97,20 @@ impl ActionMeta {
         self
     }
 
-    #[inline]
-    pub fn start_time(&self) -> f32 {
-        self.start_time
-    }
+    // #[inline]
+    // pub fn start_time(&self) -> f32 {
+    //     self.start_time
+    // }
 
     #[inline]
     pub fn end_time(&self) -> f32 {
         self.start_time + self.duration
     }
 
-    #[inline]
-    pub fn duration(&self) -> f32 {
-        self.duration
-    }
+    // #[inline]
+    // pub fn duration(&self) -> f32 {
+    //     self.duration
+    // }
 }
 
 pub struct ActionBuilder<'a, 'w, 's> {
@@ -129,8 +133,26 @@ impl<'a, 'w, 's> ActionBuilder<'a, 'w, 's> {
         ActionMetaGroup::single(action_meta)
     }
 
+    pub fn play_sequence(
+        &mut self,
+        action: Action<impl Component, impl Send + Sync + 'static, impl Resource>,
+        duration: f32,
+    ) -> Sequence {
+        let action_id: Entity = self.commands.spawn(action).id();
+        let action_meta: ActionMeta = ActionMeta::new(action_id).with_duration(duration);
+
+        Sequence::single(action_meta)
+    }
+
     pub fn sleep(&mut self, duration: f32) -> ActionMetaGroup {
         ActionMetaGroup {
+            duration,
+            ..default()
+        }
+    }
+
+    pub fn sleep_sequence(&mut self, duration: f32) -> Sequence {
+        Sequence {
             duration,
             ..default()
         }
@@ -147,7 +169,7 @@ pub struct ActionMetaGroup {
 impl ActionMetaGroup {
     /// Create an `ActionMetaGroup` with only a single `ActionMeta` in it.
     pub fn single(action_meta: ActionMeta) -> Self {
-        let duration: f32 = action_meta.duration();
+        let duration: f32 = action_meta.duration;
 
         Self {
             action_metas: vec![action_meta],
