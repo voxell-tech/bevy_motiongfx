@@ -7,28 +7,13 @@ use crate::{
 };
 
 /// A vector of [`ActionMeta`]s.
-#[derive(Resource, Component, Default)]
+#[derive(Component, Default)]
 pub struct Sequence {
     pub(crate) duration: f32,
     pub(crate) action_metas: Vec<ActionMeta>,
 }
 
 impl Sequence {
-    pub fn play(&mut self, mut sequence: Sequence) {
-        let mut max_duration: f32 = 0.0;
-
-        for action_meta in &mut sequence.action_metas {
-            let mut action_meta: ActionMeta = action_meta.clone();
-
-            action_meta.start_time += self.duration;
-            max_duration = f32::max(max_duration, action_meta.end_time());
-
-            self.action_metas.push(action_meta);
-        }
-
-        self.duration = max_duration;
-    }
-
     pub(crate) fn single(action_meta: ActionMeta) -> Self {
         let duration: f32 = action_meta.duration;
         Self {
@@ -125,103 +110,22 @@ pub fn flow(delay: f32, sequences: &[Sequence]) -> Sequence {
 }
 
 /// Run an [`Sequence`] after a fixed delay time.
-pub fn delay(delay: f32, mut sequence: Sequence) -> Sequence {
-    for action_meta in &mut sequence.action_metas {
+pub fn delay(delay: f32, sequence: &Sequence) -> Sequence {
+    let mut final_sequence: Sequence = Sequence::default();
+
+    for action_meta in &sequence.action_metas {
+        let mut action_meta: ActionMeta = action_meta.clone();
+
         action_meta.start_time += delay;
+        final_sequence.action_metas.push(action_meta);
     }
 
-    sequence.duration += delay;
-    sequence
+    final_sequence.duration = sequence.duration + delay;
+    final_sequence
 }
 
 /// System for playing the [`Action`]s that are inside the [`Sequence`].
 pub fn sequence_player_system<CompType, InterpType, ResType>(
-    mut q_component: Query<&mut CompType>,
-    q_actions: Query<&Action<CompType, InterpType, ResType>>,
-    scene: Res<Sequence>,
-    timeline: Res<Timeline>,
-    mut resource: ResMut<ResType>,
-) where
-    CompType: Component,
-    InterpType: Send + Sync + 'static,
-    ResType: Resource,
-{
-    // Do not perform any actions if there are no changes to the timeline timings
-    // or there are no actions at all.
-    if timeline.curr_time == timeline.target_time || scene.action_metas.is_empty() {
-        return;
-    }
-
-    let direction: i32 = f32::signum(timeline.target_time - timeline.curr_time) as i32;
-
-    let timeline_start: f32 = f32::min(timeline.curr_time, timeline.target_time);
-    let timeline_end: f32 = f32::max(timeline.curr_time, timeline.target_time);
-
-    let mut start_index: usize = 0;
-    let mut end_index: usize = scene.action_metas.len() - 1;
-
-    // Swap direction if needed
-    if direction == -1 {
-        start_index = end_index;
-        end_index = 0;
-    }
-
-    let mut action_index: usize = start_index;
-
-    // Loop through `Action`s in the direction that the timeline is going towards.
-    loop {
-        if action_index == (end_index as i32 + direction) as usize {
-            break;
-        }
-
-        let action_meta: &ActionMeta = &scene.action_metas[action_index];
-        let action_id: Entity = action_meta.id();
-
-        action_index = (action_index as i32 + direction) as usize;
-
-        // Ignore if `ActionMeta` not in range
-        if !time_range_overlap(
-            action_meta.start_time,
-            action_meta.end_time(),
-            timeline_start,
-            timeline_end,
-        ) {
-            continue;
-        }
-
-        // Ignore if `Action` does not exists
-        let Ok(action) = q_actions.get(action_id) else {
-            continue;
-        };
-
-        // Get component to mutate based on action id
-        if let Ok(mut component) = q_component.get_mut(action.target_id) {
-            let mut unit_time: f32 =
-                (timeline.target_time - action_meta.start_time) / action_meta.duration;
-
-            // In case of division by 0.0
-            if f32::is_nan(unit_time) {
-                unit_time = 0.0;
-            }
-
-            unit_time = f32::clamp(unit_time, 0.0, 1.0);
-            // Calculate unit time using ease function
-            unit_time = (action_meta.ease_fn)(unit_time);
-
-            // Mutate the component using interpolate function
-            (action.interp_fn)(
-                &mut component,
-                &action.begin,
-                &action.end,
-                unit_time,
-                &mut resource,
-            );
-        }
-    }
-}
-
-/// System for playing the [`Action`]s that are inside the [`Sequence`].
-pub fn _sequence_player_system<CompType, InterpType, ResType>(
     mut q_components: Query<&mut CompType>,
     q_actions: Query<&Action<CompType, InterpType, ResType>>,
     q_sequences: Query<&Sequence>,
@@ -233,7 +137,7 @@ pub fn _sequence_player_system<CompType, InterpType, ResType>(
     ResType: Resource,
 {
     for timeline in q_timelines.iter() {
-        let Some(target_sequence) = timeline.target_sequence else {
+        let Some(target_sequence) = timeline.sequence_id else {
             return;
         };
 

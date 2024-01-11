@@ -26,9 +26,7 @@ pub struct MotionGfx;
 
 impl Plugin for MotionGfx {
     fn build(&self, app: &mut App) {
-        app.insert_resource(timeline::Timeline::default())
-            .insert_resource(sequence::Sequence::default())
-            .insert_resource(EmptyRes)
+        app.insert_resource(EmptyRes)
             .add_systems(PreUpdate, timeline::timeline_update_system);
     }
 }
