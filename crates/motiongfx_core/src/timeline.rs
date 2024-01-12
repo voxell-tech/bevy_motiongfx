@@ -21,7 +21,7 @@ impl Timeline {
         }
     }
 
-    /// Create an action from a timeline.
+    /// Create an [`Action`] from a [`Timeline`].
     pub fn to_action(&self, begin: f32, end: f32) -> Option<Action<Timeline, f32, EmptyRes>> {
         let Some(sequence_id) = self.sequence_id else {
             return None;
