@@ -6,7 +6,7 @@ use crate::{
     timeline::Timeline,
 };
 
-/// A vector of [`ActionMeta`]s.
+/// A group of actions in chronological order.
 #[derive(Component, Default)]
 pub struct Sequence {
     pub(crate) duration: f32,
