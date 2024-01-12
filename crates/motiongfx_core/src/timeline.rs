@@ -2,7 +2,7 @@ use bevy_ecs::prelude::*;
 use bevy_time::Time;
 use bevy_utils::prelude::*;
 
-use crate::sequence::Sequence;
+use crate::{action::Action, lerp::*, sequence::Sequence, EmptyRes};
 
 #[derive(Component)]
 pub struct Timeline {
@@ -19,6 +19,25 @@ impl Timeline {
             sequence_id: Some(sequence_id),
             ..default()
         }
+    }
+
+    /// Create an action from a timeline.
+    pub fn to_action(&self, begin: f32, end: f32) -> Option<Action<Timeline, f32, EmptyRes>> {
+        let Some(sequence_id) = self.sequence_id else {
+            return None;
+        };
+
+        Some(Action::new(sequence_id, begin, end, Self::timeline_interp))
+    }
+
+    fn timeline_interp(
+        timeline: &mut Timeline,
+        begin: &f32,
+        end: &f32,
+        t: f32,
+        _: &mut ResMut<EmptyRes>,
+    ) {
+        timeline.target_time = f32::lerp(begin, end, t);
     }
 }
 
