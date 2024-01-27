@@ -39,6 +39,10 @@ impl Timeline {
     ) {
         timeline.target_time = f32::lerp(begin, end, t);
     }
+
+    pub fn sequence_id(&self) -> Option<Entity> {
+        self.sequence_id
+    }
 }
 
 impl Default for Timeline {
