@@ -29,6 +29,10 @@ impl Sequence {
 
         self
     }
+
+    pub fn duration(&self) -> f32 {
+        self.duration
+    }
 }
 
 // ANIMATION FLOW FUNCTIONS
