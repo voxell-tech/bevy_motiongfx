@@ -1,9 +1,9 @@
 use bevy_ecs::prelude::*;
-use bevy_utils::prelude::*;
 
 use crate::{
     ease::{quad, EaseFn},
-    sequence::Sequence,
+    sequence::{sequence_time_interp, Sequence, SequenceTime},
+    EmptyRes,
 };
 
 pub type InterpFn<CompType, InterpType, ResType> = fn(
@@ -85,31 +85,53 @@ impl ActionMeta {
     }
 }
 
-pub struct ActionBuilder<'a, 'w, 's> {
-    commands: &'a mut Commands<'w, 's>,
+pub trait ActionBuilder {
+    fn play(
+        &mut self,
+        action: Action<impl Component, impl Send + Sync + 'static, impl Resource>,
+        duration: f32,
+    ) -> Sequence;
+    fn play_sequence(
+        &mut self,
+        target_id: Entity,
+        begin: f32,
+        end: f32,
+        playback_speed: f32,
+    ) -> Sequence;
+    fn sleep(&mut self, duration: f32) -> Sequence;
 }
 
-impl<'a, 'w, 's> ActionBuilder<'a, 'w, 's> {
-    pub fn new(commands: &'a mut Commands<'w, 's>) -> Self {
-        Self { commands }
-    }
-
-    pub fn play(
+impl ActionBuilder for Commands<'_, '_> {
+    fn play(
         &mut self,
         action: Action<impl Component, impl Send + Sync + 'static, impl Resource>,
         duration: f32,
     ) -> Sequence {
-        let action_id: Entity = self.commands.spawn(action).id();
+        let action_id: Entity = self.spawn(action).id();
         let mut action_meta: ActionMeta = ActionMeta::new(action_id);
         action_meta.duration = duration;
 
         Sequence::single(action_meta)
     }
 
-    pub fn sleep(&mut self, duration: f32) -> Sequence {
-        Sequence {
-            duration,
-            ..default()
-        }
+    fn play_sequence(
+        &mut self,
+        target_id: Entity,
+        begin: f32,
+        end: f32,
+        playback_speed: f32,
+    ) -> Sequence {
+        let action: Action<SequenceTime, f32, EmptyRes> =
+            Action::new(target_id, begin, end, sequence_time_interp);
+
+        let action_id: Entity = self.spawn(action).id();
+        let mut action_meta: ActionMeta = ActionMeta::new(action_id);
+        action_meta.duration = f32::abs(end - begin) / playback_speed;
+
+        Sequence::single(action_meta)
+    }
+
+    fn sleep(&mut self, duration: f32) -> Sequence {
+        Sequence::empty(duration)
     }
 }

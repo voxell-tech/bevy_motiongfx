@@ -32,7 +32,7 @@ pub(crate) trait VelloBuilder {
     fn set_built(&mut self, built: bool);
 }
 
-pub(crate) fn vector_builder<Vector: VelloVector + VelloBuilder + Component>(
+pub(crate) fn vector_builder_system<Vector: VelloVector + VelloBuilder + Component>(
     mut q_fill_only_vectors: Query<
         (&mut Vector, &mut FillStyle, &Handle<VelloFragment>),
         Without<StrokeStyle>,

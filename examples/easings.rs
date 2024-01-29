@@ -14,12 +14,12 @@ fn main() {
         .add_plugins((DefaultPlugins, TemporalAntiAliasPlugin))
         // Custom plugins
         .add_plugins((MotionGfx, MotionGfxBevy))
-        .add_systems(Startup, (setup, easings))
+        .add_systems(Startup, (setup_system, easings_system))
         .add_systems(Update, timeline_movement_system)
         .run();
 }
 
-pub fn easings(
+pub fn easings_system(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
@@ -61,9 +61,6 @@ pub fn easings(
         spheres.push(cube);
     }
 
-    // Actions
-    let mut act: ActionBuilder = ActionBuilder::new(&mut commands);
-
     // Generate cube animations
     let mut cube_actions: Vec<Sequence> = Vec::with_capacity(CAPACITY);
 
@@ -83,8 +80,8 @@ pub fn easings(
     for i in 0..CAPACITY {
         cube_actions.push(
             all(&[
-                act.play(cube_transform_motions[i].translate_add(Vec3::X * 10.0), 1.0),
-                act.play(
+                commands.play(cube_transform_motions[i].translate_add(Vec3::X * 10.0), 1.0),
+                commands.play(
                     cube_material_motion[i]
                         .emissive_to(*palette.get_or_default(&ColorKey::Red) * 4.0),
                     1.0,
@@ -96,11 +93,13 @@ pub fn easings(
 
     let sequence: Sequence = chain(&cube_actions);
 
-    let sequence_id: Entity = commands.spawn(sequence).id();
-    commands.spawn(Timeline::new(sequence_id));
+    commands.spawn(SequencePlayerBundle {
+        sequence,
+        ..default()
+    });
 }
 
-fn setup(mut commands: Commands) {
+fn setup_system(mut commands: Commands) {
     // Camera
     commands
         .spawn(Camera3dBundle {
@@ -124,26 +123,23 @@ fn setup(mut commands: Commands) {
 }
 
 fn timeline_movement_system(
-    mut commands: Commands,
-    mut q_timelines: Query<(Entity, &mut Timeline)>,
+    mut q_timelines: Query<(&mut SequencePlayer, &mut SequenceTime)>,
     keys: Res<Input<KeyCode>>,
     time: Res<Time>,
 ) {
-    for (entity, mut timeline) in q_timelines.iter_mut() {
+    for (mut sequence_player, mut sequence_time) in q_timelines.iter_mut() {
         if keys.pressed(KeyCode::D) {
-            timeline.target_time += time.delta_seconds();
+            sequence_time.target_time += time.delta_seconds();
         }
 
         if keys.pressed(KeyCode::A) {
-            timeline.target_time -= time.delta_seconds();
+            sequence_time.target_time -= time.delta_seconds();
         }
 
         if keys.pressed(KeyCode::Space) && keys.pressed(KeyCode::ShiftLeft) {
-            timeline.time_scale = -1.0;
-            commands.entity(entity).insert(TimelinePlayer);
+            sequence_player.time_scale = -1.0;
         } else if keys.pressed(KeyCode::Space) {
-            timeline.time_scale = 1.0;
-            commands.entity(entity).insert(TimelinePlayer);
+            sequence_player.time_scale = 1.0;
         }
     }
 }

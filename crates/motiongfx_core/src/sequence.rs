@@ -1,15 +1,39 @@
 use bevy_ecs::prelude::*;
+use bevy_utils::prelude::*;
 
 use crate::{
     action::{Action, ActionMeta},
     ease::EaseFn,
-    timeline::Timeline,
+    lerp::*,
+    EmptyRes,
 };
+
+#[derive(Bundle, Default)]
+pub struct SequenceBundle {
+    pub sequence: Sequence,
+    pub sequence_time: SequenceTime,
+}
+
+impl SequenceBundle {
+    pub fn new(sequence: Sequence) -> Self {
+        Self {
+            sequence,
+            ..default()
+        }
+    }
+}
+
+/// Plays the [`Sequence`] component attached to this entity through `target_time` manipulation.
+#[derive(Component, Default)]
+pub struct SequenceTime {
+    pub(crate) curr_time: f32,
+    pub target_time: f32,
+}
 
 /// A group of actions in chronological order.
 #[derive(Component, Default)]
 pub struct Sequence {
-    pub(crate) duration: f32,
+    duration: f32,
     pub(crate) action_metas: Vec<ActionMeta>,
 }
 
@@ -22,6 +46,14 @@ impl Sequence {
         }
     }
 
+    pub(crate) fn empty(duration: f32) -> Self {
+        Self {
+            duration,
+            ..default()
+        }
+    }
+
+    /// Add easing to all the [`Action`]s within this [`Sequence`].
     pub fn with_ease(mut self, ease_fn: EaseFn) -> Self {
         for action_meta in &mut self.action_metas {
             action_meta.ease_fn = ease_fn;
@@ -30,9 +62,21 @@ impl Sequence {
         self
     }
 
+    #[inline]
     pub fn duration(&self) -> f32 {
         self.duration
     }
+}
+
+/// Interpolation for [`SequenceTime`].
+pub(crate) fn sequence_time_interp(
+    player: &mut SequenceTime,
+    begin: &f32,
+    end: &f32,
+    t: f32,
+    _: &mut ResMut<EmptyRes>,
+) {
+    player.target_time = f32::lerp(begin, end, t);
 }
 
 // ANIMATION FLOW FUNCTIONS
@@ -128,28 +172,31 @@ pub fn delay(delay: f32, sequence: &Sequence) -> Sequence {
     final_sequence
 }
 
+/// Safely update the `target_time` in [`SequenceTime`] after performing all the necessary actions.
+pub(crate) fn sequence_time_update_system(mut q_sequences: Query<(&Sequence, &mut SequenceTime)>) {
+    for (sequence, mut sequence_time) in q_sequences.iter_mut() {
+        sequence_time.target_time = f32::clamp(sequence_time.target_time, 0.0, sequence.duration());
+        sequence_time.curr_time = sequence_time.target_time;
+    }
+}
+
 /// System for playing the [`Action`]s that are inside the [`Sequence`].
-pub fn sequence_player_system<CompType, InterpType, ResType>(
+pub fn sequence_update_system<CompType, InterpType, ResType>(
     mut q_components: Query<&mut CompType>,
     q_actions: Query<&Action<CompType, InterpType, ResType>>,
-    q_sequences: Query<&Sequence>,
-    q_timelines: Query<&Timeline>,
+    q_sequences: Query<(&Sequence, &SequenceTime)>,
     mut resource: ResMut<ResType>,
 ) where
     CompType: Component,
     InterpType: Send + Sync + 'static,
     ResType: Resource,
 {
-    for timeline in q_timelines.iter() {
-        let Ok(sequence) = q_sequences.get(timeline.sequence_id) else {
-            return;
-        };
-
+    for (sequence, sequence_time) in q_sequences.iter() {
         play_sequence(
             &mut q_components,
             &q_actions,
             sequence,
-            timeline,
+            sequence_time,
             &mut resource,
         );
     }
@@ -159,7 +206,7 @@ fn play_sequence<CompType, InterpType, ResType>(
     q_components: &mut Query<&mut CompType>,
     q_actions: &Query<&Action<CompType, InterpType, ResType>>,
     sequence: &Sequence,
-    timeline: &Timeline,
+    sequence_time: &SequenceTime,
     resource: &mut ResMut<ResType>,
 ) where
     CompType: Component,
@@ -168,14 +215,14 @@ fn play_sequence<CompType, InterpType, ResType>(
 {
     // Do not perform any actions if there are no changes to the timeline timings
     // or there are no actions at all.
-    if timeline.curr_time == timeline.target_time || sequence.action_metas.is_empty() {
+    if sequence_time.curr_time == sequence_time.target_time || sequence.action_metas.is_empty() {
         return;
     }
 
-    let direction: i32 = f32::signum(timeline.target_time - timeline.curr_time) as i32;
+    let direction: i32 = f32::signum(sequence_time.target_time - sequence_time.curr_time) as i32;
 
-    let timeline_start: f32 = f32::min(timeline.curr_time, timeline.target_time);
-    let timeline_end: f32 = f32::max(timeline.curr_time, timeline.target_time);
+    let timeline_start: f32 = f32::min(sequence_time.curr_time, sequence_time.target_time);
+    let timeline_end: f32 = f32::max(sequence_time.curr_time, sequence_time.target_time);
 
     let mut start_index: usize = 0;
     let mut end_index: usize = sequence.action_metas.len() - 1;
@@ -217,7 +264,7 @@ fn play_sequence<CompType, InterpType, ResType>(
         // Get component to mutate based on action id
         if let Ok(mut component) = q_components.get_mut(action.target_id) {
             let mut unit_time: f32 =
-                (timeline.target_time - action_meta.start_time) / action_meta.duration;
+                (sequence_time.target_time - action_meta.start_time) / action_meta.duration;
 
             // In case of division by 0.0
             if f32::is_nan(unit_time) {
