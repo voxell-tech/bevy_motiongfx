@@ -31,10 +31,10 @@ pub fn easings_system(
 
     let mut spheres: Vec<Entity> = Vec::with_capacity(CAPACITY);
     // States
-    let mut cube_transform_motions: Vec<TransformMotion> = Vec::with_capacity(CAPACITY);
-    let mut cube_material_motion: Vec<StandardMaterialMotion> = Vec::with_capacity(CAPACITY);
+    let mut transform_motions: Vec<TransformMotion> = Vec::with_capacity(CAPACITY);
+    let mut material_motion: Vec<StandardMaterialMotion> = Vec::with_capacity(CAPACITY);
 
-    // Create cube objects (Entity)
+    // Create sphere objects (Entity)
     let material: StandardMaterial = StandardMaterial {
         emissive: *palette.get_or_default(&ColorKey::Blue) * 4.0,
         ..default()
@@ -45,7 +45,7 @@ pub fn easings_system(
             Transform::from_translation(Vec3::new(-5.0, (i as f32) - (CAPACITY as f32) * 0.5, 0.0))
                 .with_scale(Vec3::ONE * 0.48);
 
-        let cube = commands
+        let sphere = commands
             .spawn(PbrBundle {
                 transform,
                 mesh: meshes.add(shape::UVSphere::default().into()),
@@ -55,14 +55,14 @@ pub fn easings_system(
             .insert(NotShadowCaster)
             .id();
 
-        cube_transform_motions.push(TransformMotion::new(cube, transform));
-        cube_material_motion.push(StandardMaterialMotion::new(cube, material.clone()));
+        transform_motions.push(TransformMotion::new(sphere, transform));
+        material_motion.push(StandardMaterialMotion::new(sphere, material.clone()));
 
-        spheres.push(cube);
+        spheres.push(sphere);
     }
 
-    // Generate cube animations
-    let mut cube_actions: Vec<Sequence> = Vec::with_capacity(CAPACITY);
+    // Generate easing animations
+    let mut easing_seqs: Vec<Sequence> = Vec::with_capacity(CAPACITY);
 
     let easings: [ease::EaseFn; CAPACITY] = [
         ease::linear,
@@ -78,12 +78,11 @@ pub fn easings_system(
     ];
 
     for i in 0..CAPACITY {
-        cube_actions.push(
+        easing_seqs.push(
             all(&[
-                commands.play(cube_transform_motions[i].translate_add(Vec3::X * 10.0), 1.0),
+                commands.play(transform_motions[i].translate_add(Vec3::X * 10.0), 1.0),
                 commands.play(
-                    cube_material_motion[i]
-                        .emissive_to(*palette.get_or_default(&ColorKey::Red) * 4.0),
+                    material_motion[i].emissive_to(*palette.get_or_default(&ColorKey::Red) * 4.0),
                     1.0,
                 ),
             ])
@@ -91,7 +90,7 @@ pub fn easings_system(
         );
     }
 
-    let sequence: Sequence = chain(&cube_actions);
+    let sequence: Sequence = chain(&easing_seqs);
 
     commands.spawn(SequencePlayerBundle {
         sequence,

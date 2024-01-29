@@ -35,7 +35,7 @@ pub fn hello_world_system(
 
     let mut cubes: Vec<Entity> = Vec::with_capacity(CAPACITY);
     // Motion
-    let mut cube_transform_motions: Vec<TransformMotion> = Vec::with_capacity(CAPACITY);
+    let mut transform_motions: Vec<TransformMotion> = Vec::with_capacity(CAPACITY);
 
     // Create cube objects (Entity)
     let material: StandardMaterial = StandardMaterial {
@@ -62,25 +62,25 @@ pub fn hello_world_system(
                 .insert(NotShadowCaster)
                 .id();
 
-            cube_transform_motions.push(TransformMotion::new(cube, transform));
+            transform_motions.push(TransformMotion::new(cube, transform));
 
             cubes.push(cube);
         }
     }
 
     // Generate cube animations
-    let mut cube_actions: Vec<Sequence> = Vec::with_capacity(CAPACITY);
+    let mut cube_seqs: Vec<Sequence> = Vec::with_capacity(CAPACITY);
 
     for w in 0..WIDTH {
         for h in 0..HEIGHT {
             let c = w * WIDTH + h;
 
-            cube_actions.push(
+            cube_seqs.push(
                 all(&[
-                    commands.play(cube_transform_motions[c].translate_add(Vec3::X), 1.0),
-                    commands.play(cube_transform_motions[c].scale_to(Vec3::splat(0.9)), 1.0),
+                    commands.play(transform_motions[c].translate_add(Vec3::X), 1.0),
+                    commands.play(transform_motions[c].scale_to(Vec3::splat(0.9)), 1.0),
                     commands.play(
-                        cube_transform_motions[c].rotate_to(Quat::from_euler(
+                        transform_motions[c].rotate_to(Quat::from_euler(
                             EulerRot::XYZ,
                             0.0,
                             f32::to_radians(90.0),
@@ -94,7 +94,7 @@ pub fn hello_world_system(
         }
     }
 
-    let sequence: Sequence = flow(0.01, &cube_actions);
+    let sequence: Sequence = flow(0.01, &cube_seqs);
 
     commands.spawn(SequencePlayerBundle {
         sequence,
