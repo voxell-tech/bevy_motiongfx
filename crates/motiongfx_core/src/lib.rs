@@ -17,7 +17,7 @@ pub mod prelude {
         ease,
         lerp::*,
         sequence::{all, any, chain, delay, flow, Sequence},
-        timeline::Timeline,
+        timeline::{Timeline, TimelinePlayer},
         EmptyComp, EmptyRes, MotionGfx,
     };
 }

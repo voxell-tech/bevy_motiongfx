@@ -141,11 +141,7 @@ pub fn sequence_player_system<CompType, InterpType, ResType>(
     ResType: Resource,
 {
     for timeline in q_timelines.iter() {
-        let Some(target_sequence) = timeline.sequence_id else {
-            return;
-        };
-
-        let Ok(sequence) = q_sequences.get(target_sequence) else {
+        let Ok(sequence) = q_sequences.get(timeline.sequence_id) else {
             return;
         };
 

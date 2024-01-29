@@ -146,11 +146,12 @@ fn vello_basic(mut commands: Commands, mut fragments: ResMut<Assets<VelloFragmen
 }
 
 fn timeline_movement_system(
-    mut q_timelines: Query<&mut Timeline>,
+    mut commands: Commands,
+    mut q_timelines: Query<(Entity, &mut Timeline)>,
     keys: Res<Input<KeyCode>>,
     time: Res<Time>,
 ) {
-    for mut timeline in q_timelines.iter_mut() {
+    for (entity, mut timeline) in q_timelines.iter_mut() {
         if keys.pressed(KeyCode::D) {
             timeline.target_time += time.delta_seconds();
         }
@@ -161,10 +162,10 @@ fn timeline_movement_system(
 
         if keys.pressed(KeyCode::Space) && keys.pressed(KeyCode::ShiftLeft) {
             timeline.time_scale = -1.0;
-            timeline.is_playing = true;
+            commands.entity(entity).insert(TimelinePlayer);
         } else if keys.pressed(KeyCode::Space) {
             timeline.time_scale = 1.0;
-            timeline.is_playing = true;
+            commands.entity(entity).insert(TimelinePlayer);
         }
     }
 }
