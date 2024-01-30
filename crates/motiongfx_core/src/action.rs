@@ -126,7 +126,12 @@ impl ActionBuilder for Commands<'_, '_> {
 
         let action_id: Entity = self.spawn(action).id();
         let mut action_meta: ActionMeta = ActionMeta::new(action_id);
-        action_meta.duration = f32::abs(end - begin) / playback_speed;
+
+        if f32::abs(playback_speed) <= f32::EPSILON {
+            action_meta.duration = 0.0;
+        } else {
+            action_meta.duration = f32::abs(end - begin) / playback_speed;
+        }
 
         Sequence::single(action_meta)
     }
