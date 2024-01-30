@@ -127,6 +127,7 @@ impl ActionBuilder for Commands<'_, '_> {
         let action_id: Entity = self.spawn(action).id();
         let mut action_meta: ActionMeta = ActionMeta::new(action_id);
 
+        // Prevent division by 0.0
         if f32::abs(playback_speed) <= f32::EPSILON {
             action_meta.duration = 0.0;
         } else {
