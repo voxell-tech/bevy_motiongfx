@@ -1,4 +1,5 @@
 use bevy_ecs::prelude::*;
+use bevy_time::prelude::*;
 use bevy_utils::prelude::*;
 
 use crate::{
@@ -8,6 +9,7 @@ use crate::{
     EmptyRes,
 };
 
+/// Bundle to encapsulate [`Sequence`] and [`SequenceTime`].
 #[derive(Bundle, Default)]
 pub struct SequenceBundle {
     pub sequence: Sequence,
@@ -15,7 +17,7 @@ pub struct SequenceBundle {
 }
 
 impl SequenceBundle {
-    pub fn new(sequence: Sequence) -> Self {
+    pub fn from_sequence(sequence: Sequence) -> Self {
         Self {
             sequence,
             ..default()
@@ -23,11 +25,21 @@ impl SequenceBundle {
     }
 }
 
-/// Plays the [`Sequence`] component attached to this entity through `target_time` manipulation.
-#[derive(Component, Default)]
-pub struct SequenceTime {
-    pub(crate) curr_time: f32,
-    pub target_time: f32,
+/// Bundle to encapsulate [`Sequence`], [`SequenceTime`], and [`SequencePlayer`].
+#[derive(Bundle, Default)]
+pub struct SequencePlayerBundle {
+    pub sequence: Sequence,
+    pub sequence_time: SequenceTime,
+    pub sequence_player: SequencePlayer,
+}
+
+impl SequencePlayerBundle {
+    pub fn from_sequence(sequence: Sequence) -> Self {
+        Self {
+            sequence,
+            ..default()
+        }
+    }
 }
 
 /// A group of actions in chronological order.
@@ -66,6 +78,19 @@ impl Sequence {
     pub fn duration(&self) -> f32 {
         self.duration
     }
+}
+
+/// Plays the [`Sequence`] component attached to this entity through `target_time` manipulation.
+#[derive(Component, Default)]
+pub struct SequenceTime {
+    pub(crate) curr_time: f32,
+    pub target_time: f32,
+}
+
+/// Manipulates the `target_time` variable of the [`SequenceTime`] component attached to this entity with a `time_scale`.
+#[derive(Component, Default)]
+pub struct SequencePlayer {
+    pub time_scale: f32,
 }
 
 /// Interpolation for [`SequenceTime`].
@@ -172,14 +197,6 @@ pub fn delay(delay: f32, sequence: &Sequence) -> Sequence {
     final_sequence
 }
 
-/// Safely update the `target_time` in [`SequenceTime`] after performing all the necessary actions.
-pub(crate) fn sequence_time_update_system(mut q_sequences: Query<(&Sequence, &mut SequenceTime)>) {
-    for (sequence, mut sequence_time) in q_sequences.iter_mut() {
-        sequence_time.target_time = f32::clamp(sequence_time.target_time, 0.0, sequence.duration());
-        sequence_time.curr_time = sequence_time.target_time;
-    }
-}
-
 /// System for playing the [`Action`]s that are inside the [`Sequence`].
 pub fn sequence_update_system<CompType, InterpType, ResType>(
     mut q_components: Query<&mut CompType>,
@@ -198,6 +215,28 @@ pub fn sequence_update_system<CompType, InterpType, ResType>(
             sequence,
             sequence_time,
             &mut resource,
+        );
+    }
+}
+
+/// Safely update the `target_time` in [`SequenceTime`] after performing all the necessary actions.
+pub(crate) fn sequence_time_update_system(mut q_sequences: Query<(&Sequence, &mut SequenceTime)>) {
+    for (sequence, mut sequence_time) in q_sequences.iter_mut() {
+        sequence_time.target_time = f32::clamp(sequence_time.target_time, 0.0, sequence.duration());
+        sequence_time.curr_time = sequence_time.target_time;
+    }
+}
+
+/// Update [`SequenceTime`] based on `time_scale` of [`SequencePlayer`].
+pub(crate) fn sequence_player_system(
+    mut q_sequences: Query<(&Sequence, &mut SequenceTime, &SequencePlayer)>,
+    time: Res<Time>,
+) {
+    for (sequence, mut sequence_time, sequence_player) in q_sequences.iter_mut() {
+        sequence_time.target_time = f32::clamp(
+            sequence_time.target_time + time.delta_seconds() * sequence_player.time_scale,
+            0.0,
+            sequence.duration(),
         );
     }
 }

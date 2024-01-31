@@ -7,7 +7,7 @@ pub mod cross_lerp;
 pub mod ease;
 pub mod lerp;
 pub mod sequence;
-pub mod sequence_player;
+pub mod slide;
 
 pub mod prelude {
     pub use crate::{
@@ -16,8 +16,11 @@ pub mod prelude {
         cross_lerp::*,
         ease,
         lerp::*,
-        sequence::{all, any, chain, delay, flow, Sequence, SequenceBundle, SequenceTime},
-        sequence_player::{SequencePlayer, SequencePlayerBundle},
+        sequence::{
+            all, any, chain, delay, flow, Sequence, SequenceBundle, SequencePlayer,
+            SequencePlayerBundle, SequenceTime,
+        },
+        slide::Slide,
         EmptyComp, EmptyRes, MotionGfx,
     };
 }
@@ -28,7 +31,7 @@ impl Plugin for MotionGfx {
     fn build(&self, app: &mut App) {
         app.insert_resource(EmptyRes)
             .add_systems(PreUpdate, sequence::sequence_time_update_system)
-            .add_systems(Update, sequence_player::sequence_player_system);
+            .add_systems(Update, sequence::sequence_player_system);
     }
 }
 
