@@ -51,9 +51,8 @@ impl SlideController {
     }
 
     #[inline]
-    pub fn with_time_scale(mut self, time_scale: f32) -> Self {
+    pub fn set_time_scale(&mut self, time_scale: f32) {
         self.utime_scale = f32::abs(time_scale);
-        self
     }
 
     #[inline]

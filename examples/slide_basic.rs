@@ -120,11 +120,17 @@ fn setup_system(mut commands: Commands) {
 fn slide_movement_system(mut q_slides: Query<&mut SlideController>, keys: Res<Input<KeyCode>>) {
     for mut slide in q_slides.iter_mut() {
         if keys.just_pressed(KeyCode::Space) {
+            slide.set_time_scale(1.0);
+
             if keys.pressed(KeyCode::ShiftLeft) {
                 slide.prev();
             } else {
                 slide.next();
             }
+        }
+
+        if keys.just_pressed(KeyCode::Escape) {
+            slide.set_time_scale(0.0);
         }
     }
 }
