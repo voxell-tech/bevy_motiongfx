@@ -139,10 +139,16 @@ fn timeline_movement_system(
             sequence_time.target_time -= time.delta_seconds();
         }
 
-        if keys.pressed(KeyCode::Space) && keys.pressed(KeyCode::ShiftLeft) {
-            sequence_player.time_scale = -1.0;
-        } else if keys.pressed(KeyCode::Space) {
-            sequence_player.time_scale = 1.0;
+        if keys.just_pressed(KeyCode::Space) {
+            if keys.pressed(KeyCode::ShiftLeft) {
+                sequence_player.time_scale = -1.0;
+            } else {
+                sequence_player.time_scale = 1.0;
+            }
+        }
+
+        if keys.just_pressed(KeyCode::Escape) {
+            sequence_player.time_scale = 0.0;
         }
     }
 }
