@@ -71,11 +71,12 @@ fn slide_basic_system(
 
     let mut sphere_tranform: TransformMotion = TransformMotion::new(sphere, sphere_pbr.transform);
 
-    let slide0 = commands
+    // Create slides
+    let slide0: Sequence = commands
         .play(cube_transform.scale_to(Vec3::ONE), 1.0)
         .with_ease(ease::cubic::ease_in_out);
 
-    let slide1 = flow(
+    let slide1: Sequence = flow(
         0.1,
         &[
             all(&[
@@ -90,7 +91,6 @@ fn slide_basic_system(
     )
     .with_ease(ease::cubic::ease_in_out);
 
-    // let slide: Slide = commands.create_slide();
     commands.spawn(create_slide(vec![slide0, slide1]));
 }
 
