@@ -93,11 +93,11 @@ pub fn create_slide(mut sequences: Vec<Sequence>) -> SlideBundle {
     let mut start_times: Vec<f32> = Vec::with_capacity(sequences.len());
 
     let mut start_time: f32 = 0.0;
-    for s in 0..sequences.len() {
-        sequences[s].set_slide_index(s);
+    for (s, sequence) in sequences.iter_mut().enumerate() {
+        sequence.set_slide_index(s);
         start_times.push(start_time);
 
-        start_time += sequences[s].duration();
+        start_time += sequence.duration();
     }
     start_times.push(start_time);
 
