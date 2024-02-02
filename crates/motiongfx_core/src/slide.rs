@@ -1,178 +1,160 @@
 use bevy_ecs::prelude::*;
 use bevy_time::prelude::*;
+use bevy_utils::prelude::*;
 
-use crate::sequence::{Sequence, SequenceBundle, SequenceController};
+use crate::sequence::{chain, Sequence, SequenceController};
 
-#[derive(Component, Default)]
-pub struct Slide {
-    sequence_ids: Vec<Entity>,
+#[derive(Bundle, Default)]
+pub struct SlideBundle {
+    pub sequence: Sequence,
+    pub sequence_controller: SequenceController,
+    pub slide_controller: SlideController,
 }
 
-#[derive(Component, Default)]
+#[derive(Component, Clone)]
 pub struct SlideController {
-    /// Reflects the actual `target_time` in [`SequenceTime`].
-    sequence_time: f32,
-    /// The time we aim the `sequence_time` to go towards.
-    target_time: f32,
-    curr_index: usize,
-    target_index: usize,
+    /// Start time of all slides including 1 extra at the end that represents the duration of the entire sequence.
+    start_times: Vec<f32>,
+    target_slide_index: usize,
+    curr_state: SlideCurrState,
+    target_state: SlideTargetState,
+    utime_scale: f32,
 }
 
 impl SlideController {
     pub fn next(&mut self) {
-        self.target_index = self.target_index.saturating_add(1);
-        self.target_time = 0.0;
+        match self.curr_state {
+            SlideCurrState::End => {
+                self.target_slide_index =
+                    usize::min(self.target_slide_index + 1, self.slide_count() - 1);
+            }
+            _ => {
+                self.target_state = SlideTargetState::End;
+            }
+        }
     }
 
     pub fn prev(&mut self) {
-        self.target_index = self.target_index.saturating_sub(1);
-        self.target_time = 0.0;
-    }
-
-    pub fn with_index(mut self, index: usize) -> Self {
-        self.target_index = index;
-        self.target_time = 0.0;
-        self
-    }
-
-    pub fn with_time(mut self, target_time: f32) -> Self {
-        self.target_time = target_time;
-        self
-    }
-}
-
-#[derive(Component)]
-pub struct SlidePlayer {
-    utime_scale: f32,
-}
-
-impl SlidePlayer {
-    #[inline]
-    pub fn set_utime_scale(&mut self, time_scale: f32) {
-        self.utime_scale = f32::abs(time_scale);
-    }
-}
-
-impl Default for SlidePlayer {
-    fn default() -> Self {
-        Self { utime_scale: 1.0 }
-    }
-}
-
-#[derive(Bundle, Default)]
-pub struct SlideBundle {
-    pub slide: Slide,
-    pub slide_controller: SlideController,
-}
-
-#[derive(Bundle, Default)]
-pub struct SlidePlayerBundle {
-    pub slide: Slide,
-    pub slide_controller: SlideController,
-    pub slide_player: SlidePlayer,
-}
-
-pub trait SlideBuilder {
-    fn create_slide(&mut self, seqeunces: Vec<Sequence>) -> Slide;
-}
-
-impl SlideBuilder for Commands<'_, '_> {
-    fn create_slide(&mut self, sequences: Vec<Sequence>) -> Slide {
-        let mut sequence_ids: Vec<Entity> = Vec::with_capacity(sequences.len());
-
-        for sequence in sequences {
-            sequence_ids.push(self.spawn(SequenceBundle::from_sequence(sequence)).id());
+        match self.curr_state {
+            SlideCurrState::Start => {
+                self.target_slide_index = self.target_slide_index.saturating_sub(1);
+            }
+            _ => {
+                self.target_state = SlideTargetState::Start;
+            }
         }
+    }
 
-        Slide { sequence_ids }
+    pub fn seek(&mut self, slide_index: usize, slide_state: SlideTargetState) {
+        self.target_slide_index = usize::min(slide_index, self.slide_count() - 1);
+        self.target_state = slide_state;
+    }
+
+    #[inline]
+    pub fn with_time_scale(mut self, time_scale: f32) -> Self {
+        self.utime_scale = f32::abs(time_scale);
+        self
+    }
+
+    #[inline]
+    pub fn slide_count(&self) -> usize {
+        self.start_times.len().saturating_sub(1)
     }
 }
 
-pub(crate) fn slide_update_system(
-    mut q_slides: Query<(&Slide, &mut SlideController)>,
-    mut q_sequences: Query<(&Sequence, &mut SequenceController)>,
-) {
-    for (slide, mut slide_controller) in q_slides.iter_mut() {
-        let Ok((sequence, mut sequence_time)) =
-            q_sequences.get_mut(slide.sequence_ids[slide_controller.curr_index])
-        else {
-            return;
-        };
-
-        slide_controller.sequence_time =
-            f32::clamp(slide_controller.sequence_time, 0.0, sequence.duration());
-        sequence_time.target_time = slide_controller.sequence_time;
+impl Default for SlideController {
+    fn default() -> Self {
+        Self {
+            start_times: Vec::default(),
+            target_slide_index: 0,
+            curr_state: SlideCurrState::default(),
+            target_state: SlideTargetState::default(),
+            utime_scale: 1.0,
+        }
     }
 }
 
-pub(crate) fn slide_controller_update_system(
-    mut q_slides: Query<(&Slide, &mut SlideController, &SlidePlayer)>,
-    q_sequences: Query<&Sequence>,
+#[derive(Default, Clone, Copy, PartialEq, Eq, Debug)]
+pub enum SlideCurrState {
+    #[default]
+    Start,
+    Mid,
+    End,
+}
+
+#[derive(Default, Clone, Copy, PartialEq, Eq, Debug)]
+pub enum SlideTargetState {
+    #[default]
+    Start,
+    End,
+}
+
+pub fn create_slide(mut sequences: Vec<Sequence>) -> SlideBundle {
+    let mut start_times: Vec<f32> = Vec::with_capacity(sequences.len());
+
+    let mut start_time: f32 = 0.0;
+    for s in 0..sequences.len() {
+        sequences[s].set_slide_index(s);
+        start_times.push(start_time);
+
+        start_time += sequences[s].duration();
+    }
+    start_times.push(start_time);
+
+    SlideBundle {
+        sequence: chain(&sequences),
+        slide_controller: SlideController {
+            start_times,
+            ..default()
+        },
+        ..default()
+    }
+}
+
+pub(crate) fn slide_controller_system(
+    mut q_slides: Query<(&mut SlideController, &mut SequenceController)>,
     time: Res<Time>,
 ) {
-    for (slide, mut slide_controller, slide_player) in q_slides.iter_mut() {
-        if slide_player.utime_scale <= f32::EPSILON || slide.sequence_ids.is_empty() {
+    for (mut slide_controller, mut sequence_controller) in q_slides.iter_mut() {
+        if slide_controller.utime_scale <= f32::EPSILON {
             continue;
         }
 
-        let Ok(sequence) = q_sequences.get(slide.sequence_ids[slide_controller.curr_index]) else {
-            continue;
-        };
-
-        // Prevent target index from exceeding the available sequence count
-        if slide_controller.target_index >= slide.sequence_ids.len() {
-            let Ok(last_sequence) = q_sequences.get(*slide.sequence_ids.last().unwrap()) else {
-                continue;
-            };
-
-            // Set target index to last index and target time at sequence duration
-            slide_controller.target_index = slide.sequence_ids.len() - 1;
-            slide_controller.target_time = last_sequence.duration();
-        }
-
-        // Calculate time flow direction
+        // Determine direction based on target slide state. (it can only be start or end)
         let direction: isize = {
-            // priority 1: index difference
-            if slide_controller.target_index != slide_controller.curr_index {
-                isize::signum(
-                    slide_controller.target_index as isize - slide_controller.curr_index as isize,
-                )
-            // priority 2: time difference
-            } else {
-                f32::signum(slide_controller.target_time - slide_controller.sequence_time) as isize
+            match slide_controller.target_state {
+                SlideTargetState::Start => -1,
+                SlideTargetState::End => 1,
             }
         };
 
-        if slide_controller.target_index != slide_controller.curr_index {
-            // Move target index if we reached either ending of the current sequence
-            if slide_controller.sequence_time <= 0.0
-                || slide_controller.sequence_time >= sequence.duration()
-            {
-                slide_controller.curr_index =
-                    (slide_controller.curr_index as isize + direction) as usize;
+        // Update sequence target time and target slide index
+        sequence_controller.target_time +=
+            time.delta_seconds() * slide_controller.utime_scale * direction as f32;
+        sequence_controller.target_slide_index = slide_controller.target_slide_index;
 
-                if direction > 0 {
-                    // Start from 0.0 if we are moving to the next sequence
-                    slide_controller.sequence_time = 0.0;
-                } else if direction < 0 {
-                    println!("prev");
-                    // Start from duration if we are moving to the previous sequence
-                    if let Ok(prev_sequence) =
-                        q_sequences.get(slide.sequence_ids[slide_controller.curr_index])
-                    {
-                        println!("prev in");
-                        slide_controller.sequence_time = prev_sequence.duration();
-                    }
-                }
+        // Initialize as mid
+        slide_controller.curr_state = SlideCurrState::Mid;
+
+        // Clamp target time based on direction
+        if direction < 0 {
+            let start_time: f32 =
+                slide_controller.start_times[sequence_controller.target_slide_index];
+
+            // Start time reached
+            if sequence_controller.target_time <= start_time {
+                slide_controller.curr_state = SlideCurrState::Start;
+                sequence_controller.target_time = start_time;
+            }
+        } else {
+            let end_time: f32 =
+                slide_controller.start_times[sequence_controller.target_slide_index + 1];
+
+            // End time reached
+            if sequence_controller.target_time >= end_time {
+                slide_controller.curr_state = SlideCurrState::End;
+                sequence_controller.target_time = end_time;
             }
         }
-
-        // Move sequence time based on time scale and direction
-        slide_controller.sequence_time = f32::clamp(
-            slide_controller.sequence_time
-                + time.delta_seconds() * slide_player.utime_scale * direction as f32,
-            0.0,
-            sequence.duration(),
-        );
     }
 }

@@ -74,6 +74,12 @@ impl Sequence {
         self
     }
 
+    pub(crate) fn set_slide_index(&mut self, slide_index: usize) {
+        for action_meta in &mut self.action_metas {
+            action_meta.slide_index = slide_index;
+        }
+    }
+
     #[inline]
     pub fn duration(&self) -> f32 {
         self.duration
@@ -84,7 +90,10 @@ impl Sequence {
 #[derive(Component, Default)]
 pub struct SequenceController {
     pub(crate) curr_time: f32,
+    /// Target time to reach (and not exceed).
     pub target_time: f32,
+    /// Target slide index to reach (and not exceed).
+    pub target_slide_index: usize,
 }
 
 /// Manipulates the `target_time` variable of the [`SequenceTime`] component attached to this entity with a `time_scale`.
@@ -113,10 +122,9 @@ pub fn chain(sequences: &[Sequence]) -> Sequence {
 
     for sequence in sequences {
         for action_meta in &sequence.action_metas {
-            let mut action_meta: ActionMeta = action_meta.clone();
-
-            action_meta.start_time += chain_duration;
-            final_sequence.action_metas.push(action_meta);
+            final_sequence
+                .action_metas
+                .push(action_meta.with_start_time(action_meta.start_time + chain_duration));
         }
 
         chain_duration += sequence.duration;
@@ -133,7 +141,7 @@ pub fn all(sequences: &[Sequence]) -> Sequence {
 
     for sequence in sequences {
         for action_meta in &sequence.action_metas {
-            final_sequence.action_metas.push(action_meta.clone());
+            final_sequence.action_metas.push(*action_meta);
         }
 
         max_duration = f32::max(max_duration, sequence.duration);
@@ -150,7 +158,7 @@ pub fn any(sequences: &[Sequence]) -> Sequence {
 
     for action_grp in sequences {
         for action_meta in &action_grp.action_metas {
-            final_sequence.action_metas.push(action_meta.clone());
+            final_sequence.action_metas.push(*action_meta);
         }
 
         min_duration = f32::min(min_duration, action_grp.duration);
@@ -168,10 +176,9 @@ pub fn flow(delay: f32, sequences: &[Sequence]) -> Sequence {
 
     for sequence in sequences {
         for action_meta in &sequence.action_metas {
-            let mut action_meta: ActionMeta = action_meta.clone();
-
-            action_meta.start_time += flow_duration;
-            final_sequence.action_metas.push(action_meta);
+            final_sequence
+                .action_metas
+                .push(action_meta.with_start_time(action_meta.start_time + flow_duration));
         }
 
         flow_duration += delay;
@@ -187,10 +194,9 @@ pub fn delay(delay: f32, sequence: &Sequence) -> Sequence {
     let mut final_sequence: Sequence = Sequence::default();
 
     for action_meta in &sequence.action_metas {
-        let mut action_meta: ActionMeta = action_meta.clone();
-
-        action_meta.start_time += delay;
-        final_sequence.action_metas.push(action_meta);
+        final_sequence
+            .action_metas
+            .push(action_meta.with_start_time(action_meta.start_time + delay));
     }
 
     final_sequence.duration = sequence.duration + delay;
@@ -220,7 +226,7 @@ pub fn sequence_update_system<CompType, InterpType, ResType>(
 }
 
 /// Safely update the `target_time` in [`SequenceTime`] after performing all the necessary actions.
-pub(crate) fn sequence_controller_update_system(
+pub(crate) fn sequence_controller_system(
     mut q_sequences: Query<(&Sequence, &mut SequenceController)>,
 ) {
     for (sequence, mut sequence_controller) in q_sequences.iter_mut() {
@@ -296,10 +302,19 @@ fn play_sequence<CompType, InterpType, ResType>(
         let action_meta: &ActionMeta = &sequence.action_metas[action_index];
         let action_id: Entity = action_meta.id();
 
+        let slide_direction: isize = isize::signum(
+            sequence_controller.target_slide_index as isize - action_meta.slide_index as isize,
+        );
+
+        // Continue only when slide direction matches or is 0
+        if slide_direction != 0 && slide_direction != direction {
+            break;
+        }
+
         action_index = (action_index as isize + direction) as usize;
 
         // Ignore if `ActionMeta` not in range
-        if !time_range_overlap(
+        if !crate::time_range_overlap(
             action_meta.start_time,
             action_meta.end_time(),
             timeline_start,
@@ -337,9 +352,4 @@ fn play_sequence<CompType, InterpType, ResType>(
             );
         }
     }
-}
-
-/// Calculate if 2 time range (in float) overlaps.
-fn time_range_overlap(a_begin: f32, a_end: f32, b_begin: f32, b_end: f32) -> bool {
-    a_begin <= b_end && b_begin <= a_end
 }

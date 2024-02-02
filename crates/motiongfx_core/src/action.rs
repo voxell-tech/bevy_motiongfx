@@ -53,7 +53,7 @@ where
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub(crate) struct ActionMeta {
     /// Target `Entity` for `Action`.
     action_id: Entity,
@@ -63,6 +63,8 @@ pub(crate) struct ActionMeta {
     pub(crate) duration: f32,
     /// Easing function to be used for animation.
     pub(crate) ease_fn: EaseFn,
+    /// Slide that this action belongs to.
+    pub(crate) slide_index: usize,
 }
 
 impl ActionMeta {
@@ -72,11 +74,18 @@ impl ActionMeta {
             start_time: 0.0,
             duration: 0.0,
             ease_fn: quad::ease_in_out,
+            slide_index: 0,
         }
     }
 
     pub fn id(&self) -> Entity {
         self.action_id
+    }
+
+    #[inline]
+    pub fn with_start_time(mut self, start_time: f32) -> Self {
+        self.start_time = start_time;
+        self
     }
 
     #[inline]

@@ -90,8 +90,8 @@ fn slide_basic_system(
     )
     .with_ease(ease::cubic::ease_in_out);
 
-    let slide: Slide = commands.create_slide(vec![slide0, slide1]);
-    commands.spawn(SlidePlayerBundle { slide, ..default() });
+    // let slide: Slide = commands.create_slide();
+    commands.spawn(create_slide(vec![slide0, slide1]));
 }
 
 fn setup_system(mut commands: Commands) {
@@ -120,11 +120,11 @@ fn setup_system(mut commands: Commands) {
 fn slide_movement_system(mut q_slides: Query<&mut SlideController>, keys: Res<Input<KeyCode>>) {
     for mut slide in q_slides.iter_mut() {
         if keys.just_pressed(KeyCode::Space) {
-            slide.next();
-        }
-
-        if keys.just_pressed(KeyCode::Space) && keys.pressed(KeyCode::ShiftLeft) {
-            slide.prev();
+            if keys.pressed(KeyCode::ShiftLeft) {
+                slide.prev();
+            } else {
+                slide.next();
+            }
         }
     }
 }
