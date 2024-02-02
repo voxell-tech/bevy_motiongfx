@@ -32,7 +32,7 @@ pub fn easings_system(
     let mut spheres: Vec<Entity> = Vec::with_capacity(CAPACITY);
     // States
     let mut transform_motions: Vec<TransformMotion> = Vec::with_capacity(CAPACITY);
-    let mut material_motion: Vec<StandardMaterialMotion> = Vec::with_capacity(CAPACITY);
+    let mut material_motions: Vec<StandardMaterialMotion> = Vec::with_capacity(CAPACITY);
 
     // Create sphere objects (Entity)
     let material: StandardMaterial = StandardMaterial {
@@ -56,7 +56,7 @@ pub fn easings_system(
             .id();
 
         transform_motions.push(TransformMotion::new(sphere, transform));
-        material_motion.push(StandardMaterialMotion::new(sphere, material.clone()));
+        material_motions.push(StandardMaterialMotion::new(sphere, material.clone()));
 
         spheres.push(sphere);
     }
@@ -82,7 +82,7 @@ pub fn easings_system(
             all(&[
                 commands.play(transform_motions[i].translate_add(Vec3::X * 10.0), 1.0),
                 commands.play(
-                    material_motion[i].emissive_to(*palette.get_or_default(&ColorKey::Red) * 4.0),
+                    material_motions[i].emissive_to(*palette.get_or_default(&ColorKey::Red) * 4.0),
                     1.0,
                 ),
             ])
