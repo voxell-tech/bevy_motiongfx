@@ -13,7 +13,7 @@ use crate::{
 #[derive(Bundle, Default)]
 pub struct SequenceBundle {
     pub sequence: Sequence,
-    pub sequence_time: SequenceTime,
+    pub sequence_controller: SequenceController,
 }
 
 impl SequenceBundle {
@@ -29,7 +29,7 @@ impl SequenceBundle {
 #[derive(Bundle, Default)]
 pub struct SequencePlayerBundle {
     pub sequence: Sequence,
-    pub sequence_time: SequenceTime,
+    pub sequence_controller: SequenceController,
     pub sequence_player: SequencePlayer,
 }
 
@@ -43,7 +43,7 @@ impl SequencePlayerBundle {
 }
 
 /// A group of actions in chronological order.
-#[derive(Component, Default)]
+#[derive(Component, Default, Clone)]
 pub struct Sequence {
     duration: f32,
     pub(crate) action_metas: Vec<ActionMeta>,
@@ -82,7 +82,7 @@ impl Sequence {
 
 /// Plays the [`Sequence`] component attached to this entity through `target_time` manipulation.
 #[derive(Component, Default)]
-pub struct SequenceTime {
+pub struct SequenceController {
     pub(crate) curr_time: f32,
     pub target_time: f32,
 }
@@ -94,8 +94,8 @@ pub struct SequencePlayer {
 }
 
 /// Interpolation for [`SequenceTime`].
-pub(crate) fn sequence_time_interp(
-    player: &mut SequenceTime,
+pub(crate) fn sequence_controller_interp(
+    player: &mut SequenceController,
     begin: &f32,
     end: &f32,
     t: f32,
@@ -201,40 +201,43 @@ pub fn delay(delay: f32, sequence: &Sequence) -> Sequence {
 pub fn sequence_update_system<CompType, InterpType, ResType>(
     mut q_components: Query<&mut CompType>,
     q_actions: Query<&Action<CompType, InterpType, ResType>>,
-    q_sequences: Query<(&Sequence, &SequenceTime)>,
+    q_sequences: Query<(&Sequence, &SequenceController)>,
     mut resource: ResMut<ResType>,
 ) where
     CompType: Component,
     InterpType: Send + Sync + 'static,
     ResType: Resource,
 {
-    for (sequence, sequence_time) in q_sequences.iter() {
+    for (sequence, sequence_controller) in q_sequences.iter() {
         play_sequence(
             &mut q_components,
             &q_actions,
             sequence,
-            sequence_time,
+            sequence_controller,
             &mut resource,
         );
     }
 }
 
 /// Safely update the `target_time` in [`SequenceTime`] after performing all the necessary actions.
-pub(crate) fn sequence_time_update_system(mut q_sequences: Query<(&Sequence, &mut SequenceTime)>) {
-    for (sequence, mut sequence_time) in q_sequences.iter_mut() {
-        sequence_time.target_time = f32::clamp(sequence_time.target_time, 0.0, sequence.duration());
-        sequence_time.curr_time = sequence_time.target_time;
+pub(crate) fn sequence_controller_update_system(
+    mut q_sequences: Query<(&Sequence, &mut SequenceController)>,
+) {
+    for (sequence, mut sequence_controller) in q_sequences.iter_mut() {
+        sequence_controller.target_time =
+            f32::clamp(sequence_controller.target_time, 0.0, sequence.duration());
+        sequence_controller.curr_time = sequence_controller.target_time;
     }
 }
 
 /// Update [`SequenceTime`] based on `time_scale` of [`SequencePlayer`].
 pub(crate) fn sequence_player_system(
-    mut q_sequences: Query<(&Sequence, &mut SequenceTime, &SequencePlayer)>,
+    mut q_sequences: Query<(&Sequence, &mut SequenceController, &SequencePlayer)>,
     time: Res<Time>,
 ) {
-    for (sequence, mut sequence_time, sequence_player) in q_sequences.iter_mut() {
-        sequence_time.target_time = f32::clamp(
-            sequence_time.target_time + time.delta_seconds() * sequence_player.time_scale,
+    for (sequence, mut sequence_controller, sequence_player) in q_sequences.iter_mut() {
+        sequence_controller.target_time = f32::clamp(
+            sequence_controller.target_time + time.delta_seconds() * sequence_player.time_scale,
             0.0,
             sequence.duration(),
         );
@@ -245,7 +248,7 @@ fn play_sequence<CompType, InterpType, ResType>(
     q_components: &mut Query<&mut CompType>,
     q_actions: &Query<&Action<CompType, InterpType, ResType>>,
     sequence: &Sequence,
-    sequence_time: &SequenceTime,
+    sequence_controller: &SequenceController,
     resource: &mut ResMut<ResType>,
 ) where
     CompType: Component,
@@ -254,14 +257,24 @@ fn play_sequence<CompType, InterpType, ResType>(
 {
     // Do not perform any actions if there are no changes to the timeline timings
     // or there are no actions at all.
-    if sequence_time.curr_time == sequence_time.target_time || sequence.action_metas.is_empty() {
+    if sequence_controller.curr_time == sequence_controller.target_time
+        || sequence.action_metas.is_empty()
+    {
         return;
     }
 
-    let direction: i32 = f32::signum(sequence_time.target_time - sequence_time.curr_time) as i32;
+    // Calculate time flow direction based on time difference
+    let direction: isize =
+        f32::signum(sequence_controller.target_time - sequence_controller.curr_time) as isize;
 
-    let timeline_start: f32 = f32::min(sequence_time.curr_time, sequence_time.target_time);
-    let timeline_end: f32 = f32::max(sequence_time.curr_time, sequence_time.target_time);
+    let timeline_start: f32 = f32::min(
+        sequence_controller.curr_time,
+        sequence_controller.target_time,
+    );
+    let timeline_end: f32 = f32::max(
+        sequence_controller.curr_time,
+        sequence_controller.target_time,
+    );
 
     let mut start_index: usize = 0;
     let mut end_index: usize = sequence.action_metas.len() - 1;
@@ -276,14 +289,14 @@ fn play_sequence<CompType, InterpType, ResType>(
 
     // Loop through `Action`s in the direction that the timeline is going towards.
     loop {
-        if action_index == (end_index as i32 + direction) as usize {
+        if action_index == (end_index as isize + direction) as usize {
             break;
         }
 
         let action_meta: &ActionMeta = &sequence.action_metas[action_index];
         let action_id: Entity = action_meta.id();
 
-        action_index = (action_index as i32 + direction) as usize;
+        action_index = (action_index as isize + direction) as usize;
 
         // Ignore if `ActionMeta` not in range
         if !time_range_overlap(
@@ -303,7 +316,7 @@ fn play_sequence<CompType, InterpType, ResType>(
         // Get component to mutate based on action id
         if let Ok(mut component) = q_components.get_mut(action.target_id) {
             let mut unit_time: f32 =
-                (sequence_time.target_time - action_meta.start_time) / action_meta.duration;
+                (sequence_controller.target_time - action_meta.start_time) / action_meta.duration;
 
             // In case of division by 0.0
             if f32::is_nan(unit_time) {

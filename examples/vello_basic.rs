@@ -146,7 +146,7 @@ fn setup_system(mut commands: Commands) {
 }
 
 fn timeline_movement_system(
-    mut q_timelines: Query<(&mut SequencePlayer, &mut SequenceTime)>,
+    mut q_timelines: Query<(&mut SequencePlayer, &mut SequenceController)>,
     keys: Res<Input<KeyCode>>,
     time: Res<Time>,
 ) {

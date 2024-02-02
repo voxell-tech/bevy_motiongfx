@@ -20,7 +20,7 @@ fn main() {
         .run();
 }
 
-pub fn hello_world_system(
+fn hello_world_system(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
@@ -126,7 +126,7 @@ fn setup_system(mut commands: Commands) {
 }
 
 fn timeline_movement_system(
-    mut q_timelines: Query<(&mut SequencePlayer, &mut SequenceTime)>,
+    mut q_timelines: Query<(&mut SequencePlayer, &mut SequenceController)>,
     keys: Res<Input<KeyCode>>,
     time: Res<Time>,
 ) {

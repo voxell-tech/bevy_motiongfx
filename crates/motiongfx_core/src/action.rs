@@ -2,7 +2,7 @@ use bevy_ecs::prelude::*;
 
 use crate::{
     ease::{quad, EaseFn},
-    sequence::{sequence_time_interp, Sequence, SequenceTime},
+    sequence::{sequence_controller_interp, Sequence, SequenceController},
     EmptyRes,
 };
 
@@ -111,6 +111,7 @@ impl ActionBuilder for Commands<'_, '_> {
         let mut action_meta: ActionMeta = ActionMeta::new(action_id);
         action_meta.duration = duration;
 
+        // TODO: create single sequence
         Sequence::single(action_meta)
     }
 
@@ -121,8 +122,8 @@ impl ActionBuilder for Commands<'_, '_> {
         end: f32,
         playback_speed: f32,
     ) -> Sequence {
-        let action: Action<SequenceTime, f32, EmptyRes> =
-            Action::new(target_id, begin, end, sequence_time_interp);
+        let action: Action<SequenceController, f32, EmptyRes> =
+            Action::new(target_id, begin, end, sequence_controller_interp);
 
         let action_id: Entity = self.spawn(action).id();
         let mut action_meta: ActionMeta = ActionMeta::new(action_id);

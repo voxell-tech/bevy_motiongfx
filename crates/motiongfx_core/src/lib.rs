@@ -17,10 +17,12 @@ pub mod prelude {
         ease,
         lerp::*,
         sequence::{
-            all, any, chain, delay, flow, Sequence, SequenceBundle, SequencePlayer,
-            SequencePlayerBundle, SequenceTime,
+            all, any, chain, delay, flow, Sequence, SequenceBundle, SequenceController,
+            SequencePlayer, SequencePlayerBundle,
         },
-        slide::Slide,
+        slide::{
+            Slide, SlideBuilder, SlideBundle, SlideController, SlidePlayer, SlidePlayerBundle,
+        },
         EmptyComp, EmptyRes, MotionGfx,
     };
 }
@@ -30,8 +32,15 @@ pub struct MotionGfx;
 impl Plugin for MotionGfx {
     fn build(&self, app: &mut App) {
         app.insert_resource(EmptyRes)
-            .add_systems(PreUpdate, sequence::sequence_time_update_system)
-            .add_systems(Update, sequence::sequence_player_system);
+            .add_systems(PreUpdate, sequence::sequence_controller_update_system)
+            .add_systems(
+                Update,
+                (
+                    sequence::sequence_player_system,
+                    slide::slide_update_system,
+                    slide::slide_controller_update_system,
+                ),
+            );
     }
 }
 
