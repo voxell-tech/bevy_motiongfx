@@ -3,7 +3,7 @@ use bevy_ecs::prelude::*;
 use bevy_math::DVec2;
 use bevy_vello_renderer::vello::kurbo;
 use motiongfx_bevy::prelude::TransformMotion;
-use motiongfx_core::{prelude::*, sequence::sequence_player_system};
+use motiongfx_core::{prelude::*, sequence::sequence_update_system};
 
 use crate::{
     prelude::StrokeStyleMotion,
@@ -20,8 +20,8 @@ impl Plugin for VelloLineMotionPlugin {
         app.add_systems(
             PostUpdate,
             (
-                sequence_player_system::<VelloLine, kurbo::Line, EmptyRes>,
-                sequence_player_system::<VelloLine, kurbo::Point, EmptyRes>,
+                sequence_update_system::<VelloLine, kurbo::Line, EmptyRes>,
+                sequence_update_system::<VelloLine, kurbo::Point, EmptyRes>,
             ),
         );
     }
