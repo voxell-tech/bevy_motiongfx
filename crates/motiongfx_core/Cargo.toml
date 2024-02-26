@@ -10,5 +10,5 @@ bevy_math = { version = "0.13", default-features = false }
 bevy_render = { version = "0.13", default-features = false }
 bevy_time = { version = "0.13", default-features = false }
 bevy_utils = { version = "0.13", default-features = false }
-bevy_vello_renderer = { git = "https://github.com/nixon-voxell/bevy_vello_renderer", rev = "2d93b863c40e2bfd7349f9f3b122b7be440faeba" }
+bevy_vello_renderer = { git = "https://github.com/nixon-voxell/bevy_vello_renderer", rev = "49ef841842b3170f225614c7d3ffffba31522150" }
 smallvec = "1.11"

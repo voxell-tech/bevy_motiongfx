@@ -51,11 +51,11 @@ pub(crate) fn vector_builder_system<Vector: VelloVector + VelloBuilder + Compone
 ) {
     for (mut vector, mut fill, scene_handle) in q_fill_only_vectors.iter_mut() {
         if let Some(vello_scene) = scenes.get_mut(scene_handle.id()) {
-            let mut scene: vello::Scene = vello::Scene::new();
-
             if vector.is_built() && fill.is_built() {
                 continue;
             }
+
+            let mut scene: vello::Scene = vello::Scene::new();
 
             // Build the vector to the VelloScene
             vector.build_fill(&fill, &mut scene);
@@ -71,11 +71,11 @@ pub(crate) fn vector_builder_system<Vector: VelloVector + VelloBuilder + Compone
 
     for (mut vector, mut stroke, scene_handle) in q_stroke_only_vectors.iter_mut() {
         if let Some(vello_scene) = scenes.get_mut(scene_handle.id()) {
-            let mut scene: vello::Scene = vello::Scene::new();
-
             if vector.is_built() && stroke.is_built() {
                 continue;
             }
+
+            let mut scene: vello::Scene = vello::Scene::new();
 
             // Build the vector to the VelloScene
             vector.build_stroke(&stroke, &mut scene);
@@ -91,11 +91,11 @@ pub(crate) fn vector_builder_system<Vector: VelloVector + VelloBuilder + Compone
 
     for (mut vector, mut fill, mut stroke, scene_handle) in q_fill_and_stroke_vectors.iter_mut() {
         if let Some(vello_scene) = scenes.get_mut(scene_handle.id()) {
-            let mut scene: vello::Scene = vello::Scene::new();
-
             if vector.is_built() && fill.is_built() && stroke.is_built() {
                 continue;
             }
+
+            let mut scene: vello::Scene = vello::Scene::new();
 
             // Build the vector to the VelloScene
             vector.build_fill(&fill, &mut scene);

@@ -12,7 +12,7 @@ pub struct FillStyle {
     pub style: peniko::Fill,
     pub brush: peniko::Brush,
     pub transform: kurbo::Affine,
-    should_build: bool,
+    built: bool,
 }
 
 impl FillStyle {
@@ -63,12 +63,12 @@ impl FillStyle {
 impl VelloBuilder for FillStyle {
     #[inline]
     fn is_built(&self) -> bool {
-        self.should_build
+        self.built
     }
 
     #[inline]
-    fn set_built(&mut self, should_build: bool) {
-        self.should_build = should_build
+    fn set_built(&mut self, built: bool) {
+        self.built = built
     }
 }
 
@@ -78,7 +78,7 @@ impl Default for FillStyle {
             style: peniko::Fill::NonZero,
             brush: peniko::Brush::Solid(peniko::Color::WHITE_SMOKE),
             transform: kurbo::Affine::IDENTITY,
-            should_build: false,
+            built: false,
         }
     }
 }

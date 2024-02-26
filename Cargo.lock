@@ -1053,7 +1053,7 @@ dependencies = [
 [[package]]
 name = "bevy_vello_renderer"
 version = "0.1.0"
-source = "git+https://github.com/nixon-voxell/bevy_vello_renderer?rev=2d93b863c40e2bfd7349f9f3b122b7be440faeba#2d93b863c40e2bfd7349f9f3b122b7be440faeba"
+source = "git+https://github.com/nixon-voxell/bevy_vello_renderer?rev=49ef841842b3170f225614c7d3ffffba31522150#49ef841842b3170f225614c7d3ffffba31522150"
 dependencies = [
  "bevy_app",
  "bevy_asset",
