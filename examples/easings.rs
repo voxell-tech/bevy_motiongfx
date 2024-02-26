@@ -36,14 +36,15 @@ fn easings_system(
 
     // Create sphere objects (Entity)
     let material: StandardMaterial = StandardMaterial {
-        emissive: *palette.get_or_default(&ColorKey::Blue) * 4.0,
+        base_color: Color::WHITE,
+        emissive: *palette.get_or_default(&ColorKey::Blue) * 100.0,
         ..default()
     };
 
     for i in 0..CAPACITY {
         let transform: Transform =
             Transform::from_translation(Vec3::new(-5.0, (i as f32) - (CAPACITY as f32) * 0.5, 0.0))
-                .with_scale(Vec3::ONE * 0.48);
+                .with_scale(Vec3::ONE);
 
         let sphere = commands
             .spawn(PbrBundle {
@@ -82,7 +83,8 @@ fn easings_system(
             all(&[
                 commands.play(transform_motions[i].translate_add(Vec3::X * 10.0), 1.0),
                 commands.play(
-                    material_motions[i].emissive_to(*palette.get_or_default(&ColorKey::Red) * 4.0),
+                    material_motions[i]
+                        .emissive_to(*palette.get_or_default(&ColorKey::Red) * 100.0),
                     1.0,
                 ),
             ])
