@@ -49,8 +49,8 @@ impl StrokeStyle {
     }
 
     #[inline]
-    pub fn build(&self, builder: &mut vello::SceneBuilder, shape: &impl kurbo::Shape) {
-        builder.stroke(
+    pub fn build(&self, scene: &mut vello::Scene, shape: &impl kurbo::Shape) {
+        scene.stroke(
             &self.style,
             kurbo::Affine::IDENTITY,
             &self.brush,

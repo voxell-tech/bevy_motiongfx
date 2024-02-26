@@ -38,7 +38,7 @@ impl VelloLineBundleMotion {
         Self {
             line: VelloLineMotion::new(target_id, bundle.line),
             stroke: StrokeStyleMotion::new(target_id, bundle.stroke),
-            transform: TransformMotion::new(target_id, bundle.fragment_bundle.transform.local),
+            transform: TransformMotion::new(target_id, bundle.scene_bundle.transform),
         }
     }
 }

@@ -22,7 +22,7 @@ fn main() {
 fn typst_basic_system(
     mut commands: Commands,
     mut typst_compiler: ResMut<TypstCompiler>,
-    mut fragment_assets: ResMut<Assets<VelloFragment>>,
+    mut scenes: ResMut<Assets<VelloScene>>,
 ) {
     let content: String = String::from(
         r###"
@@ -49,7 +49,7 @@ fn typst_basic_system(
         "###,
     );
 
-    match typst_compiler.compile_flatten(&mut commands, &mut fragment_assets, content) {
+    match typst_compiler.compile_flatten(&mut commands, &mut scenes, content) {
         Ok(tree) => {
             commands
                 .entity(tree.root_entity)
@@ -137,15 +137,15 @@ fn setup_system(mut commands: Commands) {
 
 fn timeline_movement_system(
     mut q_timelines: Query<(&mut SequencePlayer, &mut SequenceController)>,
-    keys: Res<Input<KeyCode>>,
+    keys: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {
     for (mut sequence_player, mut sequence_time) in q_timelines.iter_mut() {
-        if keys.pressed(KeyCode::D) {
+        if keys.pressed(KeyCode::KeyD) {
             sequence_time.target_time += time.delta_seconds();
         }
 
-        if keys.pressed(KeyCode::A) {
+        if keys.pressed(KeyCode::KeyA) {
             sequence_time.target_time -= time.delta_seconds();
         }
 

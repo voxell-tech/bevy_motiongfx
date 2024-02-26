@@ -49,8 +49,8 @@ impl FillStyle {
     }
 
     #[inline]
-    pub fn build(&self, builder: &mut vello::SceneBuilder, shape: &impl kurbo::Shape) {
-        builder.fill(
+    pub fn build(&self, scene: &mut vello::Scene, shape: &impl kurbo::Shape) {
+        scene.fill(
             self.style,
             kurbo::Affine::IDENTITY,
             &self.brush,

@@ -48,7 +48,7 @@ fn easings_system(
         let sphere = commands
             .spawn(PbrBundle {
                 transform,
-                mesh: meshes.add(shape::UVSphere::default().into()),
+                mesh: meshes.add(Sphere::default()),
                 material: materials.add(material.clone()),
                 ..default()
             })
@@ -123,15 +123,15 @@ fn setup_system(mut commands: Commands) {
 
 fn timeline_movement_system(
     mut q_timelines: Query<(&mut SequencePlayer, &mut SequenceController)>,
-    keys: Res<Input<KeyCode>>,
+    keys: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {
     for (mut sequence_player, mut sequence_time) in q_timelines.iter_mut() {
-        if keys.pressed(KeyCode::D) {
+        if keys.pressed(KeyCode::KeyD) {
             sequence_time.target_time += time.delta_seconds();
         }
 
-        if keys.pressed(KeyCode::A) {
+        if keys.pressed(KeyCode::KeyA) {
             sequence_time.target_time -= time.delta_seconds();
         }
 
