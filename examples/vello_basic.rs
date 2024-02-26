@@ -15,7 +15,7 @@ fn main() {
         .run();
 }
 
-fn vello_basic_system(mut commands: Commands, mut fragments: ResMut<Assets<VelloFragment>>) {
+fn vello_basic_system(mut commands: Commands, mut scenes: ResMut<Assets<VelloScene>>) {
     // Color palette
     let palette: ColorPalette<ColorKey> = ColorPalette::default();
 
@@ -25,9 +25,9 @@ fn vello_basic_system(mut commands: Commands, mut fragments: ResMut<Assets<Vello
         fill: FillStyle::from_brush(*palette.get_or_default(&ColorKey::Blue)),
         stroke: StrokeStyle::from_brush(*palette.get_or_default(&ColorKey::Blue) * 1.5)
             .with_style(4.0),
-        fragment_bundle: VelloFragmentBundle {
-            fragment: fragments.add(VelloFragment::default()),
-            transform: TransformBundle::from_transform(Transform::from_xyz(-200.0, 0.0, 0.0)),
+        scene_bundle: VelloSceneBundle {
+            scene: scenes.add(VelloScene::default()),
+            transform: Transform::from_xyz(-200.0, 0.0, 0.0),
             ..default()
         },
     };
@@ -37,9 +37,9 @@ fn vello_basic_system(mut commands: Commands, mut fragments: ResMut<Assets<Vello
         fill: FillStyle::from_brush(*palette.get_or_default(&ColorKey::Purple)),
         stroke: StrokeStyle::from_brush(*palette.get_or_default(&ColorKey::Purple) * 1.5)
             .with_style(4.0),
-        fragment_bundle: VelloFragmentBundle {
-            fragment: fragments.add(VelloFragment::default()),
-            transform: TransformBundle::from_transform(Transform::from_xyz(200.0, 0.0, 0.0)),
+        scene_bundle: VelloSceneBundle {
+            scene: scenes.add(VelloScene::default()),
+            transform: Transform::from_xyz(200.0, 0.0, 0.0),
             ..default()
         },
     };
@@ -47,9 +47,9 @@ fn vello_basic_system(mut commands: Commands, mut fragments: ResMut<Assets<Vello
     let line_bundle: VelloLineBundle = VelloLineBundle {
         line: VelloLine::from_points(DVec2::new(-300.0, 0.0), DVec2::new(300.0, 0.0)),
         stroke: StrokeStyle::from_brush(*palette.get_or_default(&ColorKey::Base8)),
-        fragment_bundle: VelloFragmentBundle {
-            fragment: fragments.add(VelloFragment::default()),
-            transform: TransformBundle::from_transform(Transform::from_xyz(0.0, -100.0, 0.0)),
+        scene_bundle: VelloSceneBundle {
+            scene: scenes.add(VelloScene::default()),
+            transform: Transform::from_xyz(0.0, -100.0, 0.0),
             ..default()
         },
     };
@@ -147,15 +147,15 @@ fn setup_system(mut commands: Commands) {
 
 fn timeline_movement_system(
     mut q_timelines: Query<(&mut SequencePlayer, &mut SequenceController)>,
-    keys: Res<Input<KeyCode>>,
+    keys: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {
     for (mut sequence_player, mut sequence_time) in q_timelines.iter_mut() {
-        if keys.pressed(KeyCode::D) {
+        if keys.pressed(KeyCode::KeyD) {
             sequence_time.target_time += time.delta_seconds();
         }
 
-        if keys.pressed(KeyCode::A) {
+        if keys.pressed(KeyCode::KeyA) {
             sequence_time.target_time -= time.delta_seconds();
         }
 

@@ -36,19 +36,20 @@ fn easings_system(
 
     // Create sphere objects (Entity)
     let material: StandardMaterial = StandardMaterial {
-        emissive: *palette.get_or_default(&ColorKey::Blue) * 4.0,
+        base_color: Color::WHITE,
+        emissive: *palette.get_or_default(&ColorKey::Blue) * 100.0,
         ..default()
     };
 
     for i in 0..CAPACITY {
         let transform: Transform =
             Transform::from_translation(Vec3::new(-5.0, (i as f32) - (CAPACITY as f32) * 0.5, 0.0))
-                .with_scale(Vec3::ONE * 0.48);
+                .with_scale(Vec3::ONE);
 
         let sphere = commands
             .spawn(PbrBundle {
                 transform,
-                mesh: meshes.add(shape::UVSphere::default().into()),
+                mesh: meshes.add(Sphere::default()),
                 material: materials.add(material.clone()),
                 ..default()
             })
@@ -82,7 +83,8 @@ fn easings_system(
             all(&[
                 commands.play(transform_motions[i].translate_add(Vec3::X * 10.0), 1.0),
                 commands.play(
-                    material_motions[i].emissive_to(*palette.get_or_default(&ColorKey::Red) * 4.0),
+                    material_motions[i]
+                        .emissive_to(*palette.get_or_default(&ColorKey::Red) * 100.0),
                     1.0,
                 ),
             ])
@@ -123,15 +125,15 @@ fn setup_system(mut commands: Commands) {
 
 fn timeline_movement_system(
     mut q_timelines: Query<(&mut SequencePlayer, &mut SequenceController)>,
-    keys: Res<Input<KeyCode>>,
+    keys: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {
     for (mut sequence_player, mut sequence_time) in q_timelines.iter_mut() {
-        if keys.pressed(KeyCode::D) {
+        if keys.pressed(KeyCode::KeyD) {
             sequence_time.target_time += time.delta_seconds();
         }
 
-        if keys.pressed(KeyCode::A) {
+        if keys.pressed(KeyCode::KeyA) {
             sequence_time.target_time -= time.delta_seconds();
         }
 

@@ -55,7 +55,7 @@ fn hello_world_system(
             let cube = commands
                 .spawn(PbrBundle {
                     transform,
-                    mesh: meshes.add(shape::Cube::default().into()),
+                    mesh: meshes.add(Cuboid::default()),
                     material: materials.add(material.clone()),
                     ..default()
                 })
@@ -127,15 +127,15 @@ fn setup_system(mut commands: Commands) {
 
 fn timeline_movement_system(
     mut q_timelines: Query<(&mut SequencePlayer, &mut SequenceController)>,
-    keys: Res<Input<KeyCode>>,
+    keys: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {
     for (mut sequence_player, mut sequence_time) in q_timelines.iter_mut() {
-        if keys.pressed(KeyCode::D) {
+        if keys.pressed(KeyCode::KeyD) {
             sequence_time.target_time += time.delta_seconds();
         }
 
-        if keys.pressed(KeyCode::A) {
+        if keys.pressed(KeyCode::KeyA) {
             sequence_time.target_time -= time.delta_seconds();
         }
 

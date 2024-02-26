@@ -35,7 +35,6 @@ impl Plugin for MotionGfx {
                 Update,
                 (
                     sequence::sequence_player_system,
-                    // slide::slide_update_system,
                     slide::slide_controller_system,
                 ),
             );

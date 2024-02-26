@@ -42,7 +42,7 @@ fn slide_basic_system(
     // Cube
     let cube_pbr: PbrBundle = PbrBundle {
         transform: Transform::default().with_scale(Vec3::splat(0.0)),
-        mesh: meshes.add(shape::Cube::default().into()),
+        mesh: meshes.add(Cuboid::default()),
         material: materials.add(green_material.clone()),
         ..default()
     };
@@ -60,7 +60,7 @@ fn slide_basic_system(
         transform: Transform::default()
             .with_translation(Vec3::X * x_offset)
             .with_scale(Vec3::splat(0.0)),
-        mesh: meshes.add(shape::UVSphere::default().into()),
+        mesh: meshes.add(Sphere::default()),
         material: materials.add(blue_material),
         ..default()
     };
@@ -117,7 +117,10 @@ fn setup_system(mut commands: Commands) {
     });
 }
 
-fn slide_movement_system(mut q_slides: Query<&mut SlideController>, keys: Res<Input<KeyCode>>) {
+fn slide_movement_system(
+    mut q_slides: Query<&mut SlideController>,
+    keys: Res<ButtonInput<KeyCode>>,
+) {
     for mut slide in q_slides.iter_mut() {
         if keys.just_pressed(KeyCode::Space) {
             slide.set_time_scale(1.0);
