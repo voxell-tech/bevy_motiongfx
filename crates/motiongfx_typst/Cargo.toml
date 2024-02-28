@@ -25,3 +25,6 @@ flate2 = "1"
 codespan-reporting = "0.11"
 ecow = { version = "0.2", features = ["serde"] }
 env_proxy = "0.4"
+
+[lints]
+workspace = true

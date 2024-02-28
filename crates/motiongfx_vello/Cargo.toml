@@ -18,3 +18,6 @@ bevy_hierarchy = { version = "0.13", default-features = false }
 motiongfx_core = { path = "../motiongfx_core" }
 motiongfx_bevy = { path = "../motiongfx_bevy" }
 bevy_vello_renderer = { git = "https://github.com/nixon-voxell/bevy_vello_renderer", rev = "49ef841842b3170f225614c7d3ffffba31522150" }
+
+[lints]
+workspace = true

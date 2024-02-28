@@ -12,3 +12,6 @@ bevy_pbr = { version = "0.13", default-features = false }
 bevy_asset = { version = "0.13", default-features = false }
 bevy_render = { version = "0.13", default-features = false }
 motiongfx_core = { path = "../motiongfx_core" }
+
+[lints]
+workspace = true
