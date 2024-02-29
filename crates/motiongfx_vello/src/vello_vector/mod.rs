@@ -13,16 +13,16 @@ pub mod line;
 pub mod rect;
 
 pub(crate) trait VelloVector {
-    fn shape(&self) -> &impl kurbo::Shape {
-        &kurbo::Rect::ZERO
-    }
+    fn shape(&self) -> impl kurbo::Shape;
 
+    #[inline]
     fn build_fill(&self, fill: &FillStyle, scene: &mut vello::Scene) {
-        fill.build(scene, self.shape());
+        fill.build(scene, &self.shape());
     }
 
+    #[inline]
     fn build_stroke(&self, stroke: &StrokeStyle, scene: &mut vello::Scene) {
-        stroke.build(scene, self.shape());
+        stroke.build(scene, &self.shape());
     }
 }
 
