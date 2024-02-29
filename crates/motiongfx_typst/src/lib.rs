@@ -9,7 +9,7 @@ use bevy_vello_renderer::{
 };
 use ecow::EcoVec;
 use motiongfx_vello::svg;
-use typst::{diag::SourceDiagnostic, eval::Tracer, layout::Abs, model::Document};
+use typst::{diag::SourceDiagnostic, eval::Tracer, layout::Abs};
 
 use crate::world::TypstWorld;
 
@@ -101,7 +101,7 @@ impl TypstCompiler {
         scenes: &mut ResMut<Assets<VelloScene>>,
         text: String,
     ) -> Result<svg::SvgTreeBundle, EcoVec<SourceDiagnostic>> {
-        let tree: usvg::Tree = self.compile_text(text)?;
+        let tree = self.compile_text(text)?;
 
         Ok(svg::spawn_tree_flatten(commands, scenes, &tree))
     }
@@ -109,9 +109,9 @@ impl TypstCompiler {
     // TODO: take a look at typst_ide for getting FrameItem to svg output relation
     fn compile_text(&mut self, text: String) -> Result<usvg::Tree, EcoVec<SourceDiagnostic>> {
         self.world.set_source(text);
-        let document: Document = typst::compile(&self.world, &mut self.tracer)?;
+        let document = typst::compile(&self.world, &mut self.tracer)?;
 
-        let svg: String = typst_svg::svg_merged(&document.pages, Abs::zero());
+        let svg = typst_svg::svg_merged(&document.pages, Abs::zero());
 
         // Svg string should not have any issue if compilation succeeded
         Ok(usvg::Tree::from_str(&svg, &usvg::Options::default()).unwrap())
