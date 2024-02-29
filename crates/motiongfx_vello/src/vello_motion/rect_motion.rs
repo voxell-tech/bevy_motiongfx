@@ -69,7 +69,7 @@ impl VelloRectMotion {
     ) -> Action<VelloRect, kurbo::Rect, EmptyRes> {
         let inflation: DVec2 = inflation.into();
 
-        let new_rect: kurbo::Rect = self.vello_rect.rect.inflate(inflation.x, inflation.y);
+        let new_rect = self.vello_rect.rect.inflate(inflation.x, inflation.y);
 
         let action: Action<VelloRect, kurbo::Rect, EmptyRes> = Action::new(
             self.target_id,

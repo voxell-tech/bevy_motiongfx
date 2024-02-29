@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 use bevy_motiongfx::prelude::*;
 use motiongfx_typst::{TypstCompiler, TypstCompilerPlugin};
-use motiongfx_vello::bevy_vello_renderer::vello::peniko;
 
 fn main() {
     App::new()
@@ -100,7 +99,7 @@ fn typst_basic_system(
                     commands.play(transform_motions[p].translate_add(transform_offset), 1.0),
                     {
                         if let Some(motion) = &mut fill_motions[p] {
-                            let brush: peniko::Brush = path.fill.as_ref().unwrap().brush.clone();
+                            let brush = path.fill.as_ref().unwrap().brush.clone();
                             commands.play(motion.brush_to(brush), 1.0)
                         } else {
                             commands.sleep(1.0)

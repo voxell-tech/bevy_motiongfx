@@ -51,7 +51,7 @@ pub struct Sequence {
 
 impl Sequence {
     pub(crate) fn single(action_meta: ActionMeta) -> Self {
-        let duration: f32 = action_meta.duration;
+        let duration = action_meta.duration;
         Self {
             action_metas: vec![action_meta],
             duration,
@@ -117,8 +117,8 @@ pub(crate) fn sequence_controller_interp(
 
 /// Run one [`Sequence`] after another.
 pub fn chain(sequences: &[Sequence]) -> Sequence {
-    let mut final_sequence: Sequence = Sequence::default();
-    let mut chain_duration: f32 = 0.0;
+    let mut final_sequence = Sequence::default();
+    let mut chain_duration = 0.0;
 
     for sequence in sequences {
         for action_meta in &sequence.action_metas {
@@ -136,8 +136,8 @@ pub fn chain(sequences: &[Sequence]) -> Sequence {
 
 /// Run all [`Sequence`]s concurrently and wait for all of them to finish.
 pub fn all(sequences: &[Sequence]) -> Sequence {
-    let mut final_sequence: Sequence = Sequence::default();
-    let mut max_duration: f32 = 0.0;
+    let mut final_sequence = Sequence::default();
+    let mut max_duration = 0.0;
 
     for sequence in sequences {
         for action_meta in &sequence.action_metas {
@@ -153,8 +153,8 @@ pub fn all(sequences: &[Sequence]) -> Sequence {
 
 /// Run all [`Sequence`]s concurrently and wait for any of them to finish.
 pub fn any(sequences: &[Sequence]) -> Sequence {
-    let mut final_sequence: Sequence = Sequence::default();
-    let mut min_duration: f32 = 0.0;
+    let mut final_sequence = Sequence::default();
+    let mut min_duration = 0.0;
 
     for action_grp in sequences {
         for action_meta in &action_grp.action_metas {
@@ -170,9 +170,9 @@ pub fn any(sequences: &[Sequence]) -> Sequence {
 
 /// Run one [`Sequence`] after another with a fixed delay time.
 pub fn flow(delay: f32, sequences: &[Sequence]) -> Sequence {
-    let mut final_sequence: Sequence = Sequence::default();
-    let mut flow_duration: f32 = 0.0;
-    let mut final_duration: f32 = 0.0;
+    let mut final_sequence = Sequence::default();
+    let mut flow_duration = 0.0;
+    let mut final_duration = 0.0;
 
     for sequence in sequences {
         for action_meta in &sequence.action_metas {
@@ -191,7 +191,7 @@ pub fn flow(delay: f32, sequences: &[Sequence]) -> Sequence {
 
 /// Run an [`Sequence`] after a fixed delay time.
 pub fn delay(delay: f32, sequence: &Sequence) -> Sequence {
-    let mut final_sequence: Sequence = Sequence::default();
+    let mut final_sequence = Sequence::default();
 
     for action_meta in &sequence.action_metas {
         final_sequence
@@ -270,20 +270,20 @@ fn play_sequence<CompType, InterpType, ResType>(
     }
 
     // Calculate time flow direction based on time difference
-    let direction: isize =
+    let direction =
         f32::signum(sequence_controller.target_time - sequence_controller.curr_time) as isize;
 
-    let timeline_start: f32 = f32::min(
+    let timeline_start = f32::min(
         sequence_controller.curr_time,
         sequence_controller.target_time,
     );
-    let timeline_end: f32 = f32::max(
+    let timeline_end = f32::max(
         sequence_controller.curr_time,
         sequence_controller.target_time,
     );
 
-    let mut start_index: usize = 0;
-    let mut end_index: usize = sequence.action_metas.len() - 1;
+    let mut start_index = 0;
+    let mut end_index = sequence.action_metas.len() - 1;
 
     // Swap direction if needed
     if direction == -1 {
@@ -291,7 +291,7 @@ fn play_sequence<CompType, InterpType, ResType>(
         end_index = 0;
     }
 
-    let mut action_index: usize = start_index;
+    let mut action_index = start_index;
 
     // Loop through `Action`s in the direction that the timeline is going towards.
     loop {
@@ -299,10 +299,10 @@ fn play_sequence<CompType, InterpType, ResType>(
             break;
         }
 
-        let action_meta: &ActionMeta = &sequence.action_metas[action_index];
-        let action_id: Entity = action_meta.id();
+        let action_meta = &sequence.action_metas[action_index];
+        let action_id = action_meta.id();
 
-        let slide_direction: isize = isize::signum(
+        let slide_direction = isize::signum(
             sequence_controller.target_slide_index as isize - action_meta.slide_index as isize,
         );
 
@@ -330,7 +330,7 @@ fn play_sequence<CompType, InterpType, ResType>(
 
         // Get component to mutate based on action id
         if let Ok(mut component) = q_components.get_mut(action.target_id) {
-            let mut unit_time: f32 =
+            let mut unit_time =
                 (sequence_controller.target_time - action_meta.start_time) / action_meta.duration;
 
             // In case of division by 0.0

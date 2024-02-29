@@ -55,7 +55,7 @@ pub(crate) fn vector_builder_system<Vector: VelloVector + VelloBuilder + Compone
                 continue;
             }
 
-            let mut scene: vello::Scene = vello::Scene::new();
+            let mut scene = vello::Scene::new();
 
             // Build the vector to the VelloScene
             vector.build_fill(&fill, &mut scene);
@@ -75,7 +75,7 @@ pub(crate) fn vector_builder_system<Vector: VelloVector + VelloBuilder + Compone
                 continue;
             }
 
-            let mut scene: vello::Scene = vello::Scene::new();
+            let mut scene = vello::Scene::new();
 
             // Build the vector to the VelloScene
             vector.build_stroke(&stroke, &mut scene);
@@ -95,7 +95,7 @@ pub(crate) fn vector_builder_system<Vector: VelloVector + VelloBuilder + Compone
                 continue;
             }
 
-            let mut scene: vello::Scene = vello::Scene::new();
+            let mut scene = vello::Scene::new();
 
             // Build the vector to the VelloScene
             vector.build_fill(&fill, &mut scene);
