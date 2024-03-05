@@ -2,7 +2,6 @@ use bevy_ecs::prelude::*;
 use bevy_math::DVec2;
 use bevy_utils::prelude::*;
 use bevy_vello_renderer::{prelude::*, vello::kurbo};
-use motiongfx_vello_macros::VelloBuilder;
 
 use crate::{
     fill_style::FillStyle,
@@ -18,9 +17,10 @@ pub struct VelloCircleBundle {
     pub scene_bundle: VelloSceneBundle,
 }
 
-#[derive(VelloBuilder, Component, Clone, Default)]
+#[derive(VelloBuilder, VelloVector, Component, Clone, Default)]
 pub struct VelloCircle {
-    pub(crate) circle: kurbo::Circle,
+    #[shape]
+    pub circle: kurbo::Circle,
     built: bool,
 }
 
@@ -43,12 +43,5 @@ impl VelloCircle {
     #[inline]
     pub fn from_radius(radius: f64) -> Self {
         Self::new(kurbo::Circle::new(kurbo::Point::default(), radius))
-    }
-}
-
-impl VelloVector for VelloCircle {
-    #[inline]
-    fn shape(&self) -> &impl kurbo::Shape {
-        &self.circle
     }
 }

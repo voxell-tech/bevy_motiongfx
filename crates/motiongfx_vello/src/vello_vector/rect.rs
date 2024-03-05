@@ -2,7 +2,6 @@ use bevy_ecs::prelude::*;
 use bevy_math::{DVec2, DVec4};
 use bevy_utils::prelude::*;
 use bevy_vello_renderer::{prelude::*, vello::kurbo};
-use motiongfx_vello_macros::VelloBuilder;
 
 use crate::{
     fill_style::FillStyle,

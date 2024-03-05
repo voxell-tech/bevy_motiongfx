@@ -7,6 +7,8 @@ use bevy_vello_renderer::{
 
 use crate::{fill_style::FillStyle, stroke_style::StrokeStyle};
 
+pub use motiongfx_vello_macros::{VelloBuilder, VelloVector};
+
 pub mod bezpath;
 pub mod circle;
 pub mod line;

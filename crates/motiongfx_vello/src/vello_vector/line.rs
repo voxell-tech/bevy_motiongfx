@@ -2,7 +2,6 @@ use bevy_ecs::prelude::*;
 use bevy_math::DVec2;
 use bevy_utils::prelude::*;
 use bevy_vello_renderer::{prelude::*, vello::kurbo};
-use motiongfx_vello_macros::VelloBuilder;
 
 use crate::{
     stroke_style::StrokeStyle,
@@ -16,8 +15,9 @@ pub struct VelloLineBundle {
     pub scene_bundle: VelloSceneBundle,
 }
 
-#[derive(VelloBuilder, Component, Clone)]
+#[derive(VelloBuilder, VelloVector, Component, Clone)]
 pub struct VelloLine {
+    #[shape]
     pub line: kurbo::Line,
     built: bool,
 }
@@ -42,13 +42,6 @@ impl VelloLine {
             line: kurbo::Line::new(kurbo::Point::default(), kurbo::Point::new(to.x, to.y)),
             ..default()
         }
-    }
-}
-
-impl VelloVector for VelloLine {
-    #[inline]
-    fn shape(&self) -> &impl kurbo::Shape {
-        &self.line
     }
 }
 
