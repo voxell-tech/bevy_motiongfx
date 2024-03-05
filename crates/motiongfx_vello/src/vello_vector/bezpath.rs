@@ -14,13 +14,14 @@ pub struct VelloBezPathBundle {
     pub path: VelloBezPath,
     pub fill: FillStyle,
     pub stroke: StrokeStyle,
-    pub fragment_bundle: VelloFragmentBundle,
+    pub scene_bundle: VelloSceneBundle,
 }
 
 /// Vello Bézier path component.
-#[derive(Component, Clone)]
+#[derive(VelloBuilder, VelloVector, Component, Clone)]
 pub struct VelloBezPath {
-    pub(crate) path: kurbo::BezPath,
+    #[shape]
+    pub path: kurbo::BezPath,
     built: bool,
 }
 
@@ -29,25 +30,6 @@ impl VelloBezPath {
         let path: kurbo::BezPath = path.into();
 
         Self { path, ..default() }
-    }
-}
-
-impl VelloVector for VelloBezPath {
-    #[inline]
-    fn shape(&self) -> &impl kurbo::Shape {
-        &self.path
-    }
-}
-
-impl VelloBuilder for VelloBezPath {
-    #[inline]
-    fn is_built(&self) -> bool {
-        self.built
-    }
-
-    #[inline]
-    fn set_built(&mut self, built: bool) {
-        self.built = built;
     }
 }
 

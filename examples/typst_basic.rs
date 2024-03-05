@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 use bevy_motiongfx::prelude::*;
-use motiongfx_typst::{TypstCompiler, TypstCompilerPlugin};
-use motiongfx_vello::{bevy_vello_renderer::vello::peniko, svg};
+use bevy_motiongfx::typst::{TypstCompiler, TypstCompilerPlugin};
 
 fn main() {
     App::new()
@@ -22,9 +21,9 @@ fn main() {
 fn typst_basic_system(
     mut commands: Commands,
     mut typst_compiler: ResMut<TypstCompiler>,
-    mut fragment_assets: ResMut<Assets<VelloFragment>>,
+    mut scenes: ResMut<Assets<VelloScene>>,
 ) {
-    let content: String = String::from(
+    let content = String::from(
         r###"
         #set page(width: 1120pt, margin: 8pt)
         #set raw(theme: "themes/Monokai Pro.tmTheme")
@@ -49,21 +48,21 @@ fn typst_basic_system(
         "###,
     );
 
-    match typst_compiler.compile_flatten(&mut commands, &mut fragment_assets, content) {
+    match typst_compiler.compile_flatten(&mut commands, &mut scenes, content) {
         Ok(tree) => {
             commands
                 .entity(tree.root_entity)
                 .insert(Transform::from_xyz(-500.0, 300.0, 0.0));
 
             // Motion
-            let path_len: usize = tree.paths.len();
+            let path_len = tree.paths.len();
 
-            let mut transform_motions: Vec<TransformMotion> = Vec::with_capacity(path_len);
-            let mut fill_motions: Vec<Option<FillStyleMotion>> = Vec::with_capacity(path_len);
-            let mut stroke_motions: Vec<Option<StrokeStyleMotion>> = Vec::with_capacity(path_len);
+            let mut transform_motions = Vec::with_capacity(path_len);
+            let mut fill_motions = Vec::with_capacity(path_len);
+            let mut stroke_motions = Vec::with_capacity(path_len);
 
             for p in 0..path_len {
-                let path: &svg::SvgPathBundle = &tree.paths[p];
+                let path = &tree.paths[p];
 
                 transform_motions.push(TransformMotion::new(path.entity, path.transform));
 
@@ -81,13 +80,13 @@ fn typst_basic_system(
             }
 
             // Animations
-            let mut setup_seqs: Vec<Sequence> = Vec::with_capacity(path_len);
-            let mut animate_seqs: Vec<Sequence> = Vec::with_capacity(path_len);
+            let mut setup_seqs = Vec::with_capacity(path_len);
+            let mut animate_seqs = Vec::with_capacity(path_len);
 
-            let transform_offset: Vec3 = Vec3::Y * 24.0;
+            let transform_offset = Vec3::Y * 24.0;
 
             for p in 0..path_len {
-                let path: &svg::SvgPathBundle = &tree.paths[p];
+                let path = &tree.paths[p];
 
                 if let Some(motion) = &mut fill_motions[p] {
                     setup_seqs.push(commands.play(motion.brush_to(Color::NONE), 0.0));
@@ -100,7 +99,7 @@ fn typst_basic_system(
                     commands.play(transform_motions[p].translate_add(transform_offset), 1.0),
                     {
                         if let Some(motion) = &mut fill_motions[p] {
-                            let brush: peniko::Brush = path.fill.as_ref().unwrap().brush.clone();
+                            let brush = path.fill.as_ref().unwrap().brush.clone();
                             commands.play(motion.brush_to(brush), 1.0)
                         } else {
                             commands.sleep(1.0)
@@ -108,7 +107,7 @@ fn typst_basic_system(
                     },
                     {
                         if let Some(motion) = &mut stroke_motions[p] {
-                            let brush: peniko::Brush = path.stroke.as_ref().unwrap().brush.clone();
+                            let brush = path.stroke.as_ref().unwrap().brush.clone();
                             commands.play(motion.brush_to(brush), 1.0)
                         } else {
                             commands.sleep(1.0)
@@ -117,7 +116,7 @@ fn typst_basic_system(
                 ]));
             }
 
-            let sequence: Sequence = all(&[all(&setup_seqs), flow(0.1, &animate_seqs)])
+            let sequence = all(&[all(&setup_seqs), flow(0.1, &animate_seqs)])
                 .with_ease(ease::expo::ease_in_out);
 
             commands.spawn(SequencePlayerBundle {
@@ -137,15 +136,15 @@ fn setup_system(mut commands: Commands) {
 
 fn timeline_movement_system(
     mut q_timelines: Query<(&mut SequencePlayer, &mut SequenceController)>,
-    keys: Res<Input<KeyCode>>,
+    keys: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {
     for (mut sequence_player, mut sequence_time) in q_timelines.iter_mut() {
-        if keys.pressed(KeyCode::D) {
+        if keys.pressed(KeyCode::KeyD) {
             sequence_time.target_time += time.delta_seconds();
         }
 
-        if keys.pressed(KeyCode::A) {
+        if keys.pressed(KeyCode::KeyA) {
             sequence_time.target_time -= time.delta_seconds();
         }
 

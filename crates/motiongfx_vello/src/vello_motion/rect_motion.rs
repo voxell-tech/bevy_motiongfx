@@ -42,7 +42,7 @@ impl VelloRectBundleMotion {
             rect: VelloRectMotion::new(target_id, bundle.rect),
             fill: FillStyleMotion::new(target_id, bundle.fill),
             stroke: StrokeStyleMotion::new(target_id, bundle.stroke),
-            transform: TransformMotion::new(target_id, bundle.fragment_bundle.transform.local),
+            transform: TransformMotion::new(target_id, bundle.scene_bundle.transform),
         }
     }
 }
@@ -63,13 +63,10 @@ impl VelloRectMotion {
     // =====================
     // Rect
     // =====================
-    pub fn inflate(
-        &mut self,
-        inflation: impl Into<DVec2>,
-    ) -> Action<VelloRect, kurbo::Rect, EmptyRes> {
+    pub fn inflate(&mut self, inflation: DVec2) -> Action<VelloRect, kurbo::Rect, EmptyRes> {
         let inflation: DVec2 = inflation.into();
 
-        let new_rect: kurbo::Rect = self.vello_rect.rect.inflate(inflation.x, inflation.y);
+        let new_rect = self.vello_rect.rect.inflate(inflation.x, inflation.y);
 
         let action: Action<VelloRect, kurbo::Rect, EmptyRes> = Action::new(
             self.target_id,

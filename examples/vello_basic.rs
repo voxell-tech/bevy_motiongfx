@@ -15,57 +15,56 @@ fn main() {
         .run();
 }
 
-fn vello_basic_system(mut commands: Commands, mut fragments: ResMut<Assets<VelloFragment>>) {
+fn vello_basic_system(mut commands: Commands, mut scenes: ResMut<Assets<VelloScene>>) {
     // Color palette
-    let palette: ColorPalette<ColorKey> = ColorPalette::default();
+    let palette = ColorPalette::default();
 
     // Spawning entities
-    let rect_bundle: VelloRectBundle = VelloRectBundle {
+    let rect_bundle = VelloRectBundle {
         rect: VelloRect::anchor_center(DVec2::new(100.0, 100.0), DVec4::splat(10.0)),
         fill: FillStyle::from_brush(*palette.get_or_default(&ColorKey::Blue)),
         stroke: StrokeStyle::from_brush(*palette.get_or_default(&ColorKey::Blue) * 1.5)
             .with_style(4.0),
-        fragment_bundle: VelloFragmentBundle {
-            fragment: fragments.add(VelloFragment::default()),
-            transform: TransformBundle::from_transform(Transform::from_xyz(-200.0, 0.0, 0.0)),
+        scene_bundle: VelloSceneBundle {
+            scene: scenes.add(VelloScene::default()),
+            transform: Transform::from_xyz(-200.0, 0.0, 0.0),
             ..default()
         },
     };
 
-    let circ_bundle: VelloCircleBundle = VelloCircleBundle {
+    let circ_bundle = VelloCircleBundle {
         circle: VelloCircle::from_radius(50.0),
         fill: FillStyle::from_brush(*palette.get_or_default(&ColorKey::Purple)),
         stroke: StrokeStyle::from_brush(*palette.get_or_default(&ColorKey::Purple) * 1.5)
             .with_style(4.0),
-        fragment_bundle: VelloFragmentBundle {
-            fragment: fragments.add(VelloFragment::default()),
-            transform: TransformBundle::from_transform(Transform::from_xyz(200.0, 0.0, 0.0)),
+        scene_bundle: VelloSceneBundle {
+            scene: scenes.add(VelloScene::default()),
+            transform: Transform::from_xyz(200.0, 0.0, 0.0),
             ..default()
         },
     };
 
-    let line_bundle: VelloLineBundle = VelloLineBundle {
+    let line_bundle = VelloLineBundle {
         line: VelloLine::from_points(DVec2::new(-300.0, 0.0), DVec2::new(300.0, 0.0)),
         stroke: StrokeStyle::from_brush(*palette.get_or_default(&ColorKey::Base8)),
-        fragment_bundle: VelloFragmentBundle {
-            fragment: fragments.add(VelloFragment::default()),
-            transform: TransformBundle::from_transform(Transform::from_xyz(0.0, -100.0, 0.0)),
+        scene_bundle: VelloSceneBundle {
+            scene: scenes.add(VelloScene::default()),
+            transform: Transform::from_xyz(0.0, -100.0, 0.0),
             ..default()
         },
     };
 
-    let rect_id: Entity = commands.spawn(rect_bundle.clone()).id();
-    let circ_id: Entity = commands.spawn(circ_bundle.clone()).id();
-    let line_id: Entity = commands.spawn(line_bundle.clone()).id();
+    let rect_id = commands.spawn(rect_bundle.clone()).id();
+    let circ_id = commands.spawn(circ_bundle.clone()).id();
+    let line_id = commands.spawn(line_bundle.clone()).id();
 
     // Motions
-    let mut rect_motion: VelloRectBundleMotion = VelloRectBundleMotion::new(rect_id, rect_bundle);
-    let mut circ_motion: VelloCircleBundleMotion =
-        VelloCircleBundleMotion::new(circ_id, circ_bundle);
-    let mut line_motion: VelloLineBundleMotion = VelloLineBundleMotion::new(line_id, line_bundle);
+    let mut rect_motion = VelloRectBundleMotion::new(rect_id, rect_bundle);
+    let mut circ_motion = VelloCircleBundleMotion::new(circ_id, circ_bundle);
+    let mut line_motion = VelloLineBundleMotion::new(line_id, line_bundle);
 
     // Sequence
-    let sequence: Sequence = flow(
+    let sequence = flow(
         0.5,
         &[
             // Line animation
@@ -147,15 +146,15 @@ fn setup_system(mut commands: Commands) {
 
 fn timeline_movement_system(
     mut q_timelines: Query<(&mut SequencePlayer, &mut SequenceController)>,
-    keys: Res<Input<KeyCode>>,
+    keys: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {
     for (mut sequence_player, mut sequence_time) in q_timelines.iter_mut() {
-        if keys.pressed(KeyCode::D) {
+        if keys.pressed(KeyCode::KeyD) {
             sequence_time.target_time += time.delta_seconds();
         }
 
-        if keys.pressed(KeyCode::A) {
+        if keys.pressed(KeyCode::KeyA) {
             sequence_time.target_time -= time.delta_seconds();
         }
 
