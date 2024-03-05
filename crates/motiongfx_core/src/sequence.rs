@@ -9,7 +9,7 @@ use crate::{
     EmptyRes,
 };
 
-/// Bundle to encapsulate [`Sequence`] and [`SequenceTime`].
+/// Bundle to encapsulate [`Sequence`] and [`SequenceController`].
 #[derive(Bundle, Default)]
 pub struct SequenceBundle {
     pub sequence: Sequence,
@@ -25,7 +25,7 @@ impl SequenceBundle {
     }
 }
 
-/// Bundle to encapsulate [`Sequence`], [`SequenceTime`], and [`SequencePlayer`].
+/// Bundle to encapsulate [`Sequence`], [`SequenceController`], and [`SequencePlayer`].
 #[derive(Bundle, Default)]
 pub struct SequencePlayerBundle {
     pub sequence: Sequence,
@@ -96,13 +96,13 @@ pub struct SequenceController {
     pub target_slide_index: usize,
 }
 
-/// Manipulates the `target_time` variable of the [`SequenceTime`] component attached to this entity with a `time_scale`.
+/// Manipulates the `target_time` variable of the [`SequenceController`] component attached to this entity with a `time_scale`.
 #[derive(Component, Default)]
 pub struct SequencePlayer {
     pub time_scale: f32,
 }
 
-/// Interpolation for [`SequenceTime`].
+/// Interpolation for [`SequenceController`].
 pub(crate) fn sequence_controller_interp(
     player: &mut SequenceController,
     begin: &f32,
@@ -225,7 +225,7 @@ pub fn sequence_update_system<CompType, InterpType, ResType>(
     }
 }
 
-/// Safely update the `target_time` in [`SequenceTime`] after performing all the necessary actions.
+/// Safely update the `target_time` in [`SequenceController`] after performing all the necessary actions.
 pub(crate) fn sequence_controller_system(
     mut q_sequences: Query<(&Sequence, &mut SequenceController)>,
 ) {
@@ -236,7 +236,7 @@ pub(crate) fn sequence_controller_system(
     }
 }
 
-/// Update [`SequenceTime`] based on `time_scale` of [`SequencePlayer`].
+/// Update [`SequenceController`] based on `time_scale` of [`SequencePlayer`].
 pub(crate) fn sequence_player_system(
     mut q_sequences: Query<(&Sequence, &mut SequenceController, &SequencePlayer)>,
     time: Res<Time>,

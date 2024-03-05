@@ -15,6 +15,10 @@ use crate::world::TypstWorld;
 
 pub mod world;
 
+pub mod prelude {
+    pub use crate::{world::TypstWorld, TypstCompiler, TypstCompilerPlugin};
+}
+
 mod download;
 mod fonts;
 mod package;

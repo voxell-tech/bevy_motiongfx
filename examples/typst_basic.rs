@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_motiongfx::prelude::*;
-use motiongfx_typst::{TypstCompiler, TypstCompilerPlugin};
+use bevy_motiongfx::typst::{TypstCompiler, TypstCompilerPlugin};
 
 fn main() {
     App::new()
