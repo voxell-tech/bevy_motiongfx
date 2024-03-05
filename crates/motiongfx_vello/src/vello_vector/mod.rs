@@ -1,3 +1,5 @@
+pub use motiongfx_vello_macros::{VelloBuilder, VelloVector};
+
 use bevy_asset::prelude::*;
 use bevy_ecs::prelude::*;
 use bevy_vello_renderer::{
@@ -6,8 +8,6 @@ use bevy_vello_renderer::{
 };
 
 use crate::{fill_style::FillStyle, stroke_style::StrokeStyle};
-
-pub use motiongfx_vello_macros::{VelloBuilder, VelloVector};
 
 pub mod bezpath;
 pub mod circle;
