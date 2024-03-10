@@ -20,6 +20,7 @@ pub mod prelude {
         fill_style::{FillStyle, FillStyleMotion},
         stroke_style::{StrokeStyle, StrokeStyleMotion},
         vello_motion::{
+            bezpath_motion::{VelloBezPathBundleMotion, VelloBezPathMotion},
             circle_motion::{VelloCircleBundleMotion, VelloCircleMotion},
             line_motion::{VelloLineBundleMotion, VelloLineMotion},
             rect_motion::{VelloRectBundleMotion, VelloRectMotion},
@@ -45,6 +46,7 @@ impl Plugin for MotionGfxVello {
                 vello_motion::circle_motion::VelloCircleMotionPlugin,
                 vello_motion::rect_motion::VelloRectMotionPlugin,
                 vello_motion::line_motion::VelloLineMotionPlugin,
+                vello_motion::bezpath_motion::VelloBezPathMotionPlugin,
             ))
             .add_systems(
                 PostUpdate,
