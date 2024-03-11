@@ -163,7 +163,7 @@ fn interp_pathel(p0: kurbo::Point, pathel: kurbo::PathEl, t: f32) -> kurbo::Path
             let x2 = kurbo::Point::lerp(p2, p3, t);
             // Point between x0 and x1
             let y0 = kurbo::Point::lerp(x0, x1, t);
-            // Point between x0 and x2
+            // Point between x1 and x2
             let y1 = kurbo::Point::lerp(x1, x2, t);
             // Point on curve
             let end_p = kurbo::Point::lerp(y0, y1, t);
