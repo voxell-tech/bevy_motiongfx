@@ -13,12 +13,12 @@ fn main() {
             MotionGfxVello,
             TypstCompilerPlugin::new(Vec::new()),
         ))
-        .add_systems(Startup, (setup_system, typst_basic_system))
-        .add_systems(Update, timeline_movement_system)
+        .add_systems(Startup, (setup, typst_basic))
+        .add_systems(Update, timeline_movement)
         .run();
 }
 
-fn typst_basic_system(
+fn typst_basic(
     mut commands: Commands,
     mut typst_compiler: ResMut<TypstCompiler>,
     mut scenes: ResMut<Assets<VelloScene>>,
@@ -130,11 +130,11 @@ fn typst_basic_system(
     }
 }
 
-fn setup_system(mut commands: Commands) {
+fn setup(mut commands: Commands) {
     commands.spawn(Camera2dBundle::default());
 }
 
-fn timeline_movement_system(
+fn timeline_movement(
     mut q_timelines: Query<(&mut SequencePlayer, &mut SequenceController)>,
     keys: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,

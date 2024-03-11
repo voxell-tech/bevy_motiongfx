@@ -10,12 +10,12 @@ fn main() {
         .add_plugins(DefaultPlugins)
         // Custom plugins
         .add_plugins((MotionGfx, MotionGfxBevy, MotionGfxVello))
-        .add_systems(Startup, (setup_system, vello_basic_system))
-        .add_systems(Update, timeline_movement_system)
+        .add_systems(Startup, (setup, vello_basic))
+        .add_systems(Update, timeline_movement)
         .run();
 }
 
-fn vello_basic_system(mut commands: Commands, mut scenes: ResMut<Assets<VelloScene>>) {
+fn vello_basic(mut commands: Commands, mut scenes: ResMut<Assets<VelloScene>>) {
     // Color palette
     let palette = ColorPalette::default();
 
@@ -140,11 +140,11 @@ fn vello_basic_system(mut commands: Commands, mut scenes: ResMut<Assets<VelloSce
     });
 }
 
-fn setup_system(mut commands: Commands) {
+fn setup(mut commands: Commands) {
     commands.spawn(Camera2dBundle::default());
 }
 
-fn timeline_movement_system(
+fn timeline_movement(
     mut q_timelines: Query<(&mut SequencePlayer, &mut SequenceController)>,
     keys: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
