@@ -60,7 +60,6 @@ fn typst_basic_system(
             let mut transform_motions = Vec::with_capacity(path_len);
             let mut fill_motions = Vec::with_capacity(path_len);
             let mut stroke_motions = Vec::with_capacity(path_len);
-            let mut bezpath_motions = Vec::with_capacity(path_len);
 
             for p in 0..path_len {
                 let path = &tree.paths[p];
@@ -78,8 +77,6 @@ fn typst_basic_system(
                 } else {
                     stroke_motions.push(None);
                 }
-
-                bezpath_motions.push(VelloBezPathMotion::new(path.entity));
             }
 
             // Animations
@@ -91,34 +88,31 @@ fn typst_basic_system(
             for p in 0..path_len {
                 let path = &tree.paths[p];
 
-                // if let Some(motion) = &mut fill_motions[p] {
-                //     setup_seqs.push(commands.play(motion.brush_to(Color::NONE), 0.0));
-                // }
-                // if let Some(motion) = &mut stroke_motions[p] {
-                //     setup_seqs.push(commands.play(motion.brush_to(Color::NONE), 0.0));
-                // }
-
-                setup_seqs.push(commands.play(bezpath_motions[p].trace_to(0.0), 0.0));
+                if let Some(motion) = &mut fill_motions[p] {
+                    setup_seqs.push(commands.play(motion.brush_to(Color::NONE), 0.0));
+                }
+                if let Some(motion) = &mut stroke_motions[p] {
+                    setup_seqs.push(commands.play(motion.brush_to(Color::NONE), 0.0));
+                }
 
                 animate_seqs.push(all(&[
-                    // commands.play(transform_motions[p].translate_add(transform_offset), 1.0),
-                    // {
-                    //     if let Some(motion) = &mut fill_motions[p] {
-                    //         let brush = path.fill.as_ref().unwrap().brush.clone();
-                    //         commands.play(motion.brush_to(brush), 1.0)
-                    //     } else {
-                    //         commands.sleep(1.0)
-                    //     }
-                    // },
-                    // {
-                    //     if let Some(motion) = &mut stroke_motions[p] {
-                    //         let brush = path.stroke.as_ref().unwrap().brush.clone();
-                    //         commands.play(motion.brush_to(brush), 1.0)
-                    //     } else {
-                    //         commands.sleep(1.0)
-                    //     }
-                    // },
-                    commands.play(bezpath_motions[p].trace_to(1.0), 1.0),
+                    commands.play(transform_motions[p].translate_add(transform_offset), 1.0),
+                    {
+                        if let Some(motion) = &mut fill_motions[p] {
+                            let brush = path.fill.as_ref().unwrap().brush.clone();
+                            commands.play(motion.brush_to(brush), 1.0)
+                        } else {
+                            commands.sleep(1.0)
+                        }
+                    },
+                    {
+                        if let Some(motion) = &mut stroke_motions[p] {
+                            let brush = path.stroke.as_ref().unwrap().brush.clone();
+                            commands.play(motion.brush_to(brush), 1.0)
+                        } else {
+                            commands.sleep(1.0)
+                        }
+                    },
                 ]));
             }
 
