@@ -64,7 +64,7 @@ impl Default for StrokeStyle {
     fn default() -> Self {
         Self {
             style: kurbo::Stroke::default(),
-            brush: peniko::Brush::Solid(peniko::Color::WHITE_SMOKE),
+            brush: peniko::Brush::Solid(peniko::Color::rgb8(252, 252, 250)),
             transform: kurbo::Affine::IDENTITY,
             built: false,
         }

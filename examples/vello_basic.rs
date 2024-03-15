@@ -64,73 +64,71 @@ fn vello_basic(mut commands: Commands, mut scenes: ResMut<Assets<VelloScene>>) {
     let mut line_motion = VLineBundleMotion::new(line_id, line_bundle);
 
     // Sequence
-    let sequence = flow(
+    let sequence = flow!(
         0.5,
-        &[
-            // Line animation
-            chain(&[
-                all(&[
-                    commands.play(
-                        line_motion
-                            .transform
-                            .translate_add(Vec3::new(0.0, -100.0, 0.0)),
-                        1.5,
-                    ),
-                    commands.play(line_motion.line.extend(100.0), 1.0),
-                    commands.play(line_motion.stroke.style_to(10.0), 1.0),
-                ]),
-                all(&[
-                    commands.play(
-                        line_motion
-                            .transform
-                            .translate_add(Vec3::new(0.0, 100.0, 0.0)),
-                        1.5,
-                    ),
-                    commands.play(line_motion.line.extend(-100.0), 1.0),
-                    commands.play(line_motion.stroke.style_to(1.0), 1.0),
-                ]),
-            ]),
-            // Rect animation
-            chain(&[
-                all(&[
-                    commands.play(rect_motion.rect.inflate(DVec2::splat(50.0)), 1.0),
-                    commands.play(
-                        rect_motion.transform.rotate_to(Quat::from_euler(
-                            EulerRot::XYZ,
-                            0.0,
-                            0.0,
-                            std::f32::consts::PI,
-                        )),
-                        1.0,
-                    ),
-                    commands.play(rect_motion.stroke.style_to(20.0), 1.0),
-                ]),
-                all(&[
-                    commands.play(rect_motion.rect.inflate(-DVec2::splat(50.0)), 1.0),
-                    commands.play(
-                        rect_motion.transform.rotate_to(Quat::from_euler(
-                            EulerRot::XYZ,
-                            0.0,
-                            0.0,
-                            std::f32::consts::TAU,
-                        )),
-                        1.0,
-                    ),
-                    commands.play(rect_motion.stroke.style_to(4.0), 1.0),
-                ]),
-            ]),
-            // Circle animation
-            chain(&[
-                all(&[
-                    commands.play(circ_motion.circle.inflate(50.0), 1.0),
-                    commands.play(circ_motion.stroke.style_to(20.0), 1.0),
-                ]),
-                all(&[
-                    commands.play(circ_motion.circle.inflate(-50.0), 1.0),
-                    commands.play(circ_motion.stroke.style_to(4.0), 1.0),
-                ]),
-            ]),
-        ],
+        // Line animation
+        chain!(
+            all!(
+                commands.play(
+                    line_motion
+                        .transform
+                        .translate_add(Vec3::new(0.0, -100.0, 0.0)),
+                    1.5,
+                ),
+                commands.play(line_motion.line.extend(100.0), 1.0),
+                commands.play(line_motion.stroke.style_to(10.0), 1.0)
+            ),
+            all!(
+                commands.play(
+                    line_motion
+                        .transform
+                        .translate_add(Vec3::new(0.0, 100.0, 0.0)),
+                    1.5,
+                ),
+                commands.play(line_motion.line.extend(-100.0), 1.0),
+                commands.play(line_motion.stroke.style_to(1.0), 1.0),
+            ),
+        ),
+        // Rect animation
+        chain!(
+            all!(
+                commands.play(rect_motion.rect.inflate(DVec2::splat(50.0)), 1.0),
+                commands.play(
+                    rect_motion.transform.rotate_to(Quat::from_euler(
+                        EulerRot::XYZ,
+                        0.0,
+                        0.0,
+                        std::f32::consts::PI,
+                    )),
+                    1.0,
+                ),
+                commands.play(rect_motion.stroke.style_to(20.0), 1.0),
+            ),
+            all!(
+                commands.play(rect_motion.rect.inflate(-DVec2::splat(50.0)), 1.0),
+                commands.play(
+                    rect_motion.transform.rotate_to(Quat::from_euler(
+                        EulerRot::XYZ,
+                        0.0,
+                        0.0,
+                        std::f32::consts::TAU,
+                    )),
+                    1.0,
+                ),
+                commands.play(rect_motion.stroke.style_to(4.0), 1.0),
+            ),
+        ),
+        // Circle animation
+        chain!(
+            all!(
+                commands.play(circ_motion.circle.inflate(50.0), 1.0),
+                commands.play(circ_motion.stroke.style_to(20.0), 1.0),
+            ),
+            all!(
+                commands.play(circ_motion.circle.inflate(-50.0), 1.0),
+                commands.play(circ_motion.stroke.style_to(4.0), 1.0),
+            ),
+        ),
     )
     .with_ease(ease::cubic::ease_in_out);
 

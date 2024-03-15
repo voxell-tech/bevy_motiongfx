@@ -76,7 +76,7 @@ fn hello_world(
             let c = w * WIDTH + h;
 
             cube_seqs.push(
-                all(&[
+                all!(
                     commands.play(transform_motions[c].translate_add(Vec3::X), 1.0),
                     commands.play(transform_motions[c].scale_to(Vec3::splat(0.9)), 1.0),
                     commands.play(
@@ -88,13 +88,13 @@ fn hello_world(
                         )),
                         1.0,
                     ),
-                ])
+                )
                 .with_ease(ease::circ::ease_in_out),
             );
         }
     }
 
-    let sequence = flow(0.01, &cube_seqs);
+    let sequence = flow!(0.01, cube_seqs);
 
     commands.spawn(SequencePlayerBundle {
         sequence,

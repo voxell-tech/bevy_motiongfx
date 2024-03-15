@@ -3121,7 +3121,16 @@ dependencies = [
  "bevy_time",
  "bevy_utils",
  "bevy_vello_renderer",
+ "motiongfx_core_macros",
  "smallvec",
+]
+
+[[package]]
+name = "motiongfx_core_macros"
+version = "0.1.0"
+dependencies = [
+ "quote",
+ "syn 2.0.46",
 ]
 
 [[package]]

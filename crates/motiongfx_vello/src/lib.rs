@@ -15,6 +15,7 @@ pub mod vello_motion;
 pub mod vello_vector;
 
 pub mod prelude {
+    pub use crate::rect;
     pub use crate::{
         convert::*,
         fill_style::{FillStyle, FillStyleMotion},
@@ -33,6 +34,7 @@ pub mod prelude {
         },
         MotionGfxVello,
     };
+
     pub use bevy_vello_renderer::prelude::*;
 }
 

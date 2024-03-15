@@ -14,10 +14,39 @@ fn main() {
             MotionGfxVello,
             TypstCompilerPlugin::new(Vec::new()),
         ))
-        .add_systems(Startup, (setup, typst_basic))
+        .add_systems(Startup, (setup, bevy_motiongfx_intro))
         .add_systems(Update, timeline_movement)
         .run();
 }
+
+/*
+How I want the animation to be created
+
+fn create_animation(
+    // Maybe a macro to generate the required system inputs???
+    mut commands: Commands,
+    mut scenes: SceneAsset,
+    mut typst_compiler: TypstCompuler
+) {
+    // Will spawn out a fully featured circle/rect entity with transform etc.
+    let circle = circle!(100.0);
+    let rect = rect!();
+
+    let motion0 = chain! {
+        translate(circle, Vec3::Y * 100.0),
+        all! {
+            enlarge_cricle!(circle, 10.0),
+            enlarge_rect!(rect, 3.0),
+        },
+    }
+
+    let motion1 = all! {
+        motion0,
+        alpha_circle(circle, 0.0),
+        alpha_rect(rect, 0.0),
+    }
+}
+*/
 
 pub struct WordTrace {
     pub transform: TransformMotion,
@@ -27,10 +56,10 @@ pub struct WordTrace {
 
 type WordTraceVec = Vec<WordTrace>;
 
-fn typst_basic(
+fn bevy_motiongfx_intro(
     mut commands: Commands,
-    mut typst_compiler: ResMut<TypstCompiler>,
     mut scenes: ResMut<Assets<VelloScene>>,
+    mut typst_compiler: ResMut<TypstCompiler>,
 ) {
     let color_palette = ColorPalette::default();
 
@@ -55,8 +84,8 @@ fn typst_basic(
 
     let title_trace = per_letter_trace(&mut commands, &mut title);
 
-    let setup_seq = all(&[intro_setup, title_setup]);
-    let sequence = chain(&[setup_seq, intro_trace, all(&[intro_move_up, title_trace])]);
+    let setup_seq = all!(intro_setup, title_setup);
+    let sequence = chain!(setup_seq, intro_trace, all!(intro_move_up, title_trace));
 
     commands.spawn(SequencePlayerBundle {
         sequence,
@@ -126,10 +155,10 @@ fn create_typst(
         let mut path_motion = VBezPathMotion::new(path.entity);
         let mut fill_motion = FillStyleMotion::new(path.entity, fill.clone());
 
-        setup_seqs.push(all(&[
+        setup_seqs.push(all!(
             commands.play(path_motion.trace_to(0.0), 0.0),
             commands.play(fill_motion.alpha_to(0.0), 0.0),
-        ]));
+        ));
 
         word_trace_vec.push(WordTrace {
             transform: TransformMotion::new(path.entity, path.transform),
@@ -138,7 +167,7 @@ fn create_typst(
         });
     }
 
-    (word_trace_vec, all(&setup_seqs))
+    (word_trace_vec, all!(setup_seqs))
 }
 
 fn per_letter_trace(commands: &mut Commands, word_trace_vec: &mut WordTraceVec) -> Sequence {
@@ -147,16 +176,14 @@ fn per_letter_trace(commands: &mut Commands, word_trace_vec: &mut WordTraceVec) 
     let mut motion_seqs = Vec::with_capacity(path_len);
 
     for word_trace in word_trace_vec {
-        motion_seqs.push(flow(
+        motion_seqs.push(flow!(
             0.5,
-            &[
-                commands.play(word_trace.trace.trace_to(1.0), 1.0),
-                commands.play(word_trace.fill.alpha_to(1.0), 1.0),
-            ],
+            commands.play(word_trace.trace.trace_to(1.0), 1.0),
+            commands.play(word_trace.fill.alpha_to(1.0), 1.0),
         ));
     }
 
-    flow(0.1, &motion_seqs).with_ease(ease::cubic::ease_in_out)
+    flow!(0.1, motion_seqs).with_ease(ease::cubic::ease_in_out)
 }
 
 fn per_letter_translate(
@@ -172,7 +199,7 @@ fn per_letter_translate(
         motions.push(commands.play(word_trace.transform.translate_add(translation), 1.0));
     }
 
-    flow(0.1, &motions).with_ease(ease::quart::ease_in_out)
+    flow!(0.1, motions).with_ease(ease::quart::ease_in_out)
 }
 
 fn setup(mut commands: Commands) {

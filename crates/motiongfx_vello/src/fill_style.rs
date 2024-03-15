@@ -64,7 +64,7 @@ impl Default for FillStyle {
     fn default() -> Self {
         Self {
             style: peniko::Fill::NonZero,
-            brush: peniko::Brush::Solid(peniko::Color::WHITE_SMOKE),
+            brush: peniko::Brush::Solid(peniko::Color::rgb8(252, 252, 250)),
             transform: kurbo::Affine::IDENTITY,
             built: false,
         }

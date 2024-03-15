@@ -93,7 +93,7 @@ fn typst_basic(
                     setup_seqs.push(commands.play(motion.brush_to(Color::NONE), 0.0));
                 }
 
-                animate_seqs.push(all(&[
+                animate_seqs.push(all!(
                     commands.play(transform_motions[p].translate_add(transform_offset), 1.0),
                     {
                         if let Some(motion) = &mut fill_motions[p] {
@@ -110,12 +110,12 @@ fn typst_basic(
                         } else {
                             commands.sleep(1.0)
                         }
-                    },
-                ]));
+                    }
+                ));
             }
 
-            let sequence = all(&[all(&setup_seqs), flow(0.1, &animate_seqs)])
-                .with_ease(ease::expo::ease_in_out);
+            let sequence =
+                all!(all!(setup_seqs), flow!(0.1, animate_seqs)).with_ease(ease::expo::ease_in_out);
 
             commands.spawn(SequencePlayerBundle {
                 sequence,

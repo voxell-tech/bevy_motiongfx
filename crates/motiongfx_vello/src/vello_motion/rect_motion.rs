@@ -29,6 +29,7 @@ impl Plugin for VRectMotionPlugin {
     }
 }
 
+// #[derive(FillMotion)]
 pub struct VRectBundleMotion {
     pub rect: VRectMotion,
     pub fill: FillStyleMotion,
