@@ -49,20 +49,20 @@ pub fn vello_vector_derive_macro(input: TokenStream) -> TokenStream {
 
     if field_filter.len() != 1 {
         panic!(
-            "Expected only 1 field with #[shape] attribute. Given {}.",
+            "Expected exactly 1 field with #[shape] attribute. Given {}.",
             field_filter.len()
         );
-    } else {
-        let shape_ident = field_filter[0].ident.as_ref().unwrap();
-
-        quote!(
-            impl #impl_generics VelloVector for #ident #type_generics #where_clause {
-                #[inline]
-                fn shape(&self) -> &impl bevy_vello_renderer::vello::kurbo::Shape {
-                    &self.#shape_ident
-                }
-            }
-        )
-        .into()
     }
+
+    let shape_ident = field_filter[0].ident.as_ref().unwrap();
+
+    quote!(
+        impl #impl_generics VelloVector for #ident #type_generics #where_clause {
+            #[inline]
+            fn shape(&self) -> &impl bevy_vello_renderer::vello::kurbo::Shape {
+                &self.#shape_ident
+            }
+        }
+    )
+    .into()
 }

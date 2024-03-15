@@ -14,12 +14,12 @@ fn main() {
         .add_plugins((DefaultPlugins, TemporalAntiAliasPlugin))
         // Custom plugins
         .add_plugins((MotionGfx, MotionGfxBevy))
-        .add_systems(Startup, (setup_system, easings_system))
-        .add_systems(Update, timeline_movement_system)
+        .add_systems(Startup, (setup, easings))
+        .add_systems(Update, timeline_movement)
         .run();
 }
 
-fn easings_system(
+fn easings(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
@@ -100,7 +100,7 @@ fn easings_system(
     });
 }
 
-fn setup_system(mut commands: Commands) {
+fn setup(mut commands: Commands) {
     // Camera
     commands
         .spawn(Camera3dBundle {
@@ -123,7 +123,7 @@ fn setup_system(mut commands: Commands) {
     });
 }
 
-fn timeline_movement_system(
+fn timeline_movement(
     mut q_timelines: Query<(&mut SequencePlayer, &mut SequenceController)>,
     keys: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,

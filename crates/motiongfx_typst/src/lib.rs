@@ -49,7 +49,7 @@ impl Plugin for TypstCompilerPlugin {
 /// use motiongfx_vello::prelude::*;
 /// use motiongfx_typst::TypstCompiler;
 ///
-/// pub fn compile_system(
+/// pub fn compile(
 ///     mut commands: Commands,
 ///     mut typst_compiler: ResMut<TypstCompiler>,
 ///     mut scenes: ResMut<Assets<VelloScene>>,

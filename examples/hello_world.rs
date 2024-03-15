@@ -15,12 +15,12 @@ fn main() {
         .insert_resource(Msaa::Off)
         // Custom plugins
         .add_plugins((MotionGfx, MotionGfxBevy))
-        .add_systems(Startup, (setup_system, hello_world_system))
-        .add_systems(Update, timeline_movement_system)
+        .add_systems(Startup, (setup, hello_world))
+        .add_systems(Update, timeline_movement)
         .run();
 }
 
-fn hello_world_system(
+fn hello_world(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
@@ -102,7 +102,7 @@ fn hello_world_system(
     });
 }
 
-fn setup_system(mut commands: Commands) {
+fn setup(mut commands: Commands) {
     // Camera
     commands
         .spawn(Camera3dBundle {
@@ -125,7 +125,7 @@ fn setup_system(mut commands: Commands) {
     });
 }
 
-fn timeline_movement_system(
+fn timeline_movement(
     mut q_timelines: Query<(&mut SequencePlayer, &mut SequenceController)>,
     keys: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,

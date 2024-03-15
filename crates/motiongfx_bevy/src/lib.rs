@@ -7,14 +7,14 @@ use bevy_sprite::prelude::*;
 use bevy_transform::prelude::*;
 use motiongfx_core::{prelude::*, sequence::sequence_update_system};
 
-mod sprite;
-mod standard_material;
-mod transform;
+mod sprite_motion;
+mod standard_material_motion;
+mod transform_motion;
 
 pub mod prelude {
     pub use crate::{
-        sprite::SpriteMotion, standard_material::StandardMaterialMotion,
-        transform::TransformMotion, MotionGfxBevy,
+        sprite_motion::SpriteMotion, standard_material_motion::StandardMaterialMotion,
+        transform_motion::TransformMotion, MotionGfxBevy,
     };
 }
 
