@@ -7,7 +7,7 @@ use motiongfx_core::prelude::*;
 use crate::convert::*;
 use crate::vello_vector::VelloBuilder;
 
-#[derive(Component, Clone)]
+#[derive(VelloBuilder, Component, Clone)]
 pub struct FillStyle {
     pub style: peniko::Fill,
     pub brush: peniko::Brush,
@@ -57,18 +57,6 @@ impl FillStyle {
             Some(self.transform),
             shape,
         );
-    }
-}
-
-impl VelloBuilder for FillStyle {
-    #[inline]
-    fn is_built(&self) -> bool {
-        self.built
-    }
-
-    #[inline]
-    fn set_built(&mut self, built: bool) {
-        self.built = built
     }
 }
 

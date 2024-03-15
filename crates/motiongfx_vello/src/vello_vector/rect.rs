@@ -10,15 +10,15 @@ use crate::{
 };
 
 #[derive(Bundle, Clone, Default)]
-pub struct VelloRectBundle {
-    pub rect: VelloRect,
+pub struct VRectBundle {
+    pub rect: VRect,
     pub fill: FillStyle,
     pub stroke: StrokeStyle,
     pub scene_bundle: VelloSceneBundle,
 }
 
 #[derive(VelloBuilder, Component, Clone, Default)]
-pub struct VelloRect {
+pub struct VRect {
     /// Coordinates of the rectangle.
     pub rect: kurbo::Rect,
     /// Radius of all four corners.
@@ -26,7 +26,7 @@ pub struct VelloRect {
     built: bool,
 }
 
-impl VelloRect {
+impl VRect {
     #[inline]
     pub fn new(rect: kurbo::Rect, radii: impl Into<kurbo::RoundedRectRadii>) -> Self {
         let radii: kurbo::RoundedRectRadii = radii.into();
@@ -93,7 +93,7 @@ impl VelloRect {
     }
 }
 
-impl VelloVector for VelloRect {
+impl VelloVector for VRect {
     #[inline]
     fn shape(&self) -> impl kurbo::Shape {
         kurbo::RoundedRect::from_rect(self.rect, self.radii)

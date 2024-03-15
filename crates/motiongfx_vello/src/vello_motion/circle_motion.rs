@@ -8,36 +8,36 @@ use crate::{
     fill_style::FillStyleMotion,
     stroke_style::StrokeStyleMotion,
     vello_vector::{
-        circle::{VelloCircle, VelloCircleBundle},
+        circle::{VCircle, VCircleBundle},
         VelloBuilder,
     },
 };
 
-pub(crate) struct VelloCircleMotionPlugin;
+pub(crate) struct VCircleMotionPlugin;
 
-impl Plugin for VelloCircleMotionPlugin {
+impl Plugin for VCircleMotionPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             PostUpdate,
             (
-                sequence_update_system::<VelloCircle, kurbo::Circle, EmptyRes>,
-                sequence_update_system::<VelloCircle, f64, EmptyRes>,
+                sequence_update_system::<VCircle, kurbo::Circle, EmptyRes>,
+                sequence_update_system::<VCircle, f64, EmptyRes>,
             ),
         );
     }
 }
 
-pub struct VelloCircleBundleMotion {
-    pub circle: VelloCircleMotion,
+pub struct VCircleBundleMotion {
+    pub circle: VCircleMotion,
     pub fill: FillStyleMotion,
     pub stroke: StrokeStyleMotion,
     pub transform: TransformMotion,
 }
 
-impl VelloCircleBundleMotion {
-    pub fn new(target_id: Entity, bundle: VelloCircleBundle) -> Self {
+impl VCircleBundleMotion {
+    pub fn new(target_id: Entity, bundle: VCircleBundle) -> Self {
         Self {
-            circle: VelloCircleMotion::new(target_id, bundle.circle),
+            circle: VCircleMotion::new(target_id, bundle.circle),
             fill: FillStyleMotion::new(target_id, bundle.fill),
             stroke: StrokeStyleMotion::new(target_id, bundle.stroke),
             transform: TransformMotion::new(target_id, bundle.scene_bundle.transform),
@@ -45,13 +45,13 @@ impl VelloCircleBundleMotion {
     }
 }
 
-pub struct VelloCircleMotion {
+pub struct VCircleMotion {
     target_id: Entity,
-    vello_circle: VelloCircle,
+    vello_circle: VCircle,
 }
 
-impl VelloCircleMotion {
-    pub fn new(target_id: Entity, vello_circle: VelloCircle) -> Self {
+impl VCircleMotion {
+    pub fn new(target_id: Entity, vello_circle: VCircle) -> Self {
         Self {
             target_id,
             vello_circle,
@@ -64,10 +64,10 @@ impl VelloCircleMotion {
     pub fn circle_to(
         &mut self,
         new_circle: impl Into<kurbo::Circle>,
-    ) -> Action<VelloCircle, kurbo::Circle, EmptyRes> {
+    ) -> Action<VCircle, kurbo::Circle, EmptyRes> {
         let new_circle: kurbo::Circle = new_circle.into();
 
-        let action: Action<VelloCircle, kurbo::Circle, EmptyRes> = Action::new(
+        let action: Action<VCircle, kurbo::Circle, EmptyRes> = Action::new(
             self.target_id,
             self.vello_circle.circle,
             new_circle,
@@ -80,7 +80,7 @@ impl VelloCircleMotion {
     }
 
     fn circle_interp(
-        vello_circle: &mut VelloCircle,
+        vello_circle: &mut VCircle,
         begin: &kurbo::Circle,
         end: &kurbo::Circle,
         t: f32,
@@ -93,10 +93,10 @@ impl VelloCircleMotion {
     // =====================
     // Circle.radius
     // =====================
-    pub fn inflate(&mut self, inflation: f64) -> Action<VelloCircle, f64, EmptyRes> {
+    pub fn inflate(&mut self, inflation: f64) -> Action<VCircle, f64, EmptyRes> {
         let new_radius: f64 = self.vello_circle.circle.radius + inflation;
 
-        let action: Action<VelloCircle, f64, EmptyRes> = Action::new(
+        let action: Action<VCircle, f64, EmptyRes> = Action::new(
             self.target_id,
             self.vello_circle.circle.radius,
             new_radius,
@@ -109,7 +109,7 @@ impl VelloCircleMotion {
     }
 
     fn circle_radius_interp(
-        vello_circle: &mut VelloCircle,
+        vello_circle: &mut VCircle,
         begin: &f64,
         end: &f64,
         t: f32,

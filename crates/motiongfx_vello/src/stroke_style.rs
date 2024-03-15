@@ -6,7 +6,7 @@ use motiongfx_core::prelude::*;
 use crate::convert::*;
 use crate::vello_vector::VelloBuilder;
 
-#[derive(Component, Clone)]
+#[derive(VelloBuilder, Component, Clone)]
 pub struct StrokeStyle {
     pub style: kurbo::Stroke,
     pub brush: peniko::Brush,
@@ -57,18 +57,6 @@ impl StrokeStyle {
             Some(self.transform),
             shape,
         );
-    }
-}
-
-impl VelloBuilder for StrokeStyle {
-    #[inline]
-    fn is_built(&self) -> bool {
-        self.built
-    }
-
-    #[inline]
-    fn set_built(&mut self, built: bool) {
-        self.built = built
     }
 }
 

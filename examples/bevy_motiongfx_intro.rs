@@ -22,7 +22,7 @@ fn main() {
 pub struct WordTrace {
     pub transform: TransformMotion,
     pub fill: FillStyleMotion,
-    pub trace: VelloBezPathMotion,
+    pub trace: VBezPathMotion,
 }
 
 type WordTraceVec = Vec<WordTrace>;
@@ -123,7 +123,7 @@ fn create_typst(
             .insert(fill.clone())
             .insert(stroke.clone());
 
-        let mut path_motion = VelloBezPathMotion::new(path.entity);
+        let mut path_motion = VBezPathMotion::new(path.entity);
         let mut fill_motion = FillStyleMotion::new(path.entity, fill.clone());
 
         setup_seqs.push(all(&[
