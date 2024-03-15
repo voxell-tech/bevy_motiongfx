@@ -58,6 +58,7 @@ impl Plugin for MotionGfxVello {
                     vello_vector::vector_builder_system::<vello_vector::bezpath::VelloBezPath>,
                     // Sequences
                     sequence_update_system::<fill_style::FillStyle, peniko::Brush, EmptyRes>,
+                    sequence_update_system::<fill_style::FillStyle, f32, EmptyRes>,
                     sequence_update_system::<stroke_style::StrokeStyle, peniko::Brush, EmptyRes>,
                     sequence_update_system::<stroke_style::StrokeStyle, kurbo::Stroke, EmptyRes>,
                 ),

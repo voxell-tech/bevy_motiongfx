@@ -135,4 +135,51 @@ impl FillStyleMotion {
         fill.brush = peniko::Brush::lerp(begin, end, t);
         fill.set_built(false);
     }
+
+    pub fn alpha_to(&mut self, new_alpha: f32) -> Action<FillStyle, f32, EmptyRes> {
+        let mut alpha = 0.0;
+
+        match &mut self.fill.brush {
+            peniko::Brush::Solid(color) => {
+                alpha = (color.a / 255) as f32;
+                color.a = (new_alpha * 255.0) as u8;
+            }
+            peniko::Brush::Gradient(grad) => {
+                if grad.stops.len() > 0 {
+                    alpha = (grad.stops[0].color.a / 255) as f32;
+                }
+                for stop in &mut grad.stops {
+                    stop.color.a = (new_alpha * 255.0) as u8;
+                }
+            }
+            peniko::Brush::Image(_) => {}
+        }
+
+        Action::new(self.target_id, alpha, new_alpha, Self::alpha_interp)
+    }
+
+    fn alpha_interp(
+        fill: &mut FillStyle,
+        begin: &f32,
+        end: &f32,
+        t: f32,
+        _: &mut ResMut<EmptyRes>,
+    ) {
+        let a = f32::lerp(begin, end, t);
+        match &mut fill.brush {
+            peniko::Brush::Solid(color) => color.a = (a * 255.0) as u8,
+            peniko::Brush::Gradient(grad) => {
+                for stop in &mut grad.stops {
+                    stop.color.a = (a * 255.0) as u8;
+                }
+            }
+            peniko::Brush::Image(_) => {}
+        }
+
+        fill.set_built(false);
+    }
+
+    pub fn get_brush(&self) -> &peniko::Brush {
+        &self.fill.brush
+    }
 }
