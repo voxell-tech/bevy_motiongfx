@@ -1,5 +1,3 @@
-// pub use motiongfx_vello_macros::rect;
-
 use bevy_asset::Assets;
 use bevy_ecs::prelude::*;
 use bevy_math::{DVec2, DVec4};
@@ -23,7 +21,7 @@ pub struct VelloRectBundle {
 }
 
 #[derive(Default)]
-pub enum Anchor {
+pub enum RectAnchor {
     #[default]
     Center,
     Left,
@@ -34,11 +32,11 @@ pub enum Anchor {
 
 #[derive(Default)]
 pub struct VelloRectBuilder {
-    size: DVec2,
-    radii: DVec4,
-    anchor: Anchor,
-    fill_brush: PenikoBrush,
-    stroke_brush: PenikoBrush,
+    pub size: DVec2,
+    pub radii: DVec4,
+    pub anchor: RectAnchor,
+    pub fill_brush: PenikoBrush,
+    pub stroke_brush: PenikoBrush,
 }
 
 impl VelloRectBuilder {
@@ -61,7 +59,7 @@ impl VelloRectBuilder {
         self
     }
 
-    pub fn anchor(mut self, anchor: Anchor) -> Self {
+    pub fn anchor(mut self, anchor: RectAnchor) -> Self {
         self.anchor = anchor;
 
         self
@@ -85,11 +83,11 @@ impl VelloRectBuilder {
         scenes: &mut Assets<VelloScene>,
     ) -> VelloRectBundleMotion {
         let rect = match self.anchor {
-            Anchor::Center => VelloRect::anchor_center(self.size, self.radii),
-            Anchor::Left => VelloRect::anchor_left(self.size, self.radii),
-            Anchor::Right => VelloRect::anchor_right(self.size, self.radii),
-            Anchor::Bottom => VelloRect::anchor_bottom(self.size, self.radii),
-            Anchor::Top => VelloRect::anchor_top(self.size, self.radii),
+            RectAnchor::Center => VelloRect::anchor_center(self.size, self.radii),
+            RectAnchor::Left => VelloRect::anchor_left(self.size, self.radii),
+            RectAnchor::Right => VelloRect::anchor_right(self.size, self.radii),
+            RectAnchor::Bottom => VelloRect::anchor_bottom(self.size, self.radii),
+            RectAnchor::Top => VelloRect::anchor_top(self.size, self.radii),
         };
 
         let rect_bundle = VelloRectBundle {
@@ -108,14 +106,7 @@ impl VelloRectBuilder {
     }
 }
 
-#[macro_export]
-macro_rules! rect {
-    ($width:expr, $height:expr) => {
-        $crate::vello_vector::rect::VelloRectBuilder::default().size($width, $height)
-    };
-}
-
-pub fn rect(width: f64, height: f64) -> VelloRectBuilder {
+pub fn create_rect(width: f64, height: f64) -> VelloRectBuilder {
     VelloRectBuilder::default().size(width, height)
 }
 

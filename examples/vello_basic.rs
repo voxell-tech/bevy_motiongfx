@@ -3,7 +3,6 @@ use bevy::{
     prelude::*,
 };
 use bevy_motiongfx::prelude::*;
-use motiongfx_vello::vello_vector::rect::{Anchor, VelloRectBuilder};
 
 fn main() {
     App::new()
@@ -20,21 +19,11 @@ fn vello_basic(mut commands: Commands, mut scenes: ResMut<Assets<VelloScene>>) {
     // Color palette
     let palette = ColorPalette::default();
 
-    let mut rect = rect!(100.0, 100.0)
+    let rect = create_rect(100.0, 100.0)
         .radius(10.0)
-        .fill(Color::WHITE)
+        .fill(*palette.get_or_default(&ColorKey::Blue))
+        .stroke(*palette.get_or_default(&ColorKey::Blue) * 1.5)
         .build(&mut commands, &mut scenes);
-
-    // let rect0 = VelloRectBuilder::default()
-    //     .size(100.0, 20.0)
-    //     .anchor(Anchor::Center)
-    //     .fill(Color::BLUE)
-    //     .stroke(Color::WHITE);
-
-    // let a = all!(
-    //     commands.play(rect.transform.translate_to(Vec3::Y), 1.0),
-    //     // commands.play(rect.transform.translate_to(Vec3::Y), 1.0),
-    // );
 
     // Spawning entities
     let rect_bundle = VelloRectBundle {

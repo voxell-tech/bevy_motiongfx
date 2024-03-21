@@ -15,7 +15,6 @@ pub mod vello_motion;
 pub mod vello_vector;
 
 pub mod prelude {
-    pub use crate::rect;
     pub use crate::{
         convert::*,
         fill_style::{FillStyle, FillStyleMotion},
@@ -30,7 +29,7 @@ pub mod prelude {
             bezpath::{VelloBezPath, VelloBezPathBundle},
             circle::{VelloCircle, VelloCircleBundle},
             line::{VelloLine, VelloLineBundle},
-            rect::{VelloRect, VelloRectBundle},
+            rect::{create_rect, RectAnchor, VelloRect, VelloRectBuilder, VelloRectBundle},
         },
         MotionGfxVello,
     };
