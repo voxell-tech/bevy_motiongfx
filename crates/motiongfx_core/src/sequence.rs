@@ -117,7 +117,7 @@ pub(crate) fn sequence_controller_interp(
 
 #[macro_export]
 macro_rules! any {
-    ($motion:ident) => {
+    (&$motion:expr) => {
         $crate::sequence::any(&$motion)
     };
     ($($motion:expr),+ $(,)?) => {
@@ -127,7 +127,7 @@ macro_rules! any {
 
 #[macro_export]
 macro_rules! chain {
-    ($motion:ident) => {
+    (&$motion:expr) => {
         $crate::sequence::chain(&$motion)
     };
     ($($motion:expr),+ $(,)?) => {
@@ -137,17 +137,17 @@ macro_rules! chain {
 
 #[macro_export]
 macro_rules! all {
-    ($motion:ident) => {
-        $crate::sequence::chain(&$motion)
+    (&$motion:expr) => {
+       $crate::sequence::all(&$motion)
     };
     ($($motion:expr),+ $(,)?) => {
-        $crate::sequence::chain(&[$($motion),+])
+        $crate::sequence::all(&[$($motion),+])
     };
 }
 
 #[macro_export]
 macro_rules! flow {
-    ($duration:expr, $motion:ident) => {
+    ($duration:expr, &$motion:expr) => {
         $crate::sequence::flow($duration, &$motion)
     };
     ($duration:expr, $($motion:expr),+ $(,)?) => {
@@ -157,8 +157,8 @@ macro_rules! flow {
 
 #[macro_export]
 macro_rules! delay {
-    ($duration:expr, $motion:expr) => {
-        $crate::sequence::delay($duration, $motion)
+    ($duration:expr, &$motion:expr) => {
+        $crate::sequence::delay($duration, &$motion)
     };
 }
 

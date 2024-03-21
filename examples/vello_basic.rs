@@ -3,6 +3,7 @@ use bevy::{
     prelude::*,
 };
 use bevy_motiongfx::prelude::*;
+use motiongfx_vello::vello_vector::rect::{Anchor, VelloRectBuilder};
 
 fn main() {
     App::new()
@@ -19,9 +20,25 @@ fn vello_basic(mut commands: Commands, mut scenes: ResMut<Assets<VelloScene>>) {
     // Color palette
     let palette = ColorPalette::default();
 
+    let mut rect = rect!(100.0, 100.0)
+        .radius(10.0)
+        .fill(Color::WHITE)
+        .build(&mut commands, &mut scenes);
+
+    // let rect0 = VelloRectBuilder::default()
+    //     .size(100.0, 20.0)
+    //     .anchor(Anchor::Center)
+    //     .fill(Color::BLUE)
+    //     .stroke(Color::WHITE);
+
+    // let a = all!(
+    //     commands.play(rect.transform.translate_to(Vec3::Y), 1.0),
+    //     // commands.play(rect.transform.translate_to(Vec3::Y), 1.0),
+    // );
+
     // Spawning entities
-    let rect_bundle = VRectBundle {
-        rect: VRect::anchor_center(DVec2::new(100.0, 100.0), DVec4::splat(10.0)),
+    let rect_bundle = VelloRectBundle {
+        rect: VelloRect::anchor_center(DVec2::new(100.0, 100.0), DVec4::splat(10.0)),
         fill: FillStyle::from_brush(*palette.get_or_default(&ColorKey::Blue)),
         stroke: StrokeStyle::from_brush(*palette.get_or_default(&ColorKey::Blue) * 1.5)
             .with_style(4.0),
@@ -32,8 +49,8 @@ fn vello_basic(mut commands: Commands, mut scenes: ResMut<Assets<VelloScene>>) {
         },
     };
 
-    let circ_bundle = VCircleBundle {
-        circle: VCircle::from_radius(50.0),
+    let circ_bundle = VelloCircleBundle {
+        circle: VelloCircle::from_radius(50.0),
         fill: FillStyle::from_brush(*palette.get_or_default(&ColorKey::Purple)),
         stroke: StrokeStyle::from_brush(*palette.get_or_default(&ColorKey::Purple) * 1.5)
             .with_style(4.0),
@@ -44,8 +61,8 @@ fn vello_basic(mut commands: Commands, mut scenes: ResMut<Assets<VelloScene>>) {
         },
     };
 
-    let line_bundle = VLineBundle {
-        line: VLine::from_points(DVec2::new(-300.0, 0.0), DVec2::new(300.0, 0.0)),
+    let line_bundle = VelloLineBundle {
+        line: VelloLine::from_points(DVec2::new(-300.0, 0.0), DVec2::new(300.0, 0.0)),
         stroke: StrokeStyle::from_brush(*palette.get_or_default(&ColorKey::Base8)),
         scene_bundle: VelloSceneBundle {
             scene: scenes.add(VelloScene::default()),
@@ -59,9 +76,9 @@ fn vello_basic(mut commands: Commands, mut scenes: ResMut<Assets<VelloScene>>) {
     let line_id = commands.spawn(line_bundle.clone()).id();
 
     // Motions
-    let mut rect_motion = VRectBundleMotion::new(rect_id, rect_bundle);
-    let mut circ_motion = VCircleBundleMotion::new(circ_id, circ_bundle);
-    let mut line_motion = VLineBundleMotion::new(line_id, line_bundle);
+    let mut rect_motion = VelloRectBundleMotion::new(rect_id, rect_bundle);
+    let mut circ_motion = VelloCircleBundleMotion::new(circ_id, circ_bundle);
+    let mut line_motion = VelloLineBundleMotion::new(line_id, line_bundle);
 
     // Sequence
     let sequence = flow!(
@@ -76,7 +93,7 @@ fn vello_basic(mut commands: Commands, mut scenes: ResMut<Assets<VelloScene>>) {
                     1.5,
                 ),
                 commands.play(line_motion.line.extend(100.0), 1.0),
-                commands.play(line_motion.stroke.style_to(10.0), 1.0)
+                commands.play(line_motion.stroke.style_to(10.0), 1.0),
             ),
             all!(
                 commands.play(

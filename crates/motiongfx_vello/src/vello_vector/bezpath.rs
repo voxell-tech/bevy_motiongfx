@@ -12,7 +12,7 @@ use crate::{
 
 /// Vello Bézier path bundle.
 #[derive(Bundle, Clone, Default)]
-pub struct VBezPathBundle {
+pub struct VelloBezPathBundle {
     pub path: VelloBezPath,
     pub fill: FillStyle,
     pub stroke: StrokeStyle,

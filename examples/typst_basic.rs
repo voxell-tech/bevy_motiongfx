@@ -114,8 +114,8 @@ fn typst_basic(
                 ));
             }
 
-            let sequence =
-                all!(all!(setup_seqs), flow!(0.1, animate_seqs)).with_ease(ease::expo::ease_in_out);
+            let sequence = all!(all!(&setup_seqs), flow!(0.1, &animate_seqs))
+                .with_ease(ease::expo::ease_in_out);
 
             commands.spawn(SequencePlayerBundle {
                 sequence,

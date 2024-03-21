@@ -8,14 +8,14 @@ use crate::{
     fill_style::FillStyleMotion,
     stroke_style::StrokeStyleMotion,
     vello_vector::{
-        bezpath::{VBezPathBundle, VelloBezPath},
+        bezpath::{VelloBezPath, VelloBezPathBundle},
         VelloBuilder,
     },
 };
 
-pub(crate) struct VBezPathMotionPlugin;
+pub(crate) struct VelloBezPathMotionPlugin;
 
-impl Plugin for VBezPathMotionPlugin {
+impl Plugin for VelloBezPathMotionPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             PostUpdate,
@@ -24,17 +24,17 @@ impl Plugin for VBezPathMotionPlugin {
     }
 }
 
-pub struct VBezPathBundleMotion {
-    pub path: VBezPathMotion,
+pub struct VelloBezPathBundleMotion {
+    pub path: VelloBezPathMotion,
     pub fill: FillStyleMotion,
     pub stroke: StrokeStyleMotion,
     pub transform: TransformMotion,
 }
 
-impl VBezPathBundleMotion {
-    pub fn new(target_id: Entity, bundle: VBezPathBundle) -> Self {
+impl VelloBezPathBundleMotion {
+    pub fn new(target_id: Entity, bundle: VelloBezPathBundle) -> Self {
         Self {
-            path: VBezPathMotion::new(target_id),
+            path: VelloBezPathMotion::new(target_id),
             fill: FillStyleMotion::new(target_id, bundle.fill),
             stroke: StrokeStyleMotion::new(target_id, bundle.stroke),
             transform: TransformMotion::new(target_id, bundle.scene_bundle.transform),
@@ -42,12 +42,12 @@ impl VBezPathBundleMotion {
     }
 }
 
-pub struct VBezPathMotion {
+pub struct VelloBezPathMotion {
     target_id: Entity,
     trace: f32,
 }
 
-impl VBezPathMotion {
+impl VelloBezPathMotion {
     pub fn new(target_id: Entity) -> Self {
         Self {
             target_id,

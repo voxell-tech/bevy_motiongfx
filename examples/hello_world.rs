@@ -94,7 +94,7 @@ fn hello_world(
         }
     }
 
-    let sequence = flow!(0.01, cube_seqs);
+    let sequence = flow!(0.01, &cube_seqs);
 
     commands.spawn(SequencePlayerBundle {
         sequence,

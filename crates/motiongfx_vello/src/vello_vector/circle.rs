@@ -10,21 +10,21 @@ use crate::{
 };
 
 #[derive(Bundle, Clone, Default)]
-pub struct VCircleBundle {
-    pub circle: VCircle,
+pub struct VelloCircleBundle {
+    pub circle: VelloCircle,
     pub fill: FillStyle,
     pub stroke: StrokeStyle,
     pub scene_bundle: VelloSceneBundle,
 }
 
 #[derive(VelloBuilder, VelloVector, Component, Clone, Default)]
-pub struct VCircle {
+pub struct VelloCircle {
     #[shape]
     pub circle: kurbo::Circle,
     built: bool,
 }
 
-impl VCircle {
+impl VelloCircle {
     #[inline]
     pub fn new(circle: kurbo::Circle) -> Self {
         Self {

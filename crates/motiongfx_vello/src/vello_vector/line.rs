@@ -9,20 +9,20 @@ use crate::{
 };
 
 #[derive(Bundle, Clone, Default)]
-pub struct VLineBundle {
-    pub line: VLine,
+pub struct VelloLineBundle {
+    pub line: VelloLine,
     pub stroke: StrokeStyle,
     pub scene_bundle: VelloSceneBundle,
 }
 
 #[derive(VelloBuilder, VelloVector, Component, Clone)]
-pub struct VLine {
+pub struct VelloLine {
     #[shape]
     pub line: kurbo::Line,
     built: bool,
 }
 
-impl VLine {
+impl VelloLine {
     #[inline]
     pub fn new(line: kurbo::Line) -> Self {
         Self { line, ..default() }
@@ -45,7 +45,7 @@ impl VLine {
     }
 }
 
-impl Default for VLine {
+impl Default for VelloLine {
     fn default() -> Self {
         Self {
             line: kurbo::Line::new(kurbo::Point::default(), kurbo::Point::default()),

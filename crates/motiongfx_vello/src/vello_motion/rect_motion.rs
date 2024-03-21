@@ -9,38 +9,37 @@ use crate::{
     fill_style::FillStyleMotion,
     stroke_style::StrokeStyleMotion,
     vello_vector::{
-        rect::{VRect, VRectBundle},
+        rect::{VelloRect, VelloRectBundle},
         VelloBuilder,
     },
 };
 
-pub(crate) struct VRectMotionPlugin;
+pub(crate) struct VelloRectMotionPlugin;
 
-impl Plugin for VRectMotionPlugin {
+impl Plugin for VelloRectMotionPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             PostUpdate,
             (
-                sequence_update_system::<VRect, kurbo::Rect, EmptyRes>,
-                sequence_update_system::<VRect, f64, EmptyRes>,
-                sequence_update_system::<VRect, kurbo::RoundedRectRadii, EmptyRes>,
+                sequence_update_system::<VelloRect, kurbo::Rect, EmptyRes>,
+                sequence_update_system::<VelloRect, f64, EmptyRes>,
+                sequence_update_system::<VelloRect, kurbo::RoundedRectRadii, EmptyRes>,
             ),
         );
     }
 }
 
-// #[derive(FillMotion)]
-pub struct VRectBundleMotion {
-    pub rect: VRectMotion,
+pub struct VelloRectBundleMotion {
+    pub rect: VelloRectMotion,
     pub fill: FillStyleMotion,
     pub stroke: StrokeStyleMotion,
     pub transform: TransformMotion,
 }
 
-impl VRectBundleMotion {
-    pub fn new(target_id: Entity, bundle: VRectBundle) -> Self {
+impl VelloRectBundleMotion {
+    pub fn new(target_id: Entity, bundle: VelloRectBundle) -> Self {
         Self {
-            rect: VRectMotion::new(target_id, bundle.rect),
+            rect: VelloRectMotion::new(target_id, bundle.rect),
             fill: FillStyleMotion::new(target_id, bundle.fill),
             stroke: StrokeStyleMotion::new(target_id, bundle.stroke),
             transform: TransformMotion::new(target_id, bundle.scene_bundle.transform),
@@ -48,13 +47,13 @@ impl VRectBundleMotion {
     }
 }
 
-pub struct VRectMotion {
+pub struct VelloRectMotion {
     target_id: Entity,
-    vello_rect: VRect,
+    vello_rect: VelloRect,
 }
 
-impl VRectMotion {
-    pub fn new(target_id: Entity, vello_rect: VRect) -> Self {
+impl VelloRectMotion {
+    pub fn new(target_id: Entity, vello_rect: VelloRect) -> Self {
         Self {
             target_id,
             vello_rect,
@@ -64,12 +63,12 @@ impl VRectMotion {
     // =====================
     // Rect
     // =====================
-    pub fn inflate(&mut self, inflation: DVec2) -> Action<VRect, kurbo::Rect, EmptyRes> {
+    pub fn inflate(&mut self, inflation: DVec2) -> Action<VelloRect, kurbo::Rect, EmptyRes> {
         let inflation: DVec2 = inflation.into();
 
         let new_rect = self.vello_rect.rect.inflate(inflation.x, inflation.y);
 
-        let action: Action<VRect, kurbo::Rect, EmptyRes> = Action::new(
+        let action: Action<VelloRect, kurbo::Rect, EmptyRes> = Action::new(
             self.target_id,
             self.vello_rect.rect,
             new_rect,
@@ -84,10 +83,10 @@ impl VRectMotion {
     pub fn rect_to(
         &mut self,
         new_rect: impl Into<kurbo::Rect>,
-    ) -> Action<VRect, kurbo::Rect, EmptyRes> {
+    ) -> Action<VelloRect, kurbo::Rect, EmptyRes> {
         let new_rect: kurbo::Rect = new_rect.into();
 
-        let action: Action<VRect, kurbo::Rect, EmptyRes> = Action::new(
+        let action: Action<VelloRect, kurbo::Rect, EmptyRes> = Action::new(
             self.target_id,
             self.vello_rect.rect,
             new_rect,
@@ -100,7 +99,7 @@ impl VRectMotion {
     }
 
     fn rect_interp(
-        vello_rect: &mut VRect,
+        vello_rect: &mut VelloRect,
         begin: &kurbo::Rect,
         end: &kurbo::Rect,
         t: f32,
@@ -114,10 +113,10 @@ impl VRectMotion {
     // Rect.x0
     // =====================
     /// Expand the left side of the rect.
-    pub fn expand_left(&mut self, expansion: f64) -> Action<VRect, f64, EmptyRes> {
+    pub fn expand_left(&mut self, expansion: f64) -> Action<VelloRect, f64, EmptyRes> {
         let new_x0: f64 = self.vello_rect.rect.x0 - expansion;
 
-        let action: Action<VRect, f64, EmptyRes> = Action::new(
+        let action: Action<VelloRect, f64, EmptyRes> = Action::new(
             self.target_id,
             self.vello_rect.rect.x0,
             new_x0,
@@ -130,7 +129,7 @@ impl VRectMotion {
     }
 
     fn rect_x0_interp(
-        vello_rect: &mut VRect,
+        vello_rect: &mut VelloRect,
         begin: &f64,
         end: &f64,
         t: f32,
@@ -144,10 +143,10 @@ impl VRectMotion {
     // Rect.x1
     // =====================
     /// Expand the right side of the rect.
-    pub fn expand_right(&mut self, expansion: f64) -> Action<VRect, f64, EmptyRes> {
+    pub fn expand_right(&mut self, expansion: f64) -> Action<VelloRect, f64, EmptyRes> {
         let new_x1: f64 = self.vello_rect.rect.x1 + expansion;
 
-        let action: Action<VRect, f64, EmptyRes> = Action::new(
+        let action: Action<VelloRect, f64, EmptyRes> = Action::new(
             self.target_id,
             self.vello_rect.rect.x1,
             new_x1,
@@ -160,7 +159,7 @@ impl VRectMotion {
     }
 
     fn rect_x1_interp(
-        vello_rect: &mut VRect,
+        vello_rect: &mut VelloRect,
         begin: &f64,
         end: &f64,
         t: f32,
@@ -174,10 +173,10 @@ impl VRectMotion {
     // Rect.y0
     // =====================
     /// Expand the bottom side of the rect.
-    pub fn expand_bottom(&mut self, expansion: f64) -> Action<VRect, f64, EmptyRes> {
+    pub fn expand_bottom(&mut self, expansion: f64) -> Action<VelloRect, f64, EmptyRes> {
         let new_y0: f64 = self.vello_rect.rect.y0 - expansion;
 
-        let action: Action<VRect, f64, EmptyRes> = Action::new(
+        let action: Action<VelloRect, f64, EmptyRes> = Action::new(
             self.target_id,
             self.vello_rect.rect.y0,
             new_y0,
@@ -190,7 +189,7 @@ impl VRectMotion {
     }
 
     fn rect_y0_interp(
-        vello_rect: &mut VRect,
+        vello_rect: &mut VelloRect,
         begin: &f64,
         end: &f64,
         t: f32,
@@ -204,10 +203,10 @@ impl VRectMotion {
     // Rect.y1
     // =====================
     /// Expand the top side of the rect.
-    pub fn expand_top(&mut self, expansion: f64) -> Action<VRect, f64, EmptyRes> {
+    pub fn expand_top(&mut self, expansion: f64) -> Action<VelloRect, f64, EmptyRes> {
         let new_y1: f64 = self.vello_rect.rect.y1 + expansion;
 
-        let action: Action<VRect, f64, EmptyRes> = Action::new(
+        let action: Action<VelloRect, f64, EmptyRes> = Action::new(
             self.target_id,
             self.vello_rect.rect.y1,
             new_y1,
@@ -220,7 +219,7 @@ impl VRectMotion {
     }
 
     fn rect_y1_interp(
-        vello_rect: &mut VRect,
+        vello_rect: &mut VelloRect,
         begin: &f64,
         end: &f64,
         t: f32,
@@ -236,10 +235,10 @@ impl VRectMotion {
     pub fn radii_to(
         &mut self,
         new_radii: impl Into<kurbo::RoundedRectRadii>,
-    ) -> Action<VRect, kurbo::RoundedRectRadii, EmptyRes> {
+    ) -> Action<VelloRect, kurbo::RoundedRectRadii, EmptyRes> {
         let new_radii: kurbo::RoundedRectRadii = new_radii.into();
 
-        let action: Action<VRect, kurbo::RoundedRectRadii, EmptyRes> = Action::new(
+        let action: Action<VelloRect, kurbo::RoundedRectRadii, EmptyRes> = Action::new(
             self.target_id,
             self.vello_rect.radii,
             new_radii,
@@ -252,7 +251,7 @@ impl VRectMotion {
     }
 
     fn radii_interp(
-        vello_rect: &mut VRect,
+        vello_rect: &mut VelloRect,
         begin: &kurbo::RoundedRectRadii,
         end: &kurbo::RoundedRectRadii,
         t: f32,

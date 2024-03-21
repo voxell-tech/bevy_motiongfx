@@ -92,7 +92,7 @@ fn easings(
         );
     }
 
-    let sequence = chain!(easing_seqs);
+    let sequence = chain!(&easing_seqs);
 
     commands.spawn(SequencePlayerBundle {
         sequence,

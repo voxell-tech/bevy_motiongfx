@@ -51,7 +51,7 @@ fn create_animation(
 pub struct WordTrace {
     pub transform: TransformMotion,
     pub fill: FillStyleMotion,
-    pub trace: VBezPathMotion,
+    pub trace: VelloBezPathMotion,
 }
 
 type WordTraceVec = Vec<WordTrace>;
@@ -152,7 +152,7 @@ fn create_typst(
             .insert(fill.clone())
             .insert(stroke.clone());
 
-        let mut path_motion = VBezPathMotion::new(path.entity);
+        let mut path_motion = VelloBezPathMotion::new(path.entity);
         let mut fill_motion = FillStyleMotion::new(path.entity, fill.clone());
 
         setup_seqs.push(all!(
@@ -167,23 +167,22 @@ fn create_typst(
         });
     }
 
-    (word_trace_vec, all!(setup_seqs))
+    (word_trace_vec, all!(&setup_seqs))
 }
 
 fn per_letter_trace(commands: &mut Commands, word_trace_vec: &mut WordTraceVec) -> Sequence {
-    let path_len = word_trace_vec.len();
+    let motions: Vec<Sequence> = word_trace_vec
+        .iter_mut()
+        .map(|word_trace| {
+            flow!(
+                0.5,
+                commands.play(word_trace.trace.trace_to(1.0), 1.0),
+                commands.play(word_trace.fill.alpha_to(1.0), 1.0),
+            )
+        })
+        .collect();
 
-    let mut motion_seqs = Vec::with_capacity(path_len);
-
-    for word_trace in word_trace_vec {
-        motion_seqs.push(flow!(
-            0.5,
-            commands.play(word_trace.trace.trace_to(1.0), 1.0),
-            commands.play(word_trace.fill.alpha_to(1.0), 1.0),
-        ));
-    }
-
-    flow!(0.1, motion_seqs).with_ease(ease::cubic::ease_in_out)
+    flow!(0.1, &motions).with_ease(ease::cubic::ease_in_out)
 }
 
 fn per_letter_translate(
@@ -191,15 +190,12 @@ fn per_letter_translate(
     word_trace_vec: &mut WordTraceVec,
     translation: Vec3,
 ) -> Sequence {
-    let path_len = word_trace_vec.len();
+    let motions: Vec<Sequence> = word_trace_vec
+        .iter_mut()
+        .map(|word_trace| commands.play(word_trace.transform.translate_add(translation), 1.0))
+        .collect();
 
-    let mut motions = Vec::with_capacity(path_len);
-
-    for word_trace in word_trace_vec {
-        motions.push(commands.play(word_trace.transform.translate_add(translation), 1.0));
-    }
-
-    flow!(0.1, motions).with_ease(ease::quart::ease_in_out)
+    flow!(0.1, &motions).with_ease(ease::quart::ease_in_out)
 }
 
 fn setup(mut commands: Commands) {
