@@ -78,8 +78,10 @@ pub struct TypstCompiler {
 
 impl TypstCompiler {
     pub fn new(font_paths: &[PathBuf]) -> Self {
+        let mut assets = PathBuf::from(".");
+        assets.push("assets");
         Self {
-            world: TypstWorld::new(PathBuf::from(".\\assets"), font_paths).unwrap(),
+            world: TypstWorld::new(assets, font_paths).unwrap(),
             tracer: Tracer::new(),
         }
     }
