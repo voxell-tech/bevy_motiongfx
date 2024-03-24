@@ -49,7 +49,7 @@ pub fn vello_vector_derive_macro(input: TokenStream) -> TokenStream {
 
     if field_filter.len() != 1 {
         panic!(
-            "Expected only 1 field with #[shape] attribute. Given {}.",
+            "Expected exactly 1 field with #[shape] attribute. Given {}.",
             field_filter.len()
         );
     }

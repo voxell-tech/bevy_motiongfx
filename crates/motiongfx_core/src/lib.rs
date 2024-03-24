@@ -30,14 +30,8 @@ pub struct MotionGfx;
 impl Plugin for MotionGfx {
     fn build(&self, app: &mut App) {
         app.insert_resource(EmptyRes)
-            .add_systems(PreUpdate, sequence::sequence_controller_system)
-            .add_systems(
-                Update,
-                (
-                    sequence::sequence_player_system,
-                    slide::slide_controller_system,
-                ),
-            );
+            .add_systems(PreUpdate, sequence::sequence_controller)
+            .add_systems(Update, (sequence::sequence_player, slide::slide_controller));
     }
 }
 
