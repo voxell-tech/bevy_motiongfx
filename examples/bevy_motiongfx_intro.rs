@@ -84,8 +84,8 @@ fn bevy_motiongfx_intro(
 
     let title_trace = per_letter_trace(&mut commands, &mut title);
 
-    let setup_seq = all!(intro_setup, title_setup);
-    let sequence = chain!(setup_seq, intro_trace, all!(intro_move_up, title_trace));
+    let setup_seq = all(&[intro_setup, title_setup]);
+    let sequence = chain(&[setup_seq, intro_trace, all(&[intro_move_up, title_trace])]);
 
     commands.spawn(SequencePlayerBundle {
         sequence,
@@ -155,10 +155,10 @@ fn create_typst(
         let mut path_motion = VelloBezPathMotion::new(path.entity);
         let mut fill_motion = FillStyleMotion::new(path.entity, fill.clone());
 
-        setup_seqs.push(all!(
+        setup_seqs.push(all(&[
             commands.play(path_motion.trace_to(0.0), 0.0),
             commands.play(fill_motion.alpha_to(0.0), 0.0),
-        ));
+        ]));
 
         word_trace_vec.push(WordTrace {
             transform: TransformMotion::new(path.entity, path.transform),
@@ -167,22 +167,24 @@ fn create_typst(
         });
     }
 
-    (word_trace_vec, all!(&setup_seqs))
+    (word_trace_vec, all(&setup_seqs))
 }
 
 fn per_letter_trace(commands: &mut Commands, word_trace_vec: &mut WordTraceVec) -> Sequence {
     let motions: Vec<Sequence> = word_trace_vec
         .iter_mut()
         .map(|word_trace| {
-            flow!(
+            flow(
                 0.5,
-                commands.play(word_trace.trace.trace_to(1.0), 1.0),
-                commands.play(word_trace.fill.alpha_to(1.0), 1.0),
+                &[
+                    commands.play(word_trace.trace.trace_to(1.0), 1.0),
+                    commands.play(word_trace.fill.alpha_to(1.0), 1.0),
+                ],
             )
         })
         .collect();
 
-    flow!(0.1, &motions).with_ease(ease::cubic::ease_in_out)
+    flow(0.1, &motions).with_ease(ease::cubic::ease_in_out)
 }
 
 fn per_letter_translate(
@@ -195,7 +197,7 @@ fn per_letter_translate(
         .map(|word_trace| commands.play(word_trace.transform.translate_add(translation), 1.0))
         .collect();
 
-    flow!(0.1, &motions).with_ease(ease::quart::ease_in_out)
+    flow(0.1, &motions).with_ease(ease::quart::ease_in_out)
 }
 
 fn setup(mut commands: Commands) {

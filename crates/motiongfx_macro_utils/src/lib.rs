@@ -1,4 +1,3 @@
-use quote::quote;
 use syn::DeriveInput;
 
 pub fn get_one_field_of_attribute(input: &DeriveInput, attr_name: &str) -> syn::Ident {

@@ -80,19 +80,19 @@ fn easings(
 
     for i in 0..CAPACITY {
         easing_seqs.push(
-            all!(
+            all(&[
                 commands.play(transform_motions[i].translate_add(Vec3::X * 10.0), 1.0),
                 commands.play(
                     material_motions[i]
                         .emissive_to(*palette.get_or_default(&ColorKey::Red) * 100.0),
                     1.0,
-                )
-            )
+                ),
+            ])
             .with_ease(easings[i]),
         );
     }
 
-    let sequence = chain!(&easing_seqs);
+    let sequence = chain(&easing_seqs);
 
     commands.spawn(SequencePlayerBundle {
         sequence,

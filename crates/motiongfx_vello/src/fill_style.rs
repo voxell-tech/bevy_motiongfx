@@ -133,7 +133,7 @@ impl FillStyleMotion {
                 color.a = (new_alpha * 255.0) as u8;
             }
             peniko::Brush::Gradient(grad) => {
-                if grad.stops.len() > 0 {
+                if grad.stops.is_empty() == false {
                     alpha = (grad.stops[0].color.a / 255) as f32;
                 }
                 for stop in &mut grad.stops {

@@ -115,53 +115,6 @@ pub(crate) fn sequence_controller_interp(
 
 // ANIMATION FLOW FUNCTIONS
 
-#[macro_export]
-macro_rules! any {
-    (&$motion:expr) => {
-        $crate::sequence::any(&$motion)
-    };
-    ($($motion:expr),+ $(,)?) => {
-        $crate::sequence::any(&[$($motion),+])
-    };
-}
-
-#[macro_export]
-macro_rules! chain {
-    (&$motion:expr) => {
-        $crate::sequence::chain(&$motion)
-    };
-    ($($motion:expr),+ $(,)?) => {
-        $crate::sequence::chain(&[$($motion),+])
-    };
-}
-
-#[macro_export]
-macro_rules! all {
-    (&$motion:expr) => {
-       $crate::sequence::all(&$motion)
-    };
-    ($($motion:expr),+ $(,)?) => {
-        $crate::sequence::all(&[$($motion),+])
-    };
-}
-
-#[macro_export]
-macro_rules! flow {
-    ($duration:expr, &$motion:expr) => {
-        $crate::sequence::flow($duration, &$motion)
-    };
-    ($duration:expr, $($motion:expr),+ $(,)?) => {
-        $crate::sequence::flow($duration, &[$($motion),+])
-    };
-}
-
-#[macro_export]
-macro_rules! delay {
-    ($duration:expr, &$motion:expr) => {
-        $crate::sequence::delay($duration, &$motion)
-    };
-}
-
 /// Run one [`Sequence`] after another.
 pub fn chain(sequences: &[Sequence]) -> Sequence {
     let mut final_sequence = Sequence::default();

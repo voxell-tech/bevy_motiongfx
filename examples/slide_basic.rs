@@ -75,16 +75,18 @@ fn slide_basic(
         .play(cube_transform.scale_to(Vec3::ONE), 1.0)
         .with_ease(ease::cubic::ease_in_out);
 
-    let slide1 = flow!(
+    let slide1 = flow(
         0.1,
-        all!(
-            commands.play(cube_transform.translate_add(Vec3::X * -x_offset), 1.0),
-            commands.play(
-                cube_material.base_color_to(*palette.get_or_default(&ColorKey::Base0)),
-                1.0,
-            ),
-        ),
-        commands.play(sphere_tranform.scale_to(Vec3::ONE), 1.0),
+        &[
+            all(&[
+                commands.play(cube_transform.translate_add(Vec3::X * -x_offset), 1.0),
+                commands.play(
+                    cube_material.base_color_to(*palette.get_or_default(&ColorKey::Base0)),
+                    1.0,
+                ),
+            ]),
+            commands.play(sphere_tranform.scale_to(Vec3::ONE), 1.0),
+        ],
     )
     .with_ease(ease::cubic::ease_in_out);
 

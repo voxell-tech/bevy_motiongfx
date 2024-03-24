@@ -17,21 +17,12 @@ pub mod prelude {
         ease,
         lerp::*,
         sequence::{
-            Sequence, SequenceBundle, SequenceController, SequencePlayer, SequencePlayerBundle,
+            all, any, chain, delay, flow, Sequence, SequenceBundle, SequenceController,
+            SequencePlayer, SequencePlayerBundle,
         },
-        // sequence::{
-        //     all, any, chain, delay, flow, Sequence, SequenceBundle, SequenceController,
-        //     SequencePlayer, SequencePlayerBundle,
-        // },
         slide::{create_slide, SlideBundle, SlideController, SlideCurrState, SlideTargetState},
-        EmptyComp,
-        EmptyRes,
-        MotionGfx,
+        EmptyComp, EmptyRes, MotionGfx,
     };
-
-    pub use crate::{all, any, chain, flow};
-
-    // pub use motiongfx_core_macros::rect;
 }
 
 pub struct MotionGfx;
