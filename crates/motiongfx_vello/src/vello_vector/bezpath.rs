@@ -4,11 +4,7 @@ use bevy_ecs::prelude::*;
 use bevy_utils::prelude::*;
 use bevy_vello_renderer::{prelude::*, vello::kurbo};
 
-use crate::{
-    fill_style::FillStyle,
-    stroke_style::StrokeStyle,
-    vello_vector::{VelloBuilder, VelloVector},
-};
+use crate::{fill_style::FillStyle, stroke_style::StrokeStyle, vello_vector::VelloVector};
 
 /// Vello Bézier path bundle.
 #[derive(Bundle, Clone, Default)]
@@ -20,13 +16,12 @@ pub struct VelloBezPathBundle {
 }
 
 /// Vello Bézier path component.
-#[derive(VelloBuilder, VelloVector, Component, Default, Clone)]
+#[derive(VelloVector, Component, Default, Clone)]
 pub struct VelloBezPath {
     /// The Bézier path that [`VelloBezPathMotion`] reference to when performing motions.
     pub origin_path: kurbo::BezPath,
     #[shape]
     pub path: kurbo::BezPath,
-    built: bool,
 }
 
 impl VelloBezPath {

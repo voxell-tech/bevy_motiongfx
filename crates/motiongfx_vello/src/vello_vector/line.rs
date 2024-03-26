@@ -3,10 +3,7 @@ use bevy_math::DVec2;
 use bevy_utils::prelude::*;
 use bevy_vello_renderer::{prelude::*, vello::kurbo};
 
-use crate::{
-    stroke_style::StrokeStyle,
-    vello_vector::{VelloBuilder, VelloVector},
-};
+use crate::{stroke_style::StrokeStyle, vello_vector::VelloVector};
 
 #[derive(Bundle, Clone, Default)]
 pub struct VelloLineBundle {
@@ -15,11 +12,10 @@ pub struct VelloLineBundle {
     pub scene_bundle: VelloSceneBundle,
 }
 
-#[derive(VelloBuilder, VelloVector, Component, Clone)]
+#[derive(VelloVector, Component, Clone)]
 pub struct VelloLine {
     #[shape]
     pub line: kurbo::Line,
-    built: bool,
 }
 
 impl VelloLine {
@@ -47,7 +43,6 @@ impl Default for VelloLine {
     fn default() -> Self {
         Self {
             line: kurbo::Line::new(kurbo::Point::default(), kurbo::Point::default()),
-            built: false,
         }
     }
 }

@@ -7,10 +7,7 @@ use motiongfx_core::{prelude::*, sequence::sequence_update_system};
 use crate::{
     fill_style::FillStyleMotion,
     stroke_style::StrokeStyleMotion,
-    vello_vector::{
-        circle::{VelloCircle, VelloCircleBundle},
-        VelloBuilder,
-    },
+    vello_vector::circle::{VelloCircle, VelloCircleBundle},
 };
 
 pub(crate) struct VelloCircleMotionPlugin;
@@ -87,7 +84,6 @@ impl VelloCircleMotion {
         _: &mut ResMut<EmptyRes>,
     ) {
         vello_circle.circle = kurbo::Circle::lerp(begin, end, t);
-        vello_circle.set_built(false);
     }
 
     // =====================
@@ -116,6 +112,5 @@ impl VelloCircleMotion {
         _: &mut ResMut<EmptyRes>,
     ) {
         vello_circle.circle.radius = f64::lerp(begin, end, t);
-        vello_circle.set_built(false);
     }
 }

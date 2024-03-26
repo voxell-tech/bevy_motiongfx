@@ -3,28 +3,6 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, DeriveInput};
 
-#[proc_macro_derive(VelloBuilder)]
-pub fn vello_builder_derive_macro(input: TokenStream) -> TokenStream {
-    let ast = parse_macro_input!(input as DeriveInput);
-
-    let struct_name = &ast.ident;
-
-    quote! {
-        impl VelloBuilder for #struct_name {
-            #[inline]
-            fn is_built(&self) -> bool {
-                self.built
-            }
-
-            #[inline]
-            fn set_built(&mut self, built: bool) {
-                self.built = built;
-            }
-        }
-    }
-    .into()
-}
-
 #[proc_macro_derive(VelloVector, attributes(shape))]
 pub fn vello_vector_derive_macro(input: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(input as DeriveInput);

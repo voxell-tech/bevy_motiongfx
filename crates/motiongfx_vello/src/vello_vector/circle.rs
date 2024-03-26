@@ -3,11 +3,7 @@ use bevy_math::DVec2;
 use bevy_utils::prelude::*;
 use bevy_vello_renderer::{prelude::*, vello::kurbo};
 
-use crate::{
-    fill_style::FillStyle,
-    stroke_style::StrokeStyle,
-    vello_vector::{VelloBuilder, VelloVector},
-};
+use crate::{fill_style::FillStyle, stroke_style::StrokeStyle, vello_vector::VelloVector};
 
 #[derive(Bundle, Clone, Default)]
 pub struct VelloCircleBundle {
@@ -17,11 +13,10 @@ pub struct VelloCircleBundle {
     pub scene_bundle: VelloSceneBundle,
 }
 
-#[derive(VelloBuilder, VelloVector, Component, Clone, Default)]
+#[derive(VelloVector, Component, Clone, Default)]
 pub struct VelloCircle {
     #[shape]
     pub circle: kurbo::Circle,
-    built: bool,
 }
 
 impl VelloCircle {

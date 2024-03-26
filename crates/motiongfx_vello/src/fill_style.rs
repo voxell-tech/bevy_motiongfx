@@ -5,14 +5,12 @@ use bevy_vello_renderer::vello::{self, kurbo, peniko};
 use motiongfx_core::prelude::*;
 
 use crate::convert::*;
-use crate::vello_vector::VelloBuilder;
 
-#[derive(VelloBuilder, Component, Clone)]
+#[derive(Component, Clone)]
 pub struct FillStyle {
     pub style: peniko::Fill,
     pub brush: peniko::Brush,
     pub transform: kurbo::Affine,
-    built: bool,
 }
 
 impl FillStyle {
@@ -66,7 +64,6 @@ impl Default for FillStyle {
             style: peniko::Fill::NonZero,
             brush: peniko::Brush::Solid(peniko::Color::rgb8(252, 252, 250)),
             transform: kurbo::Affine::IDENTITY,
-            built: false,
         }
     }
 }
@@ -121,7 +118,6 @@ impl FillStyleMotion {
         _: &mut ResMut<EmptyRes>,
     ) {
         fill.brush = peniko::Brush::lerp(begin, end, t);
-        fill.set_built(false);
     }
 
     pub fn alpha_to(&mut self, new_alpha: f32) -> Action<FillStyle, f32, EmptyRes> {
@@ -163,8 +159,6 @@ impl FillStyleMotion {
             }
             peniko::Brush::Image(_) => {}
         }
-
-        fill.set_built(false);
     }
 
     pub fn get_brush(&self) -> &peniko::Brush {

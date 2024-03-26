@@ -4,14 +4,12 @@ use bevy_vello_renderer::vello::{self, kurbo, peniko};
 use motiongfx_core::prelude::*;
 
 use crate::convert::*;
-use crate::vello_vector::VelloBuilder;
 
-#[derive(VelloBuilder, Component, Clone)]
+#[derive(Component, Clone)]
 pub struct StrokeStyle {
     pub style: kurbo::Stroke,
     pub brush: peniko::Brush,
     pub transform: kurbo::Affine,
-    built: bool,
 }
 
 impl StrokeStyle {
@@ -66,7 +64,6 @@ impl Default for StrokeStyle {
             style: kurbo::Stroke::default(),
             brush: peniko::Brush::Solid(peniko::Color::rgb8(252, 252, 250)),
             transform: kurbo::Affine::IDENTITY,
-            built: false,
         }
     }
 }
@@ -109,7 +106,6 @@ impl StrokeStyleMotion {
         _: &mut ResMut<EmptyRes>,
     ) {
         stroke.brush = peniko::Brush::lerp(begin, end, t);
-        stroke.set_built(false);
     }
 
     // =====================
@@ -141,6 +137,5 @@ impl StrokeStyleMotion {
         _: &mut ResMut<EmptyRes>,
     ) {
         stroke.style = kurbo::Stroke::lerp(begin, end, t);
-        stroke.set_built(false);
     }
 }

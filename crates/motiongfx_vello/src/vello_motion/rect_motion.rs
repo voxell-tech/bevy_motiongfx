@@ -8,10 +8,7 @@ use motiongfx_core::{prelude::*, sequence::sequence_update_system};
 use crate::{
     fill_style::FillStyleMotion,
     stroke_style::StrokeStyleMotion,
-    vello_vector::{
-        rect::{VelloRect, VelloRectBundle},
-        VelloBuilder,
-    },
+    vello_vector::rect::{VelloRect, VelloRectBundle},
 };
 
 pub(crate) struct VelloRectMotionPlugin;
@@ -104,7 +101,6 @@ impl VelloRectMotion {
         _: &mut ResMut<EmptyRes>,
     ) {
         vello_rect.rect = kurbo::Rect::lerp(begin, end, t);
-        vello_rect.set_built(false);
     }
 
     // =====================
@@ -134,7 +130,6 @@ impl VelloRectMotion {
         _: &mut ResMut<EmptyRes>,
     ) {
         vello_rect.rect.x0 = f64::lerp(begin, end, t);
-        vello_rect.set_built(false);
     }
 
     // =====================
@@ -164,7 +159,6 @@ impl VelloRectMotion {
         _: &mut ResMut<EmptyRes>,
     ) {
         vello_rect.rect.x1 = f64::lerp(begin, end, t);
-        vello_rect.set_built(false);
     }
 
     // =====================
@@ -194,7 +188,6 @@ impl VelloRectMotion {
         _: &mut ResMut<EmptyRes>,
     ) {
         vello_rect.rect.y0 = f64::lerp(begin, end, t);
-        vello_rect.set_built(false);
     }
 
     // =====================
@@ -224,7 +217,6 @@ impl VelloRectMotion {
         _: &mut ResMut<EmptyRes>,
     ) {
         vello_rect.rect.y1 = f64::lerp(begin, end, t);
-        vello_rect.set_built(false);
     }
 
     // =====================
@@ -256,6 +248,5 @@ impl VelloRectMotion {
         _: &mut ResMut<EmptyRes>,
     ) {
         vello_rect.radii = kurbo::RoundedRectRadii::lerp(begin, end, t);
-        vello_rect.set_built(false);
     }
 }

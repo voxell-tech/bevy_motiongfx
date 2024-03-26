@@ -7,10 +7,7 @@ use motiongfx_core::{prelude::*, sequence::sequence_update_system};
 use crate::{
     fill_style::FillStyleMotion,
     stroke_style::StrokeStyleMotion,
-    vello_vector::{
-        bezpath::{VelloBezPath, VelloBezPathBundle},
-        VelloBuilder,
-    },
+    vello_vector::bezpath::{VelloBezPath, VelloBezPathBundle},
 };
 
 pub(crate) struct VelloBezPathMotionPlugin;
@@ -126,8 +123,6 @@ impl VelloBezPathMotion {
                 }
             }
         }
-
-        vello_path.set_built(false);
     }
 }
 

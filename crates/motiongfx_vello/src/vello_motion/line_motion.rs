@@ -7,10 +7,7 @@ use motiongfx_core::{prelude::*, sequence::sequence_update_system};
 
 use crate::{
     prelude::StrokeStyleMotion,
-    vello_vector::{
-        line::{VelloLine, VelloLineBundle},
-        VelloBuilder,
-    },
+    vello_vector::line::{VelloLine, VelloLineBundle},
 };
 
 pub(crate) struct VelloLineMotionPlugin;
@@ -113,7 +110,6 @@ impl VelloLineMotion {
         _: &mut ResMut<EmptyRes>,
     ) {
         vello_line.line = kurbo::Line::lerp(begin, end, t);
-        vello_line.set_built(false);
     }
 
     /// Extend the line only using `p0`.
@@ -179,7 +175,6 @@ impl VelloLineMotion {
         _: &mut ResMut<EmptyRes>,
     ) {
         vello_line.line.p0 = kurbo::Point::lerp(*begin, *end, t as f64);
-        vello_line.set_built(false);
     }
 
     /// Extend the line only using `p1`.
@@ -245,7 +240,6 @@ impl VelloLineMotion {
         _: &mut ResMut<EmptyRes>,
     ) {
         vello_line.line.p1 = kurbo::Point::lerp(*begin, *end, t as f64);
-        vello_line.set_built(false);
     }
 
     fn get_p0_direction(&self) -> kurbo::Vec2 {
