@@ -5,7 +5,7 @@ use bevy_vello_renderer::{prelude::*, vello::kurbo};
 
 use crate::{fill_style::FillStyle, stroke_style::StrokeStyle, vello_vector::VelloVector};
 
-#[derive(Bundle, Clone, Default)]
+#[derive(Bundle, Default, Clone)]
 pub struct VelloCircleBundle {
     pub circle: VelloCircle,
     pub fill: FillStyle,
@@ -13,7 +13,7 @@ pub struct VelloCircleBundle {
     pub scene_bundle: VelloSceneBundle,
 }
 
-#[derive(VelloVector, Component, Clone, Default)]
+#[derive(VelloVector, Component, Default, Clone)]
 pub struct VelloCircle {
     #[shape]
     pub circle: kurbo::Circle,

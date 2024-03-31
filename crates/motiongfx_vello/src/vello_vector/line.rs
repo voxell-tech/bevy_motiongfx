@@ -5,7 +5,7 @@ use bevy_vello_renderer::{prelude::*, vello::kurbo};
 
 use crate::{stroke_style::StrokeStyle, vello_vector::VelloVector};
 
-#[derive(Bundle, Clone, Default)]
+#[derive(Bundle, Default, Clone)]
 pub struct VelloLineBundle {
     pub line: VelloLine,
     pub stroke: StrokeStyle,

@@ -22,7 +22,7 @@ impl From<Color> for PenikoColor {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct PenikoBrush(pub peniko::Brush);
 
 impl From<peniko::Brush> for PenikoBrush {
@@ -39,6 +39,7 @@ impl From<Color> for PenikoBrush {
     }
 }
 
+#[derive(Default, Clone)]
 pub struct KurboStroke(pub kurbo::Stroke);
 
 impl From<kurbo::Stroke> for KurboStroke {

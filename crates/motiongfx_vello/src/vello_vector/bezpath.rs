@@ -7,7 +7,7 @@ use bevy_vello_renderer::{prelude::*, vello::kurbo};
 use crate::{fill_style::FillStyle, stroke_style::StrokeStyle, vello_vector::VelloVector};
 
 /// Vello Bézier path bundle.
-#[derive(Bundle, Clone, Default)]
+#[derive(Bundle, Default, Clone)]
 pub struct VelloBezPathBundle {
     pub path: VelloBezPath,
     pub fill: FillStyle,
