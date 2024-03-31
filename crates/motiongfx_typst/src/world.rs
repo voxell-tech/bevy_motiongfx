@@ -4,7 +4,7 @@ use std::{
     sync::OnceLock,
 };
 
-use bevy_utils::hashbrown::HashMap;
+use bevy::utils::HashMap;
 use chrono::{DateTime, Datelike, Local};
 use comemo::Prehashed;
 use parking_lot::Mutex;

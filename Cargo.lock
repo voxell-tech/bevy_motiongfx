@@ -3099,14 +3099,7 @@ dependencies = [
 name = "motiongfx_bevy"
 version = "0.1.0"
 dependencies = [
- "bevy_app",
- "bevy_asset",
- "bevy_ecs",
- "bevy_math",
- "bevy_pbr",
- "bevy_render",
- "bevy_sprite",
- "bevy_transform",
+ "bevy",
  "motiongfx_core",
 ]
 
@@ -3114,12 +3107,7 @@ dependencies = [
 name = "motiongfx_core"
 version = "0.1.0"
 dependencies = [
- "bevy_app",
- "bevy_ecs",
- "bevy_math",
- "bevy_render",
- "bevy_time",
- "bevy_utils",
+ "bevy",
  "bevy_vello_renderer",
  "smallvec",
 ]
@@ -3136,10 +3124,7 @@ dependencies = [
 name = "motiongfx_typst"
 version = "0.1.0"
 dependencies = [
- "bevy_app",
- "bevy_asset",
- "bevy_ecs",
- "bevy_utils",
+ "bevy",
  "bevy_vello_renderer",
  "chrono",
  "codespan-reporting",
@@ -3171,17 +3156,7 @@ dependencies = [
 name = "motiongfx_vello"
 version = "0.1.0"
 dependencies = [
- "bevy_app",
- "bevy_asset",
- "bevy_ecs",
- "bevy_hierarchy",
- "bevy_log",
- "bevy_math",
- "bevy_pbr",
- "bevy_reflect",
- "bevy_render",
- "bevy_transform",
- "bevy_utils",
+ "bevy",
  "bevy_vello_renderer",
  "motiongfx_bevy",
  "motiongfx_core",

@@ -1,8 +1,6 @@
 use std::path::PathBuf;
 
-use bevy_app::prelude::*;
-use bevy_asset::prelude::*;
-use bevy_ecs::prelude::*;
+use bevy::prelude::*;
 use bevy_vello_renderer::{
     prelude::*,
     vello_svg::usvg::{self, TreeParsing},

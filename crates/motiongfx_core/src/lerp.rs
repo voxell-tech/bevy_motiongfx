@@ -1,5 +1,4 @@
-use bevy_render::prelude::*;
-use bevy_utils::prelude::*;
+use bevy::prelude::*;
 use bevy_vello_renderer::vello::{kurbo, peniko};
 
 use crate::cross_lerp::CrossLerp;
@@ -11,10 +10,10 @@ pub trait Lerp<Time> {
 impl Lerp<f32> for kurbo::RoundedRectRadii {
     fn lerp(&self, other: &Self, t: f32) -> Self {
         Self {
-            top_left: f64::lerp(&self.top_left, &other.top_left, t),
-            top_right: f64::lerp(&self.top_right, &other.top_right, t),
-            bottom_right: f64::lerp(&self.bottom_right, &other.bottom_right, t),
-            bottom_left: f64::lerp(&self.bottom_left, &other.bottom_left, t),
+            top_left: f64::lerp(self.top_left, other.top_left, t as f64),
+            top_right: f64::lerp(self.top_right, other.top_right, t as f64),
+            bottom_right: f64::lerp(self.bottom_right, other.bottom_right, t as f64),
+            bottom_left: f64::lerp(self.bottom_left, other.bottom_left, t as f64),
         }
     }
 }
@@ -22,10 +21,10 @@ impl Lerp<f32> for kurbo::RoundedRectRadii {
 impl Lerp<f32> for kurbo::Rect {
     fn lerp(&self, other: &Self, t: f32) -> Self {
         Self {
-            x0: f64::lerp(&self.x0, &other.x0, t),
-            y0: f64::lerp(&self.y0, &other.y0, t),
-            x1: f64::lerp(&self.x1, &other.x1, t),
-            y1: f64::lerp(&self.y1, &other.y1, t),
+            x0: f64::lerp(self.x0, other.x0, t as f64),
+            y0: f64::lerp(self.y0, other.y0, t as f64),
+            x1: f64::lerp(self.x1, other.x1, t as f64),
+            y1: f64::lerp(self.y1, other.y1, t as f64),
         }
     }
 }
@@ -34,7 +33,7 @@ impl Lerp<f32> for kurbo::Circle {
     fn lerp(&self, other: &Self, t: f32) -> Self {
         Self {
             center: kurbo::Point::lerp(self.center, other.center, t as f64),
-            radius: f64::lerp(&self.radius, &other.radius, t),
+            radius: f64::lerp(self.radius, other.radius, t as f64),
         }
     }
 }
@@ -53,10 +52,10 @@ impl Lerp<f32> for kurbo::Line {
 impl Lerp<f32> for kurbo::Stroke {
     fn lerp(&self, other: &Self, t: f32) -> Self {
         Self {
-            width: f64::lerp(&self.width, &other.width, t),
-            miter_limit: f64::lerp(&self.miter_limit, &other.miter_limit, t),
-            dash_offset: f64::lerp(&self.dash_offset, &other.dash_offset, t),
-            dash_pattern: kurbo::Dashes::lerp(&self.dash_pattern, &other.dash_pattern, t),
+            width: f64::lerp(self.width, other.width, t as f64),
+            miter_limit: f64::lerp(self.miter_limit, other.miter_limit, t as f64),
+            dash_offset: f64::lerp(self.dash_offset, other.dash_offset, t as f64),
+            // dash_pattern: kurbo::Dashes::lerp(&self.dash_pattern, &other.dash_pattern, t),
             ..default()
         }
     }
@@ -168,7 +167,7 @@ where
 impl Lerp<f32> for peniko::ColorStop {
     fn lerp(&self, other: &Self, t: f32) -> Self {
         Self {
-            offset: f32::lerp(&self.offset, &other.offset, t),
+            offset: f32::lerp(self.offset, other.offset, t),
             color: peniko::Color::lerp(&self.color, &other.color, t),
         }
     }
@@ -189,34 +188,34 @@ impl Lerp<f32> for Color {
     #[inline]
     fn lerp(&self, other: &Self, t: f32) -> Self {
         Self::rgba(
-            f32::lerp(&self.r(), &other.r(), t),
-            f32::lerp(&self.g(), &other.g(), t),
-            f32::lerp(&self.b(), &other.b(), t),
-            f32::lerp(&self.a(), &other.a(), t),
+            f32::lerp(self.r(), other.r(), t),
+            f32::lerp(self.g(), other.g(), t),
+            f32::lerp(self.b(), other.b(), t),
+            f32::lerp(self.a(), other.a(), t),
         )
     }
 }
 
-impl Lerp<f32> for f32 {
-    #[inline]
-    fn lerp(&self, other: &Self, t: f32) -> Self {
-        (other - self) * t + self
-    }
-}
+// impl Lerp<f32> for f32 {
+//     #[inline]
+//     fn lerp(&self, other: &Self, t: f32) -> Self {
+//         (other - self) * t + self
+//     }
+// }
 
-impl Lerp<f64> for f64 {
-    #[inline]
-    fn lerp(&self, other: &Self, t: f64) -> Self {
-        (other - self) * t + self
-    }
-}
+// impl Lerp<f64> for f64 {
+//     #[inline]
+//     fn lerp(&self, other: &Self, t: f64) -> Self {
+//         (other - self) * t + self
+//     }
+// }
 
-impl Lerp<f32> for f64 {
-    #[inline]
-    fn lerp(&self, other: &Self, t: f32) -> Self {
-        (other - self) * (t as f64) + self
-    }
-}
+// impl Lerp<f32> for f64 {
+//     #[inline]
+//     fn lerp(&self, other: &Self, t: f32) -> Self {
+//         (other - self) * (t as f64) + self
+//     }
+// }
 
 impl Lerp<f32> for u8 {
     #[inline]

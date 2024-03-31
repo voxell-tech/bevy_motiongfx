@@ -1,4 +1,4 @@
-use bevy_render::prelude::*;
+use bevy::prelude::*;
 use bevy_vello_renderer::vello::{kurbo, peniko};
 
 pub struct PenikoColor(pub peniko::Color);

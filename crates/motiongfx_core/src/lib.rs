@@ -1,5 +1,4 @@
-use bevy_app::prelude::*;
-use bevy_ecs::prelude::*;
+use bevy::prelude::*;
 
 pub mod action;
 pub mod color_palette;

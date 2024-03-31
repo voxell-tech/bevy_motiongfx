@@ -1,6 +1,4 @@
-use bevy_ecs::prelude::*;
-use bevy_render::prelude::*;
-use bevy_utils::prelude::*;
+use bevy::prelude::*;
 use bevy_vello_renderer::vello::{self, kurbo, peniko};
 use motiongfx_core::prelude::*;
 
@@ -149,7 +147,7 @@ impl FillStyleMotion {
         t: f32,
         _: &mut ResMut<EmptyRes>,
     ) {
-        let a = f32::lerp(begin, end, t);
+        let a = f32::lerp(*begin, *end, t);
         match &mut fill.brush {
             peniko::Brush::Solid(color) => color.a = (a * 255.0) as u8,
             peniko::Brush::Gradient(grad) => {

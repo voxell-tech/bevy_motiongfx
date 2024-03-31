@@ -1,6 +1,4 @@
-use bevy_ecs::prelude::*;
-use bevy_math::prelude::*;
-use bevy_transform::prelude::Transform;
+use bevy::prelude::*;
 use motiongfx_core::prelude::*;
 
 pub struct TransformMotion {

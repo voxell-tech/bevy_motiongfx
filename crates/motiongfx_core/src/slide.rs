@@ -1,6 +1,4 @@
-use bevy_ecs::prelude::*;
-use bevy_time::prelude::*;
-use bevy_utils::prelude::*;
+use bevy::prelude::*;
 
 use crate::sequence::{chain, Sequence, SequenceController};
 

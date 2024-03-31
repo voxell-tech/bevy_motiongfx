@@ -1,6 +1,6 @@
 pub use bevy_vello_renderer;
 
-use bevy_app::prelude::*;
+use bevy::prelude::*;
 use bevy_vello_renderer::{
     prelude::*,
     vello::{kurbo, peniko},

@@ -1,7 +1,4 @@
-use bevy_asset::prelude::*;
-use bevy_ecs::prelude::*;
-use bevy_pbr::prelude::*;
-use bevy_render::prelude::*;
+use bevy::prelude::*;
 use motiongfx_core::prelude::*;
 
 pub struct StandardMaterialMotion {

@@ -1,11 +1,11 @@
-use bevy_asset::Assets;
-use bevy_ecs::prelude::*;
-use bevy_math::{DVec2, DVec4};
-use bevy_render::color::Color;
-use bevy_utils::prelude::*;
+use bevy::{
+    math::{DVec2, DVec4},
+    prelude::*,
+};
 use bevy_vello_renderer::{
     prelude::*,
     vello::{kurbo, peniko},
+    vello::{self, kurbo, peniko},
 };
 
 use crate::{

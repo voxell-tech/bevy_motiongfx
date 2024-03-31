@@ -1,6 +1,4 @@
-use bevy_app::prelude::*;
-use bevy_ecs::prelude::*;
-use bevy_math::DVec2;
+use bevy::{math::DVec2, prelude::*};
 use bevy_vello_renderer::vello::kurbo;
 use motiongfx_bevy::prelude::*;
 use motiongfx_core::{prelude::*, sequence::sequence_update_system};
@@ -129,7 +127,7 @@ impl VelloRectMotion {
         t: f32,
         _: &mut ResMut<EmptyRes>,
     ) {
-        vello_rect.rect.x0 = f64::lerp(begin, end, t);
+        vello_rect.rect.x0 = f64::lerp(*begin, *end, t as f64);
     }
 
     // =====================
@@ -158,7 +156,7 @@ impl VelloRectMotion {
         t: f32,
         _: &mut ResMut<EmptyRes>,
     ) {
-        vello_rect.rect.x1 = f64::lerp(begin, end, t);
+        vello_rect.rect.x1 = f64::lerp(*begin, *end, t as f64);
     }
 
     // =====================
@@ -187,7 +185,7 @@ impl VelloRectMotion {
         t: f32,
         _: &mut ResMut<EmptyRes>,
     ) {
-        vello_rect.rect.y0 = f64::lerp(begin, end, t);
+        vello_rect.rect.y0 = f64::lerp(*begin, *end, t as f64);
     }
 
     // =====================
@@ -216,7 +214,7 @@ impl VelloRectMotion {
         t: f32,
         _: &mut ResMut<EmptyRes>,
     ) {
-        vello_rect.rect.y1 = f64::lerp(begin, end, t);
+        vello_rect.rect.y1 = f64::lerp(*begin, *end, t as f64);
     }
 
     // =====================

@@ -1,7 +1,6 @@
 //! [`VelloBezPathMotion`]: crate::vello_motion::bezpath_motion::VelloBezPathMotion
 
-use bevy_ecs::prelude::*;
-use bevy_utils::prelude::*;
+use bevy::prelude::*;
 use bevy_vello_renderer::{prelude::*, vello::kurbo};
 
 use crate::{fill_style::FillStyle, stroke_style::StrokeStyle, vello_vector::VelloVector};

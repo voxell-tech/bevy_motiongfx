@@ -1,7 +1,6 @@
 pub use motiongfx_vello_macros::VelloVector;
 
-use bevy_asset::prelude::*;
-use bevy_ecs::prelude::*;
+use bevy::prelude::*;
 use bevy_vello_renderer::{
     prelude::*,
     vello::{self, kurbo},
@@ -30,10 +29,6 @@ pub trait VelloVector {
     fn build_stroke(&self, stroke: &StrokeStyle, scene: &mut vello::Scene) {
         stroke.build(scene, &self.shape());
     }
-}
-
-pub trait _VelloVector {
-    fn build(&self) -> vello::Scene;
 }
 
 pub(crate) fn vector_builder_system<Vector: VelloVector + Component>(

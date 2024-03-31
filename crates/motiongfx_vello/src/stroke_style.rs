@@ -1,5 +1,4 @@
-use bevy_ecs::prelude::*;
-use bevy_utils::prelude::*;
+use bevy::prelude::*;
 use bevy_vello_renderer::vello::{self, kurbo, peniko};
 use motiongfx_core::prelude::*;
 

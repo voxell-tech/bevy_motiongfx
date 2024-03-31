@@ -1,11 +1,8 @@
-use bevy_ecs::prelude::*;
-use bevy_time::prelude::*;
-use bevy_utils::prelude::*;
+use bevy::prelude::*;
 
 use crate::{
     action::{Action, ActionMeta},
     ease::EaseFn,
-    lerp::*,
     EmptyRes,
 };
 
@@ -110,7 +107,7 @@ pub(crate) fn sequence_controller_interp(
     t: f32,
     _: &mut ResMut<EmptyRes>,
 ) {
-    player.target_time = f32::lerp(begin, end, t);
+    player.target_time = f32::lerp(*begin, *end, t);
 }
 
 // ANIMATION FLOW FUNCTIONS

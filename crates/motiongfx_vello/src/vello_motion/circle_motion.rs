@@ -1,5 +1,4 @@
-use bevy_app::prelude::*;
-use bevy_ecs::prelude::*;
+use bevy::prelude::*;
 use bevy_vello_renderer::vello::kurbo;
 use motiongfx_bevy::prelude::TransformMotion;
 use motiongfx_core::{prelude::*, sequence::sequence_update_system};
@@ -111,6 +110,6 @@ impl VelloCircleMotion {
         t: f32,
         _: &mut ResMut<EmptyRes>,
     ) {
-        vello_circle.circle.radius = f64::lerp(begin, end, t);
+        vello_circle.circle.radius = f64::lerp(*begin, *end, t as f64);
     }
 }

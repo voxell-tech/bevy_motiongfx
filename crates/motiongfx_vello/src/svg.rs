@@ -1,9 +1,4 @@
-use bevy_asset::prelude::*;
-use bevy_ecs::{prelude::*, system::EntityCommands};
-use bevy_hierarchy::prelude::*;
-use bevy_math::prelude::*;
-use bevy_render::prelude::*;
-use bevy_transform::prelude::*;
+use bevy::{ecs::system::EntityCommands, prelude::*};
 use bevy_vello_renderer::{
     prelude::*,
     vello::{kurbo, peniko},

@@ -1,5 +1,4 @@
-use bevy_app::prelude::*;
-use bevy_ecs::prelude::*;
+use bevy::prelude::*;
 use bevy_vello_renderer::vello::kurbo;
 use motiongfx_bevy::prelude::*;
 use motiongfx_core::{prelude::*, sequence::sequence_update_system};

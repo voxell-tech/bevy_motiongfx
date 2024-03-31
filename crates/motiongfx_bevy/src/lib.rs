@@ -1,10 +1,4 @@
-use bevy_app::prelude::*;
-use bevy_asset::prelude::*;
-use bevy_math::prelude::*;
-use bevy_pbr::prelude::*;
-use bevy_render::prelude::*;
-use bevy_sprite::prelude::*;
-use bevy_transform::prelude::*;
+use bevy::prelude::*;
 use motiongfx_core::{prelude::*, sequence::sequence_update_system};
 
 mod sprite_motion;

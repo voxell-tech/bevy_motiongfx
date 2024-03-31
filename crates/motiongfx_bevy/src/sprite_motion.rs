@@ -1,6 +1,4 @@
-use bevy_ecs::prelude::*;
-use bevy_render::prelude::*;
-use bevy_sprite::prelude::*;
+use bevy::prelude::*;
 use motiongfx_core::prelude::*;
 
 pub struct SpriteMotion {
@@ -46,6 +44,6 @@ impl SpriteMotion {
     }
 
     fn alpha_interp(sprite: &mut Sprite, begin: &f32, end: &f32, t: f32, _: &mut ResMut<EmptyRes>) {
-        sprite.color = sprite.color.with_a(f32::lerp(begin, end, t));
+        sprite.color = sprite.color.with_a(f32::lerp(*begin, *end, t));
     }
 }
