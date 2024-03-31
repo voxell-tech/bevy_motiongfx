@@ -4,14 +4,12 @@ use bevy::{
 };
 use bevy_vello_renderer::{
     prelude::*,
-    vello::{kurbo, peniko},
     vello::{self, kurbo, peniko},
 };
 
-use crate::{
-    convert::PenikoBrush, fill_style::FillStyle, stroke_style::StrokeStyle,
-    vello_motion::rect_motion::VelloRectBundleMotion, vello_vector::VelloVector,
-};
+use crate::{fill_style::FillStyle, stroke_style::StrokeStyle, vello_vector::VelloVector};
+
+use super::_VelloVector;
 
 #[derive(Bundle, Clone, Default)]
 pub struct VelloRectBundle {
@@ -98,29 +96,20 @@ pub enum RectAnchor {
 #[derive(Default)]
 pub struct _VelloRect {
     pub size: DVec2,
-    pub radii: DVec4,
     pub anchor: RectAnchor,
+    // Fill
     pub fill_brush: peniko::Brush,
+    pub fill_transform: Option<kurbo::Affine>,
+    // Stroke
     pub stroke: Option<kurbo::Stroke>,
-    pub stroke_brush: Option<peniko::Brush>,
+    pub stroke_brush: peniko::Brush,
+    pub stroke_transform: Option<kurbo::Affine>,
 }
 
 impl _VelloRect {
     pub fn with_size(mut self, width: f64, height: f64) -> Self {
         self.size.x = width;
         self.size.y = height;
-
-        self
-    }
-
-    pub fn with_radius(mut self, radius: f64) -> Self {
-        self.radii = DVec4::splat(radius);
-
-        self
-    }
-
-    pub fn with_radii(mut self, radius: DVec4) -> Self {
-        self.radii = radius;
 
         self
     }
@@ -142,19 +131,19 @@ impl _VelloRect {
         self
     }
 
-    pub fn with_stroke_color(mut self, color: Color) -> Self {
-        self.stroke_brush = Some(peniko::Brush::Solid(peniko::Color::rgba(
-            color.r() as f64,
-            color.g() as f64,
-            color.b() as f64,
-            color.a() as f64,
-        )));
+    pub fn with_stroke(mut self, stroke: kurbo::Stroke) -> Self {
+        self.stroke = Some(stroke);
 
         self
     }
 
-    pub fn with_stroke(mut self, stroke: kurbo::Stroke) -> Self {
-        self.stroke = Some(stroke);
+    pub fn with_stroke_color(mut self, color: Color) -> Self {
+        self.stroke_brush = peniko::Brush::Solid(peniko::Color::rgba(
+            color.r() as f64,
+            color.g() as f64,
+            color.b() as f64,
+            color.a() as f64,
+        ));
 
         self
     }
@@ -186,4 +175,32 @@ impl _VelloRect {
 
     //     VelloRectBundleMotion::new(rect_id, rect_bundle)
     // }
+}
+
+impl _VelloVector for _VelloRect {
+    fn build_scene(&self) -> vello::Scene {
+        let mut scene = vello::Scene::new();
+
+        let rect = kurbo::Rect::new(0.0, 0.0, self.size.x, self.size.y);
+
+        scene.fill(
+            peniko::Fill::NonZero,
+            kurbo::Affine::default(),
+            &self.fill_brush,
+            self.fill_transform,
+            &rect,
+        );
+
+        if let Some(stroke) = &self.stroke {
+            scene.stroke(
+                stroke,
+                kurbo::Affine::default(),
+                &self.stroke_brush,
+                self.stroke_transform,
+                &rect,
+            );
+        }
+
+        scene
+    }
 }
