@@ -1,20 +1,19 @@
 use bevy_asset::Assets;
 use bevy_ecs::prelude::*;
 use bevy_math::{DVec2, DVec4};
-use bevy_render::prelude::*;
+use bevy_render::color::Color;
 use bevy_utils::prelude::*;
-use bevy_vello_renderer::{prelude::*, vello::kurbo, vello::peniko};
-
-use crate::{
-    convert::{KurboStroke, PenikoBrush},
-    fill_style::FillStyle,
-    impl_builder_macros::impl_fill_brush_builder,
-    stroke_style::StrokeStyle,
-    vello_motion::rect_motion::VelloRectBundleMotion,
-    vello_vector::VelloVector,
+use bevy_vello_renderer::{
+    prelude::*,
+    vello::{kurbo, peniko},
 };
 
-#[derive(Bundle, Default, Clone)]
+use crate::{
+    convert::PenikoBrush, fill_style::FillStyle, stroke_style::StrokeStyle,
+    vello_motion::rect_motion::VelloRectBundleMotion, vello_vector::VelloVector,
+};
+
+#[derive(Bundle, Clone, Default)]
 pub struct VelloRectBundle {
     pub rect: VelloRect,
     pub fill: FillStyle,
@@ -22,87 +21,7 @@ pub struct VelloRectBundle {
     pub scene_bundle: VelloSceneBundle,
 }
 
-#[derive(Component, Clone)]
-pub struct _VelloRect {
-    pub size: DVec2,
-    pub radii: DVec4,
-    pub anchor: RectAnchor,
-    pub fill: peniko::Fill,
-    pub fill_brush: peniko::Brush,
-    pub stroke: kurbo::Stroke,
-    pub stroke_brush: peniko::Brush,
-}
-
-impl_fill_brush_builder!(_VelloRect, fill);
-
-impl _VelloRect {
-    pub fn size(mut self, width: f64, height: f64) -> Self {
-        self.size.x = width;
-        self.size.y = height;
-
-        self
-    }
-
-    pub fn radius(mut self, radius: f64) -> Self {
-        self.radii = DVec4::splat(radius);
-
-        self
-    }
-
-    pub fn radii(mut self, radius: DVec4) -> Self {
-        self.radii = radius;
-
-        self
-    }
-
-    pub fn anchor(mut self, anchor: RectAnchor) -> Self {
-        self.anchor = anchor;
-
-        self
-    }
-
-    pub fn fill_color(mut self, color: Color) -> Self {
-        self.fill_brush = fill_brush.into();
-
-        self
-    }
-
-    pub fn stroke(mut self, stroke_brush: impl Into<PenikoBrush>) -> Self {
-        self.stroke_brush = stroke_brush.into();
-
-        self
-    }
-
-    pub fn build(
-        self,
-        commands: &mut Commands,
-        scenes: &mut Assets<VelloScene>,
-    ) -> VelloRectBundleMotion {
-        let rect = match self.anchor {
-            RectAnchor::Center => VelloRect::anchor_center(self.size, self.radii),
-            RectAnchor::Left => VelloRect::anchor_left(self.size, self.radii),
-            RectAnchor::Right => VelloRect::anchor_right(self.size, self.radii),
-            RectAnchor::Bottom => VelloRect::anchor_bottom(self.size, self.radii),
-            RectAnchor::Top => VelloRect::anchor_top(self.size, self.radii),
-        };
-
-        let rect_bundle = VelloRectBundle {
-            rect,
-            fill: FillStyle::from_brush(self.fill_brush),
-            stroke: StrokeStyle::from_brush(self.stroke_brush),
-            scene_bundle: VelloSceneBundle {
-                scene: scenes.add(VelloScene::default()),
-                ..default()
-            },
-        };
-
-        let rect_id = commands.spawn(rect_bundle.clone()).id();
-
-        VelloRectBundleMotion::new(rect_id, rect_bundle)
-    }
-}
-
-#[derive(Component, Default, Clone)]
+#[derive(Component, Clone, Default)]
 pub struct VelloRect {
     /// Coordinates of the rectangle.
     pub rect: kurbo::Rect,
@@ -166,7 +85,7 @@ impl VelloVector for VelloRect {
     }
 }
 
-#[derive(Default, Clone, Copy)]
+#[derive(Default)]
 pub enum RectAnchor {
     #[default]
     Center,
@@ -177,77 +96,94 @@ pub enum RectAnchor {
 }
 
 #[derive(Default)]
-pub struct VelloRectBuilder {
+pub struct _VelloRect {
     pub size: DVec2,
     pub radii: DVec4,
     pub anchor: RectAnchor,
-    pub fill_brush: PenikoBrush,
-    pub stroke_brush: PenikoBrush,
+    pub fill_brush: peniko::Brush,
+    pub stroke: Option<kurbo::Stroke>,
+    pub stroke_brush: Option<peniko::Brush>,
 }
 
-impl VelloRectBuilder {
-    pub fn size(mut self, width: f64, height: f64) -> Self {
+impl _VelloRect {
+    pub fn with_size(mut self, width: f64, height: f64) -> Self {
         self.size.x = width;
         self.size.y = height;
 
         self
     }
 
-    pub fn radius(mut self, radius: f64) -> Self {
+    pub fn with_radius(mut self, radius: f64) -> Self {
         self.radii = DVec4::splat(radius);
 
         self
     }
 
-    pub fn radii(mut self, radius: DVec4) -> Self {
+    pub fn with_radii(mut self, radius: DVec4) -> Self {
         self.radii = radius;
 
         self
     }
 
-    pub fn anchor(mut self, anchor: RectAnchor) -> Self {
+    pub fn with_anchor(mut self, anchor: RectAnchor) -> Self {
         self.anchor = anchor;
 
         self
     }
 
-    pub fn fill(mut self, fill_brush: impl Into<PenikoBrush>) -> Self {
-        self.fill_brush = fill_brush.into();
+    pub fn with_fill_color(mut self, color: Color) -> Self {
+        self.fill_brush = peniko::Brush::Solid(peniko::Color::rgba(
+            color.r() as f64,
+            color.g() as f64,
+            color.b() as f64,
+            color.a() as f64,
+        ));
 
         self
     }
 
-    pub fn stroke(mut self, stroke_brush: impl Into<PenikoBrush>) -> Self {
-        self.stroke_brush = stroke_brush.into();
+    pub fn with_stroke_color(mut self, color: Color) -> Self {
+        self.stroke_brush = Some(peniko::Brush::Solid(peniko::Color::rgba(
+            color.r() as f64,
+            color.g() as f64,
+            color.b() as f64,
+            color.a() as f64,
+        )));
 
         self
     }
 
-    pub fn build(
-        self,
-        commands: &mut Commands,
-        scenes: &mut Assets<VelloScene>,
-    ) -> VelloRectBundleMotion {
-        let rect = match self.anchor {
-            RectAnchor::Center => VelloRect::anchor_center(self.size, self.radii),
-            RectAnchor::Left => VelloRect::anchor_left(self.size, self.radii),
-            RectAnchor::Right => VelloRect::anchor_right(self.size, self.radii),
-            RectAnchor::Bottom => VelloRect::anchor_bottom(self.size, self.radii),
-            RectAnchor::Top => VelloRect::anchor_top(self.size, self.radii),
-        };
+    pub fn with_stroke(mut self, stroke: kurbo::Stroke) -> Self {
+        self.stroke = Some(stroke);
 
-        let rect_bundle = VelloRectBundle {
-            rect,
-            fill: FillStyle::from_brush(self.fill_brush),
-            stroke: StrokeStyle::from_brush(self.stroke_brush),
-            scene_bundle: VelloSceneBundle {
-                scene: scenes.add(VelloScene::default()),
-                ..default()
-            },
-        };
-
-        let rect_id = commands.spawn(rect_bundle.clone()).id();
-
-        VelloRectBundleMotion::new(rect_id, rect_bundle)
+        self
     }
+
+    // pub fn build(
+    //     self,
+    //     commands: &mut Commands,
+    //     scenes: &mut Assets<VelloScene>,
+    // ) -> VelloRectBundleMotion {
+    //     let rect = match self.anchor {
+    //         RectAnchor::Center => VelloRect::anchor_center(self.size, self.radii),
+    //         RectAnchor::Left => VelloRect::anchor_left(self.size, self.radii),
+    //         RectAnchor::Right => VelloRect::anchor_right(self.size, self.radii),
+    //         RectAnchor::Bottom => VelloRect::anchor_bottom(self.size, self.radii),
+    //         RectAnchor::Top => VelloRect::anchor_top(self.size, self.radii),
+    //     };
+
+    //     let rect_bundle = VelloRectBundle {
+    //         rect,
+    //         fill: FillStyle::from_brush(self.fill_brush),
+    //         stroke: StrokeStyle::from_brush(self.stroke_brush),
+    //         scene_bundle: VelloSceneBundle {
+    //             scene: scenes.add(VelloScene::default()),
+    //             ..default()
+    //         },
+    //     };
+
+    //     let rect_id = commands.spawn(rect_bundle.clone()).id();
+
+    //     VelloRectBundleMotion::new(rect_id, rect_bundle)
+    // }
 }

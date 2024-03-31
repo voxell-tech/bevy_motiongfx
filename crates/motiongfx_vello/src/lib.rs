@@ -31,7 +31,7 @@ pub mod prelude {
             bezpath::{VelloBezPath, VelloBezPathBundle},
             circle::{VelloCircle, VelloCircleBundle},
             line::{VelloLine, VelloLineBundle},
-            rect::{create_rect, RectAnchor, VelloRect, VelloRectBuilder, VelloRectBundle},
+            rect::{RectAnchor, VelloRect, VelloRectBundle, _VelloRect},
         },
         MotionGfxVello,
     };

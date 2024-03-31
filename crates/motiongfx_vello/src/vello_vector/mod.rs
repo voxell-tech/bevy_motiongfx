@@ -14,6 +14,10 @@ pub mod circle;
 pub mod line;
 pub mod rect;
 
+pub trait _VelloVector {
+    fn build_scene(&self) -> vello::Scene;
+}
+
 pub trait VelloVector {
     fn shape(&self) -> impl kurbo::Shape;
 
