@@ -28,6 +28,10 @@ pub trait VelloVector {
     }
 }
 
+pub trait _VelloVector {
+    fn build(&self) -> vello::Scene;
+}
+
 pub(crate) fn vector_builder_system<Vector: VelloVector + Component>(
     mut q_fill_only_vectors: Query<
         (&Vector, &FillStyle, &Handle<VelloScene>),

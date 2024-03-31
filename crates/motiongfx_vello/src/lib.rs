@@ -14,6 +14,8 @@ pub mod svg;
 pub mod vello_motion;
 pub mod vello_vector;
 
+mod impl_builder_macros;
+
 pub mod prelude {
     pub use crate::{
         convert::*,
