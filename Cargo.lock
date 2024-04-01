@@ -3161,6 +3161,7 @@ dependencies = [
  "motiongfx_bevy",
  "motiongfx_core",
  "motiongfx_vello_macros",
+ "paste",
 ]
 
 [[package]]

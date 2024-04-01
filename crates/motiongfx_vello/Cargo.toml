@@ -10,6 +10,7 @@ motiongfx_vello_macros = { path = "macros" }
 
 bevy_vello_renderer = { git = "https://github.com/nixon-voxell/bevy_vello_renderer", rev = "49ef841842b3170f225614c7d3ffffba31522150" }
 bevy = "0.13"
+paste = "1.0"
 
 [lints]
 workspace = true
