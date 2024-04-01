@@ -89,3 +89,15 @@ pub(crate) fn vector_builder_system<Vector: VelloVector + Component>(
         }
     }
 }
+
+pub(crate) fn _vector_builder_system<Vector: _VelloVector + Component>(
+    q_vectors: Query<(&Vector, &Handle<VelloScene>), Changed<Vector>>,
+    mut scenes: ResMut<Assets<VelloScene>>,
+) {
+    for (vector, scene_handle) in q_vectors.iter() {
+        if let Some(vello_scene) = scenes.get_mut(scene_handle.id()) {
+            let scene = vector.build_scene();
+            vello_scene.scene = scene.into();
+        }
+    }
+}
