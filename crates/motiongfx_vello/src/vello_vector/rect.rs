@@ -7,7 +7,14 @@ use bevy_vello_renderer::{
     vello::{self, kurbo, peniko},
 };
 
-use crate::{fill_style::FillStyle, stroke_style::StrokeStyle, vello_vector::VelloVector};
+use crate::{
+    fill_style::FillStyle,
+    impl_builder_macros::{
+        impl_brush_builder, impl_optional_stroke_builder, impl_transform_builder,
+    },
+    stroke_style::StrokeStyle,
+    vello_vector::VelloVector,
+};
 
 use super::_VelloVector;
 
@@ -83,20 +90,11 @@ impl VelloVector for VelloRect {
     }
 }
 
-#[derive(Default)]
-pub enum RectAnchor {
-    #[default]
-    Center,
-    Left,
-    Right,
-    Bottom,
-    Top,
-}
-
-#[derive(Default)]
+#[derive(Component, Default, Clone)]
 pub struct _VelloRect {
     pub size: DVec2,
-    pub anchor: RectAnchor,
+    pub anchor: DVec2,
+    pub transform: Transform,
     // Fill
     pub fill_brush: peniko::Brush,
     pub fill_transform: Option<kurbo::Affine>,
@@ -114,74 +112,51 @@ impl _VelloRect {
         self
     }
 
-    pub fn with_anchor(mut self, anchor: RectAnchor) -> Self {
-        self.anchor = anchor;
+    pub fn with_anchor(mut self, x: f64, y: f64) -> Self {
+        self.anchor = DVec2::new(x, y);
 
         self
     }
 
-    pub fn with_fill_color(mut self, color: Color) -> Self {
-        self.fill_brush = peniko::Brush::Solid(peniko::Color::rgba(
-            color.r() as f64,
-            color.g() as f64,
-            color.b() as f64,
-            color.a() as f64,
-        ));
+    pub fn build(
+        self,
+        commands: &mut Commands,
+        scenes: &mut Assets<VelloScene>,
+    ) -> _VelloRectMotion {
+        let target_id = commands
+            .spawn((
+                self,
+                VelloSceneBundle {
+                    scene: scenes.add(VelloScene::default()),
+                    transform: self.transform,
+                    ..default()
+                },
+            ))
+            .id();
 
-        self
+        _VelloRectMotion {
+            target_id,
+            rect: self,
+            transform: self.transform,
+        }
     }
-
-    pub fn with_stroke(mut self, stroke: kurbo::Stroke) -> Self {
-        self.stroke = Some(stroke);
-
-        self
-    }
-
-    pub fn with_stroke_color(mut self, color: Color) -> Self {
-        self.stroke_brush = peniko::Brush::Solid(peniko::Color::rgba(
-            color.r() as f64,
-            color.g() as f64,
-            color.b() as f64,
-            color.a() as f64,
-        ));
-
-        self
-    }
-
-    // pub fn build(
-    //     self,
-    //     commands: &mut Commands,
-    //     scenes: &mut Assets<VelloScene>,
-    // ) -> VelloRectBundleMotion {
-    //     let rect = match self.anchor {
-    //         RectAnchor::Center => VelloRect::anchor_center(self.size, self.radii),
-    //         RectAnchor::Left => VelloRect::anchor_left(self.size, self.radii),
-    //         RectAnchor::Right => VelloRect::anchor_right(self.size, self.radii),
-    //         RectAnchor::Bottom => VelloRect::anchor_bottom(self.size, self.radii),
-    //         RectAnchor::Top => VelloRect::anchor_top(self.size, self.radii),
-    //     };
-
-    //     let rect_bundle = VelloRectBundle {
-    //         rect,
-    //         fill: FillStyle::from_brush(self.fill_brush),
-    //         stroke: StrokeStyle::from_brush(self.stroke_brush),
-    //         scene_bundle: VelloSceneBundle {
-    //             scene: scenes.add(VelloScene::default()),
-    //             ..default()
-    //         },
-    //     };
-
-    //     let rect_id = commands.spawn(rect_bundle.clone()).id();
-
-    //     VelloRectBundleMotion::new(rect_id, rect_bundle)
-    // }
 }
+
+impl_transform_builder!(_VelloRect, transform);
+impl_brush_builder!(fill, _VelloRect, fill_brush);
+impl_brush_builder!(stroke, _VelloRect, stroke_brush);
+impl_optional_stroke_builder!(_VelloRect, stroke);
 
 impl _VelloVector for _VelloRect {
     fn build_scene(&self) -> vello::Scene {
         let mut scene = vello::Scene::new();
 
-        let rect = kurbo::Rect::new(0.0, 0.0, self.size.x, self.size.y);
+        let rect = kurbo::Rect::new(
+            -self.size.x * self.anchor.x,
+            -self.size.y * self.anchor.y,
+            self.size.x * (1.0 - self.anchor.x),
+            self.size.y * (1.0 - self.anchor.y),
+        );
 
         scene.fill(
             peniko::Fill::NonZero,
@@ -202,5 +177,21 @@ impl _VelloVector for _VelloRect {
         }
 
         scene
+    }
+}
+
+pub struct _VelloRectMotion {
+    target_id: Entity,
+    rect: _VelloRect,
+    transform: Transform,
+}
+
+impl _VelloRectMotion {
+    pub fn new(target_id: Entity, rect: _VelloRect, transform: Transform) -> Self {
+        Self {
+            target_id,
+            rect,
+            transform,
+        }
     }
 }
