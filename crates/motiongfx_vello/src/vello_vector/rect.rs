@@ -105,15 +105,17 @@ pub struct _VelloRect {
 }
 
 impl _VelloRect {
+    pub fn new(width: f64, height: f64) -> Self {
+        Self::default().with_size(width, height)
+    }
+
     pub fn with_size(mut self, width: f64, height: f64) -> Self {
         self.size = DVec2::new(width, height);
-
         self
     }
 
     pub fn with_anchor(mut self, x: f64, y: f64) -> Self {
         self.anchor = DVec2::new(x, y);
-
         self
     }
 
@@ -153,7 +155,7 @@ impl _VelloVector for _VelloRect {
 
         scene.fill(
             peniko::Fill::NonZero,
-            kurbo::Affine::default(),
+            default(),
             &self.fill_brush,
             self.fill_transform,
             &rect,
@@ -162,7 +164,7 @@ impl _VelloVector for _VelloRect {
         if let Some(stroke) = &self.stroke {
             scene.stroke(
                 stroke,
-                kurbo::Affine::default(),
+                default(),
                 &self.stroke_brush,
                 self.stroke_transform,
                 &rect,
@@ -201,7 +203,6 @@ impl _VelloRectMotion {
         );
 
         self.rect.size = new_size;
-
         action
     }
 
@@ -218,7 +219,6 @@ impl _VelloRectMotion {
         );
 
         self.rect.size = new_size;
-
         action
     }
 
@@ -235,9 +235,8 @@ impl _VelloRectMotion {
         );
 
         self.rect.anchor = new_anchor;
-
         action
     }
 }
 
-impl_transform_motion!(_VelloRectMotion, transform);
+impl_transform_motion!(_VelloRectMotion, transform, target_id);

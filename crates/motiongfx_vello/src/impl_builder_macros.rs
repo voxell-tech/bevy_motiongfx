@@ -11,7 +11,6 @@ macro_rules! impl_brush_builder {
                             color.a() as f64,
                         ),
                     );
-
                     self
                 }
             }
@@ -27,7 +26,6 @@ macro_rules! impl_stroke_builder {
                 stroke: ::bevy_vello_renderer::vello::kurbo::Stroke,
             ) -> Self {
                 self.$stroke = stroke;
-
                 self
             }
         }
@@ -42,7 +40,6 @@ macro_rules! impl_optional_stroke_builder {
                 stroke: ::bevy_vello_renderer::vello::kurbo::Stroke,
             ) -> Self {
                 self.$stroke = Some(stroke);
-
                 self
             }
         }
@@ -50,7 +47,7 @@ macro_rules! impl_optional_stroke_builder {
 }
 
 macro_rules! impl_transform_motion {
-    ($struct_name:ident, $transform:ident) => {
+    ($struct_name:ident, $transform:ident, $target_id:ident) => {
         impl $struct_name {
             pub fn transform_to(
                 &mut self,
@@ -61,8 +58,8 @@ macro_rules! impl_transform_motion {
                 $crate::EmptyRes,
             > {
                 let action = $crate::Action::new(
-                    self.target_id,
-                    self.transform,
+                    self.$target_id,
+                    self.$transform,
                     transform,
                     |transform: &mut ::bevy::transform::components::Transform, begin, end, t, _| {
                         transform.translation =
@@ -73,8 +70,7 @@ macro_rules! impl_transform_motion {
                     },
                 );
 
-                self.transform = transform;
-
+                self.$transform = transform;
                 action
             }
 
@@ -87,8 +83,7 @@ macro_rules! impl_transform_motion {
                 $crate::EmptyRes,
             > {
                 let action = self.create_translation_action(translation);
-                self.transform.translation = translation;
-
+                self.$transform.translation = translation;
                 action
             }
 
@@ -100,11 +95,10 @@ macro_rules! impl_transform_motion {
                 ::bevy::math::Vec3,
                 $crate::EmptyRes,
             > {
-                let translation = self.transform.translation + translation;
+                let translation = self.$transform.translation + translation;
 
                 let action = self.create_translation_action(translation);
-                self.transform.translation = translation;
-
+                self.$transform.translation = translation;
                 action
             }
 
@@ -117,8 +111,7 @@ macro_rules! impl_transform_motion {
                 $crate::EmptyRes,
             > {
                 let action = self.create_rotation_action(rotation);
-                self.transform.rotation = rotation;
-
+                self.$transform.rotation = rotation;
                 action
             }
 
@@ -131,8 +124,7 @@ macro_rules! impl_transform_motion {
                 $crate::EmptyRes,
             > {
                 let action = self.create_scale_action(scale);
-                self.transform.scale = scale;
-
+                self.$transform.scale = scale;
                 action
             }
 
@@ -144,10 +136,9 @@ macro_rules! impl_transform_motion {
                 ::bevy::math::Vec3,
                 $crate::EmptyRes,
             > {
-                let scale = self.transform.scale + scale;
+                let scale = self.$transform.scale + scale;
                 let action = self.create_scale_action(scale);
-                self.transform.scale = scale;
-
+                self.$transform.scale = scale;
                 action
             }
 
@@ -160,8 +151,8 @@ macro_rules! impl_transform_motion {
                 $crate::EmptyRes,
             > {
                 $crate::Action::new(
-                    self.target_id,
-                    self.transform.translation,
+                    self.$target_id,
+                    self.$transform.translation,
                     end,
                     |transform: &mut ::bevy::transform::components::Transform, begin, end, t, _| {
                         transform.translation = ::bevy::math::Vec3::lerp(*begin, *end, t);
@@ -178,8 +169,8 @@ macro_rules! impl_transform_motion {
                 $crate::EmptyRes,
             > {
                 $crate::Action::new(
-                    self.target_id,
-                    self.transform.rotation,
+                    self.$target_id,
+                    self.$transform.rotation,
                     end,
                     |transform: &mut ::bevy::transform::components::Transform, begin, end, t, _| {
                         transform.rotation = ::bevy::math::Quat::slerp(*begin, *end, t);
@@ -196,8 +187,8 @@ macro_rules! impl_transform_motion {
                 $crate::EmptyRes,
             > {
                 $crate::Action::new(
-                    self.target_id,
-                    self.transform.scale,
+                    self.$target_id,
+                    self.$transform.scale,
                     end,
                     |transform: &mut ::bevy::transform::components::Transform, begin, end, t, _| {
                         transform.scale = ::bevy::math::Vec3::lerp(*begin, *end, t);
