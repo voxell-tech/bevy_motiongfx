@@ -73,6 +73,24 @@ impl _VelloCircle {
         self.radius = radius;
         self
     }
+
+    pub fn build(
+        self,
+        commands: &mut Commands,
+        scenes: &mut Assets<VelloScene>,
+    ) -> _VelloCircleMotion {
+        let target_id = commands
+            .spawn((
+                self.clone(),
+                VelloSceneBundle {
+                    scene: scenes.add(VelloScene::default()),
+                    ..default()
+                },
+            ))
+            .id();
+
+        _VelloCircleMotion::new(target_id, self, Transform::default())
+    }
 }
 
 impl_brush_builder!(fill, _VelloCircle, fill_brush);

@@ -79,6 +79,24 @@ impl _VelloLine {
         self.p1 = p1;
         self
     }
+
+    pub fn build(
+        self,
+        commands: &mut Commands,
+        scenes: &mut Assets<VelloScene>,
+    ) -> _VelloLineMotion {
+        let target_id = commands
+            .spawn((
+                self.clone(),
+                VelloSceneBundle {
+                    scene: scenes.add(VelloScene::default()),
+                    ..default()
+                },
+            ))
+            .id();
+
+        _VelloLineMotion::new(target_id, self, Transform::default())
+    }
 }
 
 impl_brush_builder!(stroke, _VelloLine, stroke_brush);
