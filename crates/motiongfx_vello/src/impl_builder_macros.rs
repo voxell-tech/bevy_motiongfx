@@ -49,16 +49,160 @@ macro_rules! impl_optional_stroke_builder {
     };
 }
 
-macro_rules! impl_transform_builder {
+macro_rules! impl_transform_motion {
     ($struct_name:ident, $transform:ident) => {
         impl $struct_name {
-            pub fn with_transform(
-                mut self,
+            pub fn transform_to(
+                &mut self,
                 transform: ::bevy::transform::components::Transform,
-            ) -> Self {
-                self.$transform = transform;
+            ) -> $crate::Action<
+                ::bevy::transform::components::Transform,
+                ::bevy::transform::components::Transform,
+                $crate::EmptyRes,
+            > {
+                let action = $crate::Action::new(
+                    self.target_id,
+                    self.transform,
+                    transform,
+                    |transform: &mut ::bevy::transform::components::Transform, begin, end, t, _| {
+                        transform.translation =
+                            ::bevy::math::Vec3::lerp(begin.translation, end.translation, t);
+                        transform.rotation =
+                            ::bevy::math::Quat::slerp(begin.rotation, end.rotation, t);
+                        transform.scale = ::bevy::math::Vec3::lerp(begin.scale, end.scale, t);
+                    },
+                );
 
-                self
+                self.transform = transform;
+
+                action
+            }
+
+            pub fn translate_to(
+                &mut self,
+                translation: ::bevy::math::Vec3,
+            ) -> $crate::Action<
+                ::bevy::transform::components::Transform,
+                ::bevy::math::Vec3,
+                $crate::EmptyRes,
+            > {
+                let action = self.create_translation_action(translation);
+                self.transform.translation = translation;
+
+                action
+            }
+
+            pub fn translate_add(
+                &mut self,
+                translation: ::bevy::math::Vec3,
+            ) -> $crate::Action<
+                ::bevy::transform::components::Transform,
+                ::bevy::math::Vec3,
+                $crate::EmptyRes,
+            > {
+                let translation = self.transform.translation + translation;
+
+                let action = self.create_translation_action(translation);
+                self.transform.translation = translation;
+
+                action
+            }
+
+            pub fn rotate_to(
+                &mut self,
+                rotation: ::bevy::math::Quat,
+            ) -> $crate::Action<
+                ::bevy::transform::components::Transform,
+                ::bevy::math::Quat,
+                $crate::EmptyRes,
+            > {
+                let action = self.create_rotation_action(rotation);
+                self.transform.rotation = rotation;
+
+                action
+            }
+
+            pub fn scale_to(
+                &mut self,
+                scale: ::bevy::math::Vec3,
+            ) -> $crate::Action<
+                ::bevy::transform::components::Transform,
+                ::bevy::math::Vec3,
+                $crate::EmptyRes,
+            > {
+                let action = self.create_scale_action(scale);
+                self.transform.scale = scale;
+
+                action
+            }
+
+            pub fn scale_add(
+                &mut self,
+                scale: ::bevy::math::Vec3,
+            ) -> $crate::Action<
+                ::bevy::transform::components::Transform,
+                ::bevy::math::Vec3,
+                $crate::EmptyRes,
+            > {
+                let scale = self.transform.scale + scale;
+                let action = self.create_scale_action(scale);
+                self.transform.scale = scale;
+
+                action
+            }
+
+            fn create_translation_action(
+                &self,
+                end: ::bevy::math::Vec3,
+            ) -> $crate::Action<
+                ::bevy::transform::components::Transform,
+                ::bevy::math::Vec3,
+                $crate::EmptyRes,
+            > {
+                $crate::Action::new(
+                    self.target_id,
+                    self.transform.translation,
+                    end,
+                    |transform: &mut ::bevy::transform::components::Transform, begin, end, t, _| {
+                        transform.translation = ::bevy::math::Vec3::lerp(*begin, *end, t);
+                    },
+                )
+            }
+
+            fn create_rotation_action(
+                &self,
+                end: ::bevy::math::Quat,
+            ) -> $crate::Action<
+                ::bevy::transform::components::Transform,
+                ::bevy::math::Quat,
+                $crate::EmptyRes,
+            > {
+                $crate::Action::new(
+                    self.target_id,
+                    self.transform.rotation,
+                    end,
+                    |transform: &mut ::bevy::transform::components::Transform, begin, end, t, _| {
+                        transform.rotation = ::bevy::math::Quat::slerp(*begin, *end, t);
+                    },
+                )
+            }
+
+            fn create_scale_action(
+                &self,
+                end: ::bevy::math::Vec3,
+            ) -> $crate::Action<
+                ::bevy::transform::components::Transform,
+                ::bevy::math::Vec3,
+                $crate::EmptyRes,
+            > {
+                $crate::Action::new(
+                    self.target_id,
+                    self.transform.scale,
+                    end,
+                    |transform: &mut ::bevy::transform::components::Transform, begin, end, t, _| {
+                        transform.scale = ::bevy::math::Vec3::lerp(*begin, *end, t);
+                    },
+                )
             }
         }
     };
@@ -67,4 +211,4 @@ macro_rules! impl_transform_builder {
 pub(crate) use impl_brush_builder;
 pub(crate) use impl_optional_stroke_builder;
 pub(crate) use impl_stroke_builder;
-pub(crate) use impl_transform_builder;
+pub(crate) use impl_transform_motion;

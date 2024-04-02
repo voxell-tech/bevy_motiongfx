@@ -99,6 +99,7 @@ pub trait ActionBuilder {
         action: Action<impl Component, impl Send + Sync + 'static, impl Resource>,
         duration: f32,
     ) -> Sequence;
+
     fn play_sequence(
         &mut self,
         target_id: Entity,
@@ -106,6 +107,7 @@ pub trait ActionBuilder {
         end: f32,
         playback_speed: f32,
     ) -> Sequence;
+
     fn sleep(&mut self, duration: f32) -> Sequence;
 }
 

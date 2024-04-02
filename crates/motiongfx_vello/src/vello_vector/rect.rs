@@ -6,11 +6,12 @@ use bevy_vello_renderer::{
     prelude::*,
     vello::{self, kurbo, peniko},
 };
+use motiongfx_core::{action::Action, EmptyRes};
 
 use crate::{
     fill_style::FillStyle,
     impl_builder_macros::{
-        impl_brush_builder, impl_optional_stroke_builder, impl_transform_builder,
+        impl_brush_builder, impl_optional_stroke_builder, impl_transform_motion,
     },
     stroke_style::StrokeStyle,
     vello_vector::VelloVector,
@@ -94,7 +95,6 @@ impl VelloVector for VelloRect {
 pub struct _VelloRect {
     pub size: DVec2,
     pub anchor: DVec2,
-    pub transform: Transform,
     // Fill
     pub fill_brush: peniko::Brush,
     pub fill_transform: Option<kurbo::Affine>,
@@ -106,8 +106,7 @@ pub struct _VelloRect {
 
 impl _VelloRect {
     pub fn with_size(mut self, width: f64, height: f64) -> Self {
-        self.size.x = width;
-        self.size.y = height;
+        self.size = DVec2::new(width, height);
 
         self
     }
@@ -125,24 +124,18 @@ impl _VelloRect {
     ) -> _VelloRectMotion {
         let target_id = commands
             .spawn((
-                self,
+                self.clone(),
                 VelloSceneBundle {
                     scene: scenes.add(VelloScene::default()),
-                    transform: self.transform,
                     ..default()
                 },
             ))
             .id();
 
-        _VelloRectMotion {
-            target_id,
-            rect: self,
-            transform: self.transform,
-        }
+        _VelloRectMotion::new(target_id, self, Transform::default())
     }
 }
 
-impl_transform_builder!(_VelloRect, transform);
 impl_brush_builder!(fill, _VelloRect, fill_brush);
 impl_brush_builder!(stroke, _VelloRect, stroke_brush);
 impl_optional_stroke_builder!(_VelloRect, stroke);
@@ -194,4 +187,57 @@ impl _VelloRectMotion {
             transform,
         }
     }
+
+    pub fn size_to(&mut self, width: f64, height: f64) -> Action<_VelloRect, DVec2, EmptyRes> {
+        let new_size = DVec2::new(width, height);
+
+        let action = Action::new(
+            self.target_id,
+            self.rect.size,
+            new_size,
+            |rect: &mut _VelloRect, begin, end, t, _| {
+                rect.size = DVec2::lerp(*begin, *end, t as f64);
+            },
+        );
+
+        self.rect.size = new_size;
+
+        action
+    }
+
+    pub fn size_add(&mut self, width: f64, height: f64) -> Action<_VelloRect, DVec2, EmptyRes> {
+        let new_size = self.rect.size + DVec2::new(width, height);
+
+        let action = Action::new(
+            self.target_id,
+            self.rect.size,
+            new_size,
+            |rect: &mut _VelloRect, begin, end, t, _| {
+                rect.size = DVec2::lerp(*begin, *end, t as f64);
+            },
+        );
+
+        self.rect.size = new_size;
+
+        action
+    }
+
+    pub fn anchor_to(&mut self, x: f64, y: f64) -> Action<_VelloRect, DVec2, EmptyRes> {
+        let new_anchor = DVec2::new(x, y);
+
+        let action = Action::new(
+            self.target_id,
+            self.rect.anchor,
+            new_anchor,
+            |rect: &mut _VelloRect, begin, end, t, _| {
+                rect.anchor = DVec2::lerp(*begin, *end, t as f64);
+            },
+        );
+
+        self.rect.anchor = new_anchor;
+
+        action
+    }
 }
+
+impl_transform_motion!(_VelloRectMotion, transform);
