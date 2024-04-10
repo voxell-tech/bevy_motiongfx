@@ -18,7 +18,6 @@ pub type InterpFn<CompType, InterpType, ResType> = fn(
 pub struct Action<CompType, InterpType, ResType>
 where
     CompType: Component,
-    InterpType: Send + Sync + 'static,
     ResType: Resource,
 {
     /// Target `Entity` for `Component` manipulation.
@@ -34,7 +33,6 @@ where
 impl<CompType, InterpType, ResType> Action<CompType, InterpType, ResType>
 where
     CompType: Component,
-    InterpType: Send + Sync + 'static,
     ResType: Resource,
 {
     pub fn new(
