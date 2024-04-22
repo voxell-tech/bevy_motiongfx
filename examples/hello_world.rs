@@ -35,7 +35,7 @@ fn hello_world(
 
     let mut cubes = Vec::with_capacity(CAPACITY);
     // Motion
-    let mut transform_motions = Vec::with_capacity(CAPACITY);
+    let mut transforms = Vec::with_capacity(CAPACITY);
 
     // Create cube objects (Entity)
     let material = StandardMaterial {
@@ -62,8 +62,7 @@ fn hello_world(
                 .insert(NotShadowCaster)
                 .id();
 
-            transform_motions.push(TransformMotion::new(cube, transform));
-
+            transforms.push(transform);
             cubes.push(cube);
         }
     }
@@ -75,22 +74,40 @@ fn hello_world(
         for h in 0..HEIGHT {
             let c = w * WIDTH + h;
 
-            cube_seqs.push(
-                all(&[
-                    commands.play(transform_motions[c].translate_add(Vec3::X), 1.0),
-                    commands.play(transform_motions[c].scale_to(Vec3::splat(0.9)), 1.0),
-                    commands.play(
-                        transform_motions[c].rotate_to(Quat::from_euler(
+            cube_seqs.push(all(&[
+                commands.play(
+                    act!(
+                        cubes[c],
+                        Transform = transforms[c] => translation.x,
+                        transforms[c].translation.x + 1.0
+                    )
+                    .with_ease(ease::circ::ease_in_out),
+                    1.0,
+                ),
+                commands.play(
+                    act!(
+                        cubes[c],
+                        Transform = transforms[c] => scale,
+                        Vec3::splat(0.9)
+                    )
+                    .with_ease(ease::circ::ease_in_out),
+                    1.0,
+                ),
+                commands.play(
+                    act!(
+                        cubes[c],
+                        Transform = transforms[c] => rotation,
+                        Quat::from_euler(
                             EulerRot::XYZ,
                             0.0,
                             f32::to_radians(90.0),
                             0.0,
-                        )),
-                        1.0,
-                    ),
-                ])
-                .with_ease(ease::circ::ease_in_out),
-            );
+                        )
+                    )
+                    .with_ease(ease::circ::ease_in_out),
+                    1.0,
+                ),
+            ]));
         }
     }
 

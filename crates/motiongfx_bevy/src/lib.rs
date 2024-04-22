@@ -1,14 +1,15 @@
 use bevy::prelude::*;
-use motiongfx_core::{prelude::*, sequence::sequence_update_system};
+use motiongfx_core::sequence::sequence_update_system;
 
-mod sprite_motion;
-mod standard_material_motion;
-mod transform_motion;
+// mod sprite_motion;
+// mod standard_material_motion;
+// mod transform_motion;
 
 pub mod prelude {
     pub use crate::{
-        sprite_motion::SpriteMotion, standard_material_motion::StandardMaterialMotion,
-        transform_motion::TransformMotion, MotionGfxBevy,
+        // sprite_motion::SpriteMotion, standard_material_motion::StandardMaterialMotion,
+        // transform_motion::TransformMotion,
+        MotionGfxBevy,
     };
 }
 
@@ -19,10 +20,10 @@ impl Plugin for MotionGfxBevy {
         app.add_systems(
             PostUpdate,
             ((
-                sequence_update_system::<Transform, Vec3, EmptyRes>,
-                sequence_update_system::<Transform, Quat, EmptyRes>,
-                sequence_update_system::<Handle<StandardMaterial>, Color, Assets<StandardMaterial>>,
-                sequence_update_system::<Sprite, Color, EmptyRes>,
+                sequence_update_system::<f32, Transform>,
+                sequence_update_system::<Vec3, Transform>,
+                sequence_update_system::<Quat, Transform>,
+                sequence_update_system::<Color, Sprite>,
             ),),
         );
     }

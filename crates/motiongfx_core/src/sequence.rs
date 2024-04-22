@@ -1,10 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{
-    action::{Action, ActionMeta},
-    ease::EaseFn,
-    EmptyRes,
-};
+use crate::action::{Action, ActionMeta};
 
 /// Bundle to encapsulate [`Sequence`] and [`SequenceController`].
 #[derive(Bundle, Default)]
@@ -62,15 +58,6 @@ impl Sequence {
         }
     }
 
-    /// Add easing to all the [`Action`]s within this [`Sequence`].
-    pub fn with_ease(mut self, ease_fn: EaseFn) -> Self {
-        for action_meta in &mut self.action_metas {
-            action_meta.ease_fn = ease_fn;
-        }
-
-        self
-    }
-
     pub(crate) fn set_slide_index(&mut self, slide_index: usize) {
         for action_meta in &mut self.action_metas {
             action_meta.slide_index = slide_index;
@@ -97,17 +84,6 @@ pub struct SequenceController {
 #[derive(Component, Default)]
 pub struct SequencePlayer {
     pub time_scale: f32,
-}
-
-/// Interpolation for [`SequenceController`].
-pub(crate) fn sequence_controller_interp(
-    player: &mut SequenceController,
-    begin: &f32,
-    end: &f32,
-    t: f32,
-    _: &mut ResMut<EmptyRes>,
-) {
-    player.target_time = f32::lerp(*begin, *end, t);
 }
 
 // ANIMATION FLOW FUNCTIONS
@@ -201,24 +177,15 @@ pub fn delay(delay: f32, sequence: &Sequence) -> Sequence {
 }
 
 /// System for playing the [`Action`]s that are inside the [`Sequence`].
-pub fn sequence_update_system<CompType, InterpType, ResType>(
-    mut q_components: Query<&mut CompType>,
-    q_actions: Query<&Action<CompType, InterpType, ResType>>,
+pub fn sequence_update_system<T: Clone, C: Component>(
+    mut q_components: Query<&mut C>,
+    q_actions: Query<&Action<T, C>>,
     q_sequences: Query<(&Sequence, &SequenceController)>,
-    mut resource: ResMut<ResType>,
 ) where
-    CompType: Component,
-    InterpType: Send + Sync + 'static,
-    ResType: Resource,
+    T: Send + Sync + 'static,
 {
     for (sequence, sequence_controller) in q_sequences.iter() {
-        play_sequence(
-            &mut q_components,
-            &q_actions,
-            sequence,
-            sequence_controller,
-            &mut resource,
-        );
+        play_sequence(&mut q_components, &q_actions, sequence, sequence_controller);
     }
 }
 
@@ -245,16 +212,13 @@ pub(crate) fn sequence_player(
     }
 }
 
-fn play_sequence<CompType, InterpType, ResType>(
-    q_components: &mut Query<&mut CompType>,
-    q_actions: &Query<&Action<CompType, InterpType, ResType>>,
+fn play_sequence<T: Clone, C: Component>(
+    q_components: &mut Query<&mut C>,
+    q_actions: &Query<&Action<T, C>>,
     sequence: &Sequence,
     sequence_controller: &SequenceController,
-    resource: &mut ResMut<ResType>,
 ) where
-    CompType: Component,
-    InterpType: Send + Sync + 'static,
-    ResType: Resource,
+    T: Send + Sync + 'static,
 {
     // Do not perform any actions if there are no changes to the timeline timings
     // or there are no actions at all.
@@ -335,16 +299,11 @@ fn play_sequence<CompType, InterpType, ResType>(
 
             unit_time = f32::clamp(unit_time, 0.0, 1.0);
             // Calculate unit time using ease function
-            unit_time = (action_meta.ease_fn)(unit_time);
+            unit_time = (action.ease_fn)(unit_time);
 
             // Mutate the component using interpolate function
-            (action.interp_fn)(
-                &mut component,
-                &action.begin,
-                &action.end,
-                unit_time,
-                resource,
-            );
+            let field = (action.get_field_fn)(&mut component);
+            *field = (action.interp_fn)(&action.start, &action.end, unit_time);
         }
     }
 }

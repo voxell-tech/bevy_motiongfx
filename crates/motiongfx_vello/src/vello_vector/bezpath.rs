@@ -1,66 +1,16 @@
-//! [`VelloBezPathMotion`]: crate::vello_motion::bezpath_motion::VelloBezPathMotion
-
 use bevy::prelude::*;
-use bevy_vello_renderer::{
-    prelude::*,
-    vello::{self, kurbo, peniko},
-};
-use motiongfx_core::{action::Action, EmptyRes};
+use bevy_vello_renderer::vello::kurbo;
 
-use crate::{
-    fill_style::FillStyle,
-    impl_builder_macros::{
-        impl_brush_builder, impl_optional_stroke_builder, impl_transform_motion,
-    },
-    stroke_style::StrokeStyle,
-    vello_vector::VelloVector,
-};
-
-use super::_VelloVector;
-
-/// Vello Bézier path bundle.
-#[derive(Bundle, Default, Clone)]
-pub struct VelloBezPathBundle {
-    pub path: VelloBezPath,
-    pub fill: FillStyle,
-    pub stroke: StrokeStyle,
-    pub scene_bundle: VelloSceneBundle,
-}
-
-/// Vello Bézier path component.
-#[derive(VelloVector, Component, Default, Clone)]
-pub struct VelloBezPath {
-    /// The Bézier path that [`VelloBezPathMotion`] reference to when performing motions.
-    pub origin_path: kurbo::BezPath,
-    #[shape]
-    pub path: kurbo::BezPath,
-}
-
-impl VelloBezPath {
-    pub fn new(path: kurbo::BezPath) -> Self {
-        Self {
-            origin_path: path.clone(),
-            path,
-            ..default()
-        }
-    }
-}
+use super::VelloVector;
 
 /// Vello Bézier path component.
 #[derive(Component, Default, Clone)]
-pub struct _VelloBezPath {
+pub struct VelloBezPath {
     pub path: kurbo::BezPath,
     pub trace: f32,
-    // Fill
-    pub fill_brush: peniko::Brush,
-    pub fill_transform: Option<kurbo::Affine>,
-    // Stroke
-    pub stroke: Option<kurbo::Stroke>,
-    pub stroke_brush: peniko::Brush,
-    pub stroke_transform: Option<kurbo::Affine>,
 }
 
-impl _VelloBezPath {
+impl VelloBezPath {
     pub fn new() -> Self {
         Self::default()
     }
@@ -76,14 +26,8 @@ impl _VelloBezPath {
     }
 }
 
-impl_brush_builder!(fill, _VelloBezPath, fill_brush);
-impl_brush_builder!(stroke, _VelloBezPath, stroke_brush);
-impl_optional_stroke_builder!(_VelloBezPath, stroke);
-
-impl _VelloVector for _VelloBezPath {
-    fn build_scene(&self) -> vello::Scene {
-        let mut scene = vello::Scene::new();
-
+impl VelloVector for VelloBezPath {
+    fn shape(&self) -> impl kurbo::Shape {
         let pathels = self.path.elements();
         // TODO(perf): Prevent from creating a new BezPath for each animation change.
         let mut path = kurbo::BezPath::new();
@@ -141,25 +85,7 @@ impl _VelloVector for _VelloBezPath {
             }
         }
 
-        scene.fill(
-            peniko::Fill::NonZero,
-            default(),
-            &self.fill_brush,
-            self.fill_transform,
-            &path,
-        );
-
-        if let Some(stroke) = &self.stroke {
-            scene.stroke(
-                stroke,
-                default(),
-                &self.stroke_brush,
-                self.stroke_transform,
-                &path,
-            );
-        }
-
-        scene
+        path
     }
 }
 
@@ -202,35 +128,3 @@ fn interp_pathel(p0: kurbo::Point, pathel: kurbo::PathEl, t: f32) -> kurbo::Path
         kurbo::PathEl::ClosePath => kurbo::PathEl::ClosePath,
     }
 }
-
-pub struct _VelloBezPathMotion {
-    target_id: Entity,
-    path: _VelloBezPath,
-    transform: Transform,
-}
-
-impl _VelloBezPathMotion {
-    pub fn new(target_id: Entity, path: _VelloBezPath, transform: Transform) -> Self {
-        Self {
-            target_id,
-            path,
-            transform,
-        }
-    }
-
-    pub fn trace_to(&mut self, trace: f32) -> Action<_VelloBezPath, f32, EmptyRes> {
-        let action = Action::new(
-            self.target_id,
-            self.path.trace,
-            trace,
-            |path: &mut _VelloBezPath, begin, end, t, _| {
-                path.trace = f32::lerp(*begin, *end, t);
-            },
-        );
-
-        self.path.trace = trace;
-        action
-    }
-}
-
-impl_transform_motion!(_VelloBezPathMotion, transform, target_id);

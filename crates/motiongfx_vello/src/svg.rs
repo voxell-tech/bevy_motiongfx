@@ -5,9 +5,7 @@ use bevy_vello_renderer::{
     vello_svg::usvg::{self, NodeExt},
 };
 
-use crate::{
-    fill_style::FillStyle, stroke_style::StrokeStyle, vello_vector::bezpath::VelloBezPath,
-};
+use crate::vello_vector::{bezpath::VelloBezPath, Brush, Fill, Stroke};
 
 /// Vello Bézier path group spawned from a Svg tree.
 pub struct SvgTreeBundle {
@@ -38,9 +36,9 @@ pub struct SvgPathBundle {
     /// Bézier path.
     pub path: kurbo::BezPath,
     /// [`FillStyle`] of the Svg.
-    pub fill: Option<FillStyle>,
+    pub fill: Option<Fill>,
     /// [`StrokeStyle`] of the Svg.
-    pub stroke: Option<StrokeStyle>,
+    pub stroke: Option<Stroke>,
 }
 
 impl SvgPathBundle {
@@ -153,7 +151,7 @@ fn populate_with_path(
         }
     }
 
-    entity_commands.insert(VelloBezPath::new(local_path.clone()));
+    entity_commands.insert(VelloBezPath::new().with_path(local_path.clone()));
     svg_path_bundle.path = local_path;
 
     // FIXME: let path.paint_order determine the fill/stroke order.
@@ -164,7 +162,8 @@ fn populate_with_path(
                 usvg::FillRule::NonZero => peniko::Fill::NonZero,
                 usvg::FillRule::EvenOdd => peniko::Fill::EvenOdd,
             };
-            let fill_style = FillStyle::new(fill_rule, brush, transform);
+            let fill_style = Fill::from_style(fill_rule)
+                .with_brush(Brush::from_brush(brush).with_transform(transform));
 
             entity_commands.insert(fill_style.clone());
             svg_path_bundle.fill = Some(fill_style);
@@ -194,7 +193,8 @@ fn populate_with_path(
                 );
             }
 
-            let stroke_style = StrokeStyle::new(conv_stroke, brush, transform);
+            let stroke_style = Stroke::from_style(conv_stroke)
+                .with_brush(Brush::from_brush(brush).with_transform(transform));
 
             entity_commands.insert(stroke_style.clone());
             svg_path_bundle.stroke = Some(stroke_style);

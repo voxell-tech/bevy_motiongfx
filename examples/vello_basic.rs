@@ -1,8 +1,6 @@
-use bevy::{
-    math::{DVec2, DVec4},
-    prelude::*,
-};
+use bevy::{math::DVec2, prelude::*};
 use bevy_motiongfx::prelude::*;
+use motiongfx_vello::bevy_vello_renderer::vello::kurbo;
 
 fn main() {
     App::new()
@@ -20,18 +18,6 @@ fn vello_basic(mut commands: Commands, mut scenes: ResMut<Assets<VelloScene>>) {
     let palette = ColorPalette::default();
 
     // Spawning entities
-    let rect_bundle = VelloRectBundle {
-        rect: VelloRect::anchor_center(DVec2::new(100.0, 100.0), DVec4::splat(10.0)),
-        fill: FillStyle::from_brush(*palette.get_or_default(&ColorKey::Blue)),
-        stroke: StrokeStyle::from_brush(*palette.get_or_default(&ColorKey::Blue) * 1.5)
-            .with_style(4.0),
-        scene_bundle: VelloSceneBundle {
-            scene: scenes.add(VelloScene::default()),
-            transform: Transform::from_xyz(-200.0, 0.0, 0.0),
-            ..default()
-        },
-    };
-
     let circ_bundle = VelloCircleBundle {
         circle: VelloCircle::from_radius(50.0),
         fill: FillStyle::from_brush(*palette.get_or_default(&ColorKey::Purple)),
@@ -54,12 +40,19 @@ fn vello_basic(mut commands: Commands, mut scenes: ResMut<Assets<VelloScene>>) {
         },
     };
 
-    let rect_id = commands.spawn(rect_bundle.clone()).id();
     let circ_id = commands.spawn(circ_bundle.clone()).id();
     let line_id = commands.spawn(line_bundle.clone()).id();
 
     // Motions
-    let mut rect_motion = VelloRectBundleMotion::new(rect_id, rect_bundle);
+    // TODO: Set transform
+    // transform: Transform::from_xyz(-200.0, 0.0, 0.0),
+    let mut rect_motion = VelloRect::new(100.0, 100.0)
+        .with_anchor(0.5, 0.5)
+        .with_fill_color(*palette.get_or_default(&ColorKey::Blue))
+        .with_stroke(kurbo::Stroke::new(4.0))
+        .with_stroke_color(*palette.get_or_default(&ColorKey::Blue) * 1.5)
+        .build(&mut commands, &mut scenes);
+
     let mut circ_motion = VelloCircleBundleMotion::new(circ_id, circ_bundle);
     let mut line_motion = VelloLineBundleMotion::new(line_id, line_bundle);
 
@@ -93,9 +86,9 @@ fn vello_basic(mut commands: Commands, mut scenes: ResMut<Assets<VelloScene>>) {
             // Rect animation
             chain(&[
                 all(&[
-                    commands.play(rect_motion.rect.inflate(DVec2::splat(50.0)), 1.0),
+                    commands.play(rect_motion.add_size(50.0, 50.0), 1.0),
                     commands.play(
-                        rect_motion.transform.rotate_to(Quat::from_euler(
+                        rect_motion.rotate_to(Quat::from_euler(
                             EulerRot::XYZ,
                             0.0,
                             0.0,
@@ -103,12 +96,12 @@ fn vello_basic(mut commands: Commands, mut scenes: ResMut<Assets<VelloScene>>) {
                         )),
                         1.0,
                     ),
-                    commands.play(rect_motion.stroke.style_to(20.0), 1.0),
+                    commands.play(rect_motion.to_stroke_width(20.0), 1.0),
                 ]),
                 all(&[
-                    commands.play(rect_motion.rect.inflate(-DVec2::splat(50.0)), 1.0),
+                    commands.play(rect_motion.add_size(-50.0, -50.0), 1.0),
                     commands.play(
-                        rect_motion.transform.rotate_to(Quat::from_euler(
+                        rect_motion.rotate_to(Quat::from_euler(
                             EulerRot::XYZ,
                             0.0,
                             0.0,
@@ -116,7 +109,7 @@ fn vello_basic(mut commands: Commands, mut scenes: ResMut<Assets<VelloScene>>) {
                         )),
                         1.0,
                     ),
-                    commands.play(rect_motion.stroke.style_to(4.0), 1.0),
+                    commands.play(rect_motion.to_stroke_width(4.0), 1.0),
                 ]),
             ]),
             // Circle animation
