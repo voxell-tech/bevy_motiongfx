@@ -2,7 +2,11 @@ pub use bevy_vello_renderer;
 
 use bevy::{math::DVec2, prelude::*};
 use bevy_vello_renderer::{prelude::*, vello::kurbo};
-use motiongfx_core::sequence::sequence_update_system;
+use motiongfx_core::sequence::update_sequence;
+use vello_vector::{
+    bezpath::VelloBezPath, build_vector, circle::VelloCircle, line::VelloLine, rect::VelloRect,
+    Brush, Fill, Stroke,
+};
 
 pub mod svg;
 pub mod vello_vector;
@@ -27,18 +31,18 @@ impl Plugin for MotionGfxVello {
             PostUpdate,
             (
                 // Vector builders
-                vello_vector::vector_builder_system::<vello_vector::rect::VelloRect>,
-                vello_vector::vector_builder_system::<vello_vector::circle::VelloCircle>,
-                vello_vector::vector_builder_system::<vello_vector::line::VelloLine>,
-                vello_vector::vector_builder_system::<vello_vector::bezpath::VelloBezPath>,
+                build_vector::<VelloRect>,
+                build_vector::<VelloCircle>,
+                build_vector::<VelloLine>,
+                build_vector::<VelloBezPath>,
                 // Sequences
-                sequence_update_system::<vello_vector::Brush, vello_vector::Fill>,
-                sequence_update_system::<vello_vector::Brush, vello_vector::Stroke>,
-                sequence_update_system::<kurbo::Stroke, vello_vector::Stroke>,
-                sequence_update_system::<f64, vello_vector::circle::VelloCircle>,
-                sequence_update_system::<DVec2, vello_vector::rect::VelloRect>,
-                sequence_update_system::<DVec2, vello_vector::line::VelloLine>,
-                sequence_update_system::<f32, vello_vector::bezpath::VelloBezPath>,
+                update_sequence::<Fill, Brush>,
+                update_sequence::<Stroke, Brush>,
+                update_sequence::<Stroke, kurbo::Stroke>,
+                update_sequence::<VelloCircle, f64>,
+                update_sequence::<VelloRect, DVec2>,
+                update_sequence::<VelloLine, DVec2>,
+                update_sequence::<VelloBezPath, f32>,
             ),
         );
     }

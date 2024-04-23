@@ -57,7 +57,7 @@ pub use act;
 
 /// Basic data structure to describe an animation action.
 #[derive(Component, Clone, Copy)]
-pub struct Action<T: Clone, C: Component> {
+pub struct Action<C: Component, T: Clone> {
     /// Target [`Entity`] for [`Component`] manipulation.
     pub(crate) target_id: Entity,
     /// Initial value of the action.
@@ -72,7 +72,7 @@ pub struct Action<T: Clone, C: Component> {
     pub(crate) ease_fn: EaseFn,
 }
 
-impl<T: Clone, C: Component> Action<T, C> {
+impl<C: Component, T: Clone> Action<C, T> {
     pub fn new(
         target_id: Entity,
         start: T,
@@ -96,7 +96,7 @@ impl<T: Clone, C: Component> Action<T, C> {
     }
 }
 
-impl<T: Clone, C: Component> Action<T, C>
+impl<C: Component, T: Clone> Action<C, T>
 where
     T: F32Lerp,
 {
@@ -156,7 +156,7 @@ impl ActionMeta {
 }
 
 pub trait ActionBuilder {
-    fn play<T: Clone, C: Component>(&mut self, action: Action<T, C>, duration: f32) -> Sequence
+    fn play<C: Component, T: Clone>(&mut self, action: Action<C, T>, duration: f32) -> Sequence
     where
         T: Send + Sync + 'static;
 
@@ -164,7 +164,7 @@ pub trait ActionBuilder {
 }
 
 impl ActionBuilder for Commands<'_, '_> {
-    fn play<T: Clone, C: Component>(&mut self, action: Action<T, C>, duration: f32) -> Sequence
+    fn play<C: Component, T: Clone>(&mut self, action: Action<C, T>, duration: f32) -> Sequence
     where
         T: Send + Sync + 'static,
     {

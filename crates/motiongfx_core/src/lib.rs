@@ -1,4 +1,7 @@
 use bevy::prelude::*;
+use prelude::update_sequence;
+use sequence::{sequence_controller, sequence_player};
+use slide::slide_controller;
 
 pub mod action;
 pub mod color_palette;
@@ -16,24 +19,35 @@ pub mod prelude {
         ease,
         f32lerp::*,
         sequence::{
-            all, any, chain, delay, flow, Sequence, SequenceBundle, SequenceController,
-            SequencePlayer, SequencePlayerBundle,
+            all, any, chain, delay, flow, update_sequence, Sequence, SequenceBundle,
+            SequenceController, SequencePlayer, SequencePlayerBundle,
         },
         slide::{create_slide, SlideBundle, SlideController, SlideCurrState, SlideTargetState},
-        MotionGfx,
+        MotionGfxPlugin, UpdateSequenceSet,
     };
 }
 
-pub struct MotionGfx;
+pub struct MotionGfxPlugin;
 
-impl Plugin for MotionGfx {
+impl Plugin for MotionGfxPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(PreUpdate, sequence::sequence_controller)
-            .add_systems(Update, (sequence::sequence_player, slide::slide_controller));
+        app.add_systems(
+            Update,
+            (sequence_player, slide_controller).before(UpdateSequenceSet),
+        )
+        .add_systems(
+            Update,
+            (
+                update_sequence::<Transform, f32>,
+                update_sequence::<Transform, Vec3>,
+                update_sequence::<Transform, Quat>,
+                update_sequence::<Sprite, Color>,
+            )
+                .in_set(UpdateSequenceSet),
+        )
+        .add_systems(Update, sequence_controller.after(UpdateSequenceSet));
     }
 }
 
-/// Calculate if 2 time range (in float) overlaps.
-pub(crate) fn time_range_overlap(a_begin: f32, a_end: f32, b_begin: f32, b_end: f32) -> bool {
-    a_begin <= b_end && b_begin <= a_end
-}
+#[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
+pub struct UpdateSequenceSet;

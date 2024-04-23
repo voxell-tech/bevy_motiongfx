@@ -757,7 +757,6 @@ name = "bevy_motiongfx"
 version = "0.1.0"
 dependencies = [
  "bevy",
- "motiongfx_bevy",
  "motiongfx_core",
  "motiongfx_typst",
  "motiongfx_vello",
@@ -3096,14 +3095,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "motiongfx_bevy"
-version = "0.1.0"
-dependencies = [
- "bevy",
- "motiongfx_core",
-]
-
-[[package]]
 name = "motiongfx_core"
 version = "0.1.0"
 dependencies = [
@@ -3158,7 +3149,6 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy_vello_renderer",
- "motiongfx_bevy",
  "motiongfx_core",
 ]
 

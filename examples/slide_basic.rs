@@ -14,7 +14,7 @@ fn main() {
         .add_plugins((DefaultPlugins, TemporalAntiAliasPlugin))
         .insert_resource(Msaa::Off)
         // Custom plugins
-        .add_plugins((MotionGfx, MotionGfxBevy))
+        .add_plugins((MotionGfxPlugin, MotionGfxBevy))
         .add_systems(Startup, (setup, slide_basic))
         .add_systems(Update, slide_movement)
         .run();

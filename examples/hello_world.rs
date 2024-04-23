@@ -14,7 +14,7 @@ fn main() {
         .add_plugins((DefaultPlugins, TemporalAntiAliasPlugin))
         .insert_resource(Msaa::Off)
         // Custom plugins
-        .add_plugins((MotionGfx, MotionGfxBevy))
+        .add_plugins((MotionGfxPlugin, MotionGfxBevy))
         .add_systems(Startup, (setup, hello_world))
         .add_systems(Update, timeline_movement)
         .run();
@@ -33,8 +33,7 @@ fn hello_world(
     // Color palette
     let palette = ColorPalette::default();
 
-    let mut cubes = Vec::with_capacity(CAPACITY);
-    // Motion
+    let mut cube_ids = Vec::with_capacity(CAPACITY);
     let mut transforms = Vec::with_capacity(CAPACITY);
 
     // Create cube objects (Entity)
@@ -52,7 +51,7 @@ fn hello_world(
             ))
             .with_scale(Vec3::ZERO);
 
-            let cube = commands
+            let cube_id = commands
                 .spawn(PbrBundle {
                     transform,
                     mesh: meshes.add(Cuboid::default()),
@@ -62,8 +61,8 @@ fn hello_world(
                 .insert(NotShadowCaster)
                 .id();
 
+            cube_ids.push(cube_id);
             transforms.push(transform);
-            cubes.push(cube);
         }
     }
 
@@ -77,16 +76,7 @@ fn hello_world(
             cube_seqs.push(all(&[
                 commands.play(
                     act!(
-                        cubes[c],
-                        Transform = transforms[c] => translation.x,
-                        transforms[c].translation.x + 1.0
-                    )
-                    .with_ease(ease::circ::ease_in_out),
-                    1.0,
-                ),
-                commands.play(
-                    act!(
-                        cubes[c],
+                        cube_ids[c],
                         Transform = transforms[c] => scale,
                         Vec3::splat(0.9)
                     )
@@ -95,7 +85,16 @@ fn hello_world(
                 ),
                 commands.play(
                     act!(
-                        cubes[c],
+                        cube_ids[c],
+                        Transform = transforms[c] => translation.x,
+                        transforms[c].translation.x + 1.0
+                    )
+                    .with_ease(ease::circ::ease_in_out),
+                    1.0,
+                ),
+                commands.play(
+                    act!(
+                        cube_ids[c],
                         Transform = transforms[c] => rotation,
                         Quat::from_euler(
                             EulerRot::XYZ,

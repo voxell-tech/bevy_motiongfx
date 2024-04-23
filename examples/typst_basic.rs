@@ -8,7 +8,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         // Custom plugins
         .add_plugins((
-            MotionGfx,
+            MotionGfxPlugin,
             MotionGfxBevy,
             MotionGfxVello,
             TypstCompilerPlugin::new(Vec::new()),

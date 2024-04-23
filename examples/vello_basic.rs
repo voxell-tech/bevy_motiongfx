@@ -7,7 +7,7 @@ fn main() {
         // Bevy plugins
         .add_plugins(DefaultPlugins)
         // Custom plugins
-        .add_plugins((MotionGfx, MotionGfxBevy, MotionGfxVello))
+        .add_plugins((MotionGfxPlugin, MotionGfxBevy, MotionGfxVello))
         .add_systems(Startup, (setup, vello_basic))
         .add_systems(Update, timeline_movement)
         .run();

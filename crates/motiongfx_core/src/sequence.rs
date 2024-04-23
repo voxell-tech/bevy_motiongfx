@@ -39,6 +39,7 @@ impl SequencePlayerBundle {
 #[derive(Component, Default, Clone)]
 pub struct Sequence {
     duration: f32,
+    // TODO(perf): Use SmallVec to prevent heap allocations for single action sequences.
     pub(crate) action_metas: Vec<ActionMeta>,
 }
 
@@ -177,9 +178,9 @@ pub fn delay(delay: f32, sequence: &Sequence) -> Sequence {
 }
 
 /// System for playing the [`Action`]s that are inside the [`Sequence`].
-pub fn sequence_update_system<T: Clone, C: Component>(
+pub fn update_sequence<C: Component, T: Clone>(
     mut q_components: Query<&mut C>,
-    q_actions: Query<&Action<T, C>>,
+    q_actions: Query<&Action<C, T>>,
     q_sequences: Query<(&Sequence, &SequenceController)>,
 ) where
     T: Send + Sync + 'static,
@@ -212,9 +213,9 @@ pub(crate) fn sequence_player(
     }
 }
 
-fn play_sequence<T: Clone, C: Component>(
+fn play_sequence<C: Component, T: Clone>(
     q_components: &mut Query<&mut C>,
-    q_actions: &Query<&Action<T, C>>,
+    q_actions: &Query<&Action<C, T>>,
     sequence: &Sequence,
     sequence_controller: &SequenceController,
 ) where
@@ -272,13 +273,14 @@ fn play_sequence<T: Clone, C: Component>(
 
         action_index = (action_index as isize + direction) as usize;
 
-        // Ignore if `ActionMeta` not in range
-        if !crate::time_range_overlap(
+        let is_time_overlap = time_range_overlap(
             action_meta.start_time,
             action_meta.end_time(),
             timeline_start,
             timeline_end,
-        ) {
+        );
+        // Ignore if `ActionMeta` not in range
+        if is_time_overlap == false {
             continue;
         }
 
@@ -306,4 +308,9 @@ fn play_sequence<T: Clone, C: Component>(
             *field = (action.interp_fn)(&action.start, &action.end, unit_time);
         }
     }
+}
+
+/// Calculate if 2 time range (in float) overlaps.
+fn time_range_overlap(a_begin: f32, a_end: f32, b_begin: f32, b_end: f32) -> bool {
+    a_begin <= b_end && b_begin <= a_end
 }

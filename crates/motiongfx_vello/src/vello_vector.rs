@@ -132,7 +132,8 @@ pub trait VelloVector {
     }
 }
 
-pub(crate) fn vector_builder_system<Vector: VelloVector + Component>(
+#[allow(clippy::type_complexity)]
+pub(crate) fn build_vector<Vector: VelloVector + Component>(
     mut q_fill_only_vectors: Query<
         (&Vector, &Fill, &Handle<VelloScene>),
         (Without<Stroke>, Or<(Changed<Vector>, Changed<Fill>)>),

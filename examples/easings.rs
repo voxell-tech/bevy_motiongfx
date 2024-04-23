@@ -13,7 +13,7 @@ fn main() {
         // Bevy plugins
         .add_plugins((DefaultPlugins, TemporalAntiAliasPlugin))
         // Custom plugins
-        .add_plugins((MotionGfx, MotionGfxBevy))
+        .add_plugins((MotionGfxPlugin, MotionGfxBevy))
         .add_systems(Startup, (setup, easings))
         .add_systems(Update, timeline_movement)
         .run();
