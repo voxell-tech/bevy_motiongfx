@@ -14,7 +14,7 @@ fn main() {
         .add_plugins((DefaultPlugins, TemporalAntiAliasPlugin))
         .insert_resource(Msaa::Off)
         // Custom plugins
-        .add_plugins((MotionGfxPlugin, MotionGfxBevy))
+        .add_plugins(MotionGfxPlugin)
         .add_systems(Startup, (setup, hello_world))
         .add_systems(Update, timeline_movement)
         .run();
