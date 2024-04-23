@@ -1,14 +1,9 @@
-name: Rust
-
-on:
-  push:
-    branches: [ "main" ]
+name: CI
+on: 
   pull_request:
-    branches: [ "main" ]
-
-env:
-  CARGO_TERM_COLOR: always
-
+  push:
+    branches:
+      - main
 jobs:
   setup:
     runs-on: ubuntu-latest
@@ -16,15 +11,15 @@ jobs:
       - name: Update Packages
         run: sudo apt-get update -yq
       - name: Install dependencies
-        run: sudo apt-get install -yq --no-install-recommends pkg-config libx11-dev libasound2-dev libudev-dev libxkbcommon-x11-0
+        run: sudo apt-get install -yq --no-install-recommends libudev-dev libasound2-dev pkg-config
 
   format:
     runs-on: ubuntu-latest
     needs: [setup]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@v2.7.0
       - run: rustup component add rustfmt
       - run: cargo fmt --all -- --check
 
@@ -32,27 +27,27 @@ jobs:
     runs-on: ubuntu-latest
     needs: [setup]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@v2.7.0
       - run: cargo check --workspace --all-features --all-targets
 
   check-no-defaults:
     runs-on: ubuntu-latest
     needs: [setup]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@v2.7.0
       - run: cargo check --workspace --no-default-features
 
   clippy:
     runs-on: ubuntu-latest
     needs: [setup]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@v2.7.0
       - run: rustup component add clippy
       - run: cargo clippy --workspace --all-features --all-targets -- -D warnings
 
@@ -60,9 +55,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [setup]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@v2.7.0
       - run: cargo doc --workspace --all-features --no-deps
         env:
           RUSTDOCFLAGS: -D warnings
@@ -71,9 +66,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [setup]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@v2.7.0
       - run: cargo test --workspace --all-features --all-targets
 
   # Note: cargo test --all-targets disables doc tests, so we have to add this to test docs
@@ -81,7 +76,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [setup]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@v2.7.0
       - run: cargo test --workspace --all-features --doc
+    
