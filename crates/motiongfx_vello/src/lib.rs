@@ -21,7 +21,7 @@ pub mod prelude {
             bezpath::VelloBezPath, circle::VelloCircle, line::VelloLine, rect::VelloRect, Brush,
             Fill, Stroke,
         },
-        MotionGfxVelloPlugin,
+        AddVelloHandleCommandExtension, MotionGfxVelloPlugin,
     };
 
     pub use bevy_vello_renderer::prelude::*;
