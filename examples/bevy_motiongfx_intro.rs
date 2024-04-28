@@ -10,43 +10,13 @@ fn main() {
         // Custom plugins
         .add_plugins((
             MotionGfxPlugin,
-            MotionGfxBevy,
-            MotionGfxVello,
+            MotionGfxVelloPlugin,
             TypstCompilerPlugin::new(Vec::new()),
         ))
         .add_systems(Startup, (setup, bevy_motiongfx_intro))
         .add_systems(Update, timeline_movement)
         .run();
 }
-
-/*
-How I want the animation to be created
-
-fn create_animation(
-    // Maybe a macro to generate the required system inputs???
-    mut commands: Commands,
-    mut scenes: SceneAsset,
-    mut typst_compiler: TypstCompuler
-) {
-    // Will spawn out a fully featured circle/rect entity with transform etc.
-    let circle = circle!(100.0);
-    let rect = rect!();
-
-    let motion0 = chain! {
-        translate(circle, Vec3::Y * 100.0),
-        all! {
-            enlarge_cricle!(circle, 10.0),
-            enlarge_rect!(rect, 3.0),
-        },
-    }
-
-    let motion1 = all! {
-        motion0,
-        alpha_circle(circle, 0.0),
-        alpha_rect(rect, 0.0),
-    }
-}
-*/
 
 pub struct WordTrace {
     pub transform: TransformMotion,

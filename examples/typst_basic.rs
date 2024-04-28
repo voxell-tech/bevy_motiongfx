@@ -9,8 +9,7 @@ fn main() {
         // Custom plugins
         .add_plugins((
             MotionGfxPlugin,
-            MotionGfxBevy,
-            MotionGfxVello,
+            MotionGfxVelloPlugin,
             TypstCompilerPlugin::new(Vec::new()),
         ))
         .add_systems(Startup, (setup, typst_basic))
