@@ -35,10 +35,10 @@ impl Plugin for MotionGfxVelloPlugin {
             PostUpdate,
             (
                 // Vector builders
-                build_vector::<VelloRect>,
-                build_vector::<VelloCircle>,
-                build_vector::<VelloLine>,
-                build_vector::<VelloBezPath>,
+                build_vector::<VelloRect>(),
+                build_vector::<VelloCircle>(),
+                build_vector::<VelloLine>(),
+                build_vector::<VelloBezPath>(),
                 // Sequences
                 update_sequence::<Fill, Brush>,
                 update_sequence::<Stroke, Brush>,
@@ -69,7 +69,7 @@ impl EntityCommand for AddVelloHandleCommand {
     fn apply(self, id: Entity, world: &mut World) {
         let mut vello_scenes = world
             .get_resource_mut::<Assets<VelloScene>>()
-            .expect("VelloScene assets resource not initialized. MotionGfxVelloPlugin is needed.");
+            .expect("Assets<VelloScene> resource not initialized. MotionGfxVelloPlugin is needed.");
 
         let vello_handle = vello_scenes.add(VelloScene::default());
 

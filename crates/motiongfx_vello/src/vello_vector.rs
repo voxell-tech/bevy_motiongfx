@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{ecs::schedule::SystemConfigs, prelude::*};
 use bevy_vello_renderer::{
     prelude::*,
     vello::{self, kurbo, peniko},
@@ -133,55 +133,60 @@ pub trait VelloVector {
 }
 
 #[allow(clippy::type_complexity)]
-pub(crate) fn build_vector<Vector: VelloVector + Component>(
-    mut q_fill_only_vectors: Query<
-        (&Vector, &Fill, &Handle<VelloScene>),
-        (Without<Stroke>, Or<(Changed<Vector>, Changed<Fill>)>),
-    >,
-    mut q_stroke_only_vectors: Query<
-        (&Vector, &Stroke, &Handle<VelloScene>),
-        (Without<Fill>, Or<(Changed<Vector>, Changed<Stroke>)>),
-    >,
-    mut q_fill_and_stroke_vectors: Query<
-        (&Vector, &Fill, &Stroke, &Handle<VelloScene>),
-        Or<(Changed<Vector>, Changed<Fill>, Changed<Stroke>)>,
-    >,
-    mut scenes: ResMut<Assets<VelloScene>>,
-) {
-    for (vector, fill, scene_handle) in q_fill_only_vectors.iter_mut() {
-        if let Some(vello_scene) = scenes.get_mut(scene_handle.id()) {
-            let mut scene = vello::Scene::new();
+pub(crate) fn build_vector<Vector: VelloVector + Component>() -> SystemConfigs {
+    (
+        |mut q_fill_only_vectors: Query<
+            (&Vector, &Fill, &Handle<VelloScene>),
+            (Without<Stroke>, Or<(Changed<Vector>, Changed<Fill>)>),
+        >,
+         mut scenes: ResMut<Assets<VelloScene>>| {
+            for (vector, fill, scene_handle) in q_fill_only_vectors.iter_mut() {
+                if let Some(vello_scene) = scenes.get_mut(scene_handle.id()) {
+                    let mut scene = vello::Scene::new();
 
-            // Build the vector to the VelloScene
-            vector.build_fill(fill, &mut scene);
+                    // Build the vector to the VelloScene
+                    vector.build_fill(fill, &mut scene);
 
-            // Replace with new scene
-            vello_scene.scene = scene.into();
-        }
-    }
+                    // Replace with new scene
+                    vello_scene.scene = scene.into();
+                }
+            }
+        },
+        |mut q_stroke_only_vectors: Query<
+            (&Vector, &Stroke, &Handle<VelloScene>),
+            (Without<Fill>, Or<(Changed<Vector>, Changed<Stroke>)>),
+        >,
+         mut scenes: ResMut<Assets<VelloScene>>| {
+            for (vector, stroke, scene_handle) in q_stroke_only_vectors.iter_mut() {
+                if let Some(vello_scene) = scenes.get_mut(scene_handle.id()) {
+                    let mut scene = vello::Scene::new();
 
-    for (vector, stroke, scene_handle) in q_stroke_only_vectors.iter_mut() {
-        if let Some(vello_scene) = scenes.get_mut(scene_handle.id()) {
-            let mut scene = vello::Scene::new();
+                    // Build the vector to the VelloScene
+                    vector.build_stroke(stroke, &mut scene);
 
-            // Build the vector to the VelloScene
-            vector.build_stroke(stroke, &mut scene);
+                    // Replace with new scene
+                    vello_scene.scene = scene.into();
+                }
+            }
+        },
+        |mut q_fill_and_stroke_vectors: Query<
+            (&Vector, &Fill, &Stroke, &Handle<VelloScene>),
+            Or<(Changed<Vector>, Changed<Fill>, Changed<Stroke>)>,
+        >,
+         mut scenes: ResMut<Assets<VelloScene>>| {
+            for (vector, fill, stroke, scene_handle) in q_fill_and_stroke_vectors.iter_mut() {
+                if let Some(vello_scene) = scenes.get_mut(scene_handle.id()) {
+                    let mut scene = vello::Scene::new();
 
-            // Replace with new scene
-            vello_scene.scene = scene.into();
-        }
-    }
+                    // Build the vector to the VelloScene
+                    vector.build_fill(fill, &mut scene);
+                    vector.build_stroke(stroke, &mut scene);
 
-    for (vector, fill, stroke, scene_handle) in q_fill_and_stroke_vectors.iter_mut() {
-        if let Some(vello_scene) = scenes.get_mut(scene_handle.id()) {
-            let mut scene = vello::Scene::new();
-
-            // Build the vector to the VelloScene
-            vector.build_fill(fill, &mut scene);
-            vector.build_stroke(stroke, &mut scene);
-
-            // Replace with new scene
-            vello_scene.scene = scene.into();
-        }
-    }
+                    // Replace with new scene
+                    vello_scene.scene = scene.into();
+                }
+            }
+        },
+    )
+        .into_configs()
 }
