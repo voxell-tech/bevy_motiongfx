@@ -75,14 +75,14 @@ impl EntityCommand for AddVelloHandleCommand {
 
         world.entity_mut(id).insert(vello_handle);
 
-        // Transform and Visibility is needed for Vello graphics to be visible to the camera
-        // We add them only if they are missing
-        if world.entity(id).contains::<Transform>() == false {
-            world.entity_mut(id).insert(TransformBundle::default());
-        }
+        // SpatialBundle is needed for Vello graphics to be visible to the camera
+        let transform = world.entity(id).get::<Transform>().copied();
+        let visibility = world.entity(id).get::<Visibility>().copied();
 
-        if world.entity(id).contains::<Visibility>() == false {
-            world.entity_mut(id).insert(VisibilityBundle::default());
-        }
+        world.entity_mut(id).insert(SpatialBundle {
+            transform: transform.unwrap_or_default(),
+            visibility: visibility.unwrap_or_default(),
+            ..default()
+        });
     }
 }
