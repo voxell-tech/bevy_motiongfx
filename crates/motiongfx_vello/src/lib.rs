@@ -6,7 +6,7 @@ use bevy::{
     prelude::*,
 };
 use bevy_vello_renderer::{prelude::*, vello::kurbo};
-use motiongfx_core::sequence::update_sequence;
+use motiongfx_core::{sequence::update_sequence, UpdateSequenceSet};
 use vello_vector::{
     bezpath::VelloBezPath, build_vector, circle::VelloCircle, line::VelloLine, rect::VelloRect,
     Brush, Fill, Stroke,
@@ -32,7 +32,7 @@ pub struct MotionGfxVelloPlugin;
 impl Plugin for MotionGfxVelloPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(VelloRenderPlugin).add_systems(
-            PostUpdate,
+            Update,
             (
                 // Vector builders
                 build_vector::<VelloRect>(),
@@ -43,11 +43,19 @@ impl Plugin for MotionGfxVelloPlugin {
                 update_sequence::<Fill, Brush>,
                 update_sequence::<Stroke, Brush>,
                 update_sequence::<Stroke, kurbo::Stroke>,
+                // VelloCircle
                 update_sequence::<VelloCircle, f64>,
+                // VelloRect
                 update_sequence::<VelloRect, DVec2>,
+                update_sequence::<VelloRect, f64>,
+                // VelloLine
+                update_sequence::<VelloLine, VelloLine>,
                 update_sequence::<VelloLine, DVec2>,
+                update_sequence::<VelloLine, f64>,
+                // VelloBezPath
                 update_sequence::<VelloBezPath, f32>,
-            ),
+            )
+                .in_set(UpdateSequenceSet),
         );
     }
 }

@@ -13,48 +13,40 @@ fn main() {
         .run();
 }
 
-fn vello_basic(mut commands: Commands, mut scenes: ResMut<Assets<VelloScene>>) {
+fn vello_basic(mut commands: Commands) {
     // Color palette
     let palette = ColorPalette::default();
 
     // Spawning entities
-    let circ_bundle = VelloCircleBundle {
-        circle: VelloCircle::from_radius(50.0),
-        fill: FillStyle::from_brush(*palette.get_or_default(&ColorKey::Purple)),
-        stroke: StrokeStyle::from_brush(*palette.get_or_default(&ColorKey::Purple) * 1.5)
-            .with_style(4.0),
-        scene_bundle: VelloSceneBundle {
-            scene: scenes.add(VelloScene::default()),
-            transform: Transform::from_xyz(200.0, 0.0, 0.0),
-            ..default()
-        },
-    };
+    let mut line = VelloLine::new(DVec2::new(-300.0, 0.0), DVec2::new(300.0, 0.0));
+    let mut line_stroke =
+        Stroke::default().with_brush(Brush::from_color(*palette.get(ColorKey::Base8)));
+    let mut line_transform = Transform::from_xyz(0.0, -100.0, 0.0);
 
-    let line_bundle = VelloLineBundle {
-        line: VelloLine::from_points(DVec2::new(-300.0, 0.0), DVec2::new(300.0, 0.0)),
-        stroke: StrokeStyle::from_brush(*palette.get_or_default(&ColorKey::Base8)),
-        scene_bundle: VelloSceneBundle {
-            scene: scenes.add(VelloScene::default()),
-            transform: Transform::from_xyz(0.0, -100.0, 0.0),
-            ..default()
-        },
-    };
+    let line_id = commands
+        .spawn((line, line_stroke.clone(), line_transform))
+        .add_vello_handle()
+        .id();
 
-    let circ_id = commands.spawn(circ_bundle.clone()).id();
-    let line_id = commands.spawn(line_bundle.clone()).id();
+    let mut rect = VelloRect::new(100.0, 100.0);
+    let rect_fill = Fill::new().with_color(*palette.get(ColorKey::Blue));
+    let mut rect_stroke = Stroke::new(4.0).with_color(*palette.get(ColorKey::Blue) * 1.5);
+    let mut rect_transform = Transform::from_xyz(-200.0, 0.0, 0.0);
 
-    // Motions
-    // TODO: Set transform
-    // transform: Transform::from_xyz(-200.0, 0.0, 0.0),
-    let mut rect_motion = VelloRect::new(100.0, 100.0)
-        .with_anchor(0.5, 0.5)
-        .with_fill_color(*palette.get_or_default(&ColorKey::Blue))
-        .with_stroke(kurbo::Stroke::new(4.0))
-        .with_stroke_color(*palette.get_or_default(&ColorKey::Blue) * 1.5)
-        .build(&mut commands, &mut scenes);
+    let rect_id = commands
+        .spawn((rect, rect_fill, rect_stroke.clone(), rect_transform))
+        .add_vello_handle()
+        .id();
 
-    let mut circ_motion = VelloCircleBundleMotion::new(circ_id, circ_bundle);
-    let mut line_motion = VelloLineBundleMotion::new(line_id, line_bundle);
+    let mut circle = VelloCircle::new(50.0);
+    let circle_fill = Fill::new().with_color(*palette.get(ColorKey::Purple));
+    let mut circle_stroke = Stroke::new(4.0).with_color(*palette.get(ColorKey::Purple) * 1.5);
+    let circle_transform = Transform::from_xyz(200.0, 0.0, 0.0);
+
+    let circle_id = commands
+        .spawn((circle, circle_fill, circle_stroke.clone(), circle_transform))
+        .add_vello_handle()
+        .id();
 
     // Sequence
     let sequence = flow(
@@ -64,68 +56,140 @@ fn vello_basic(mut commands: Commands, mut scenes: ResMut<Assets<VelloScene>>) {
             chain(&[
                 all(&[
                     commands.play(
-                        line_motion
-                            .transform
-                            .translate_add(Vec3::new(0.0, -100.0, 0.0)),
+                        act!(
+                            line_id,
+                            Transform = line_transform,
+                            translation.y,
+                            line_transform.translation.y - 100.0
+                        ),
                         1.5,
                     ),
-                    commands.play(line_motion.line.extend(100.0), 1.0),
-                    commands.play(line_motion.stroke.style_to(10.0), 1.0),
+                    commands.play(act!(line_id, VelloLine = line, line.extend(100.0)), 1.0),
+                    commands.play(
+                        act!(
+                            line_id,
+                            Stroke = line_stroke,
+                            style,
+                            kurbo::Stroke::new(10.0)
+                        ),
+                        1.0,
+                    ),
                 ]),
                 all(&[
                     commands.play(
-                        line_motion
-                            .transform
-                            .translate_add(Vec3::new(0.0, 100.0, 0.0)),
+                        act!(
+                            line_id,
+                            Transform = line_transform,
+                            translation.y,
+                            line_transform.translation.y + 100.0
+                        ),
                         1.5,
                     ),
-                    commands.play(line_motion.line.extend(-100.0), 1.0),
-                    commands.play(line_motion.stroke.style_to(1.0), 1.0),
+                    commands.play(
+                        act!(line_id, VelloLine = line, line.clone().extend(-100.0)),
+                        1.0,
+                    ),
+                    commands.play(
+                        act!(
+                            line_id,
+                            Stroke = line_stroke,
+                            style,
+                            kurbo::Stroke::new(1.0)
+                        ),
+                        1.0,
+                    ),
                 ]),
             ]),
             // Rect animation
             chain(&[
                 all(&[
-                    commands.play(rect_motion.add_size(50.0, 50.0), 1.0),
+                    commands.play(act!(rect_id, VelloRect = rect, size, rect.size + 50.0), 1.0),
                     commands.play(
-                        rect_motion.rotate_to(Quat::from_euler(
-                            EulerRot::XYZ,
-                            0.0,
-                            0.0,
-                            std::f32::consts::PI,
-                        )),
+                        act!(
+                            rect_id,
+                            Transform = rect_transform,
+                            rotation,
+                            Quat::from_euler(EulerRot::XYZ, 0.0, 0.0, std::f32::consts::PI)
+                        ),
                         1.0,
                     ),
-                    commands.play(rect_motion.to_stroke_width(20.0), 1.0),
+                    commands.play(
+                        act!(
+                            rect_id,
+                            Stroke = rect_stroke,
+                            style,
+                            kurbo::Stroke::new(20.0)
+                        ),
+                        1.0,
+                    ),
                 ]),
                 all(&[
-                    commands.play(rect_motion.add_size(-50.0, -50.0), 1.0),
+                    commands.play(act!(rect_id, VelloRect = rect, size, rect.size - 50.0), 1.0),
                     commands.play(
-                        rect_motion.rotate_to(Quat::from_euler(
-                            EulerRot::XYZ,
-                            0.0,
-                            0.0,
-                            std::f32::consts::TAU,
-                        )),
+                        act!(
+                            rect_id,
+                            Transform = rect_transform,
+                            rotation,
+                            Quat::from_euler(EulerRot::XYZ, 0.0, 0.0, std::f32::consts::TAU)
+                        ),
                         1.0,
                     ),
-                    commands.play(rect_motion.to_stroke_width(4.0), 1.0),
+                    commands.play(
+                        act!(
+                            rect_id,
+                            Stroke = rect_stroke,
+                            style,
+                            kurbo::Stroke::new(4.0)
+                        ),
+                        1.0,
+                    ),
                 ]),
             ]),
             // Circle animation
             chain(&[
                 all(&[
-                    commands.play(circ_motion.circle.inflate(50.0), 1.0),
-                    commands.play(circ_motion.stroke.style_to(20.0), 1.0),
+                    commands.play(
+                        act!(
+                            circle_id,
+                            VelloCircle = circle,
+                            radius,
+                            circle.radius + 50.0
+                        ),
+                        1.0,
+                    ),
+                    commands.play(
+                        act!(
+                            circle_id,
+                            Stroke = circle_stroke,
+                            style,
+                            kurbo::Stroke::new(20.0)
+                        ),
+                        1.0,
+                    ),
                 ]),
                 all(&[
-                    commands.play(circ_motion.circle.inflate(-50.0), 1.0),
-                    commands.play(circ_motion.stroke.style_to(4.0), 1.0),
+                    commands.play(
+                        act!(
+                            circle_id,
+                            VelloCircle = circle,
+                            radius,
+                            circle.radius - 50.0
+                        ),
+                        1.0,
+                    ),
+                    commands.play(
+                        act!(
+                            circle_id,
+                            Stroke = circle_stroke,
+                            style,
+                            kurbo::Stroke::new(4.0)
+                        ),
+                        1.0,
+                    ),
                 ]),
             ]),
         ],
-    )
-    .with_ease(ease::cubic::ease_in_out);
+    );
 
     commands.spawn(SequencePlayerBundle {
         sequence,

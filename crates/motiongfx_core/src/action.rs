@@ -15,7 +15,50 @@ pub type GetFieldMut<T, U> = fn(comp: &mut U) -> &mut T;
 macro_rules! act {
     (
         $target_id:expr,
-        $type:ty = $root:expr => $($path:tt).+,
+        $type:ty = $root:expr, $($path:tt).+,
+        $value:expr
+    ) => {
+        {
+            let action = $crate::action::Action::new_f32lerp(
+                $target_id,
+                $root.$($path).+.clone(),
+                $value.clone(),
+                |source: &mut $type| &mut source.$($path).+
+            );
+
+            $root.$($path).+ = $value;
+
+            action
+        }
+    };
+    (
+        $target_id:expr,
+        $type:ty = $root:expr,
+        $value:expr
+    ) => {
+        {
+            let action = $crate::action::Action::new_f32lerp(
+                $target_id,
+                $root.clone(),
+                $value.clone(),
+                |source: &mut $type| source
+            );
+
+            #[allow(unused_assignments)]
+            {
+                $root = $value;
+            }
+
+            action
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! act_interp {
+    (
+        $target_id:expr,
+        $type:ty = $root:expr, $($path:tt).+,
         $value:expr,
         $interp_fn:expr
     ) => {
@@ -35,18 +78,23 @@ macro_rules! act {
     };
     (
         $target_id:expr,
-        $type:ty = $root:expr => $($path:tt).+,
-        $value:expr
+        $type:ty = $root:expr,
+        $value:expr,
+        $interp_fn:expr
     ) => {
         {
-            let action = $crate::action::Action::new_f32lerp(
+            let action = $crate::action::Action::new(
                 $target_id,
-                $root.$($path).+.clone(),
+                $root.clone(),
                 $value.clone(),
-                |source: &mut $type| &mut source.$($path).+
+                $interp_fn,
+                |source: &mut $type| source
             );
 
-            $root.$($path).+ = $value;
+            #[allow(unused_assignments)]
+            {
+                $root = $value;
+            }
 
             action
         }
@@ -54,6 +102,7 @@ macro_rules! act {
 }
 
 pub use act;
+pub use act_interp;
 
 /// Basic data structure to describe an animation action.
 #[derive(Component, Clone, Copy)]

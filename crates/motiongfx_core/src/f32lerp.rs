@@ -1,4 +1,7 @@
-use bevy::prelude::*;
+use bevy::{
+    math::{DQuat, DVec2, DVec3, DVec4},
+    prelude::*,
+};
 use bevy_vello_renderer::vello::{kurbo, peniko};
 
 use crate::cross_lerp::CrossLerp;
@@ -56,8 +59,31 @@ impl F32Lerp for Quat {
     }
 }
 
+impl F32Lerp for DVec2 {
+    fn f32lerp(&self, rhs: &Self, t: f32) -> Self {
+        DVec2::lerp(*self, *rhs, t as f64)
+    }
+}
+
+impl F32Lerp for DVec3 {
+    fn f32lerp(&self, rhs: &Self, t: f32) -> Self {
+        DVec3::lerp(*self, *rhs, t as f64)
+    }
+}
+
+impl F32Lerp for DVec4 {
+    fn f32lerp(&self, rhs: &Self, t: f32) -> Self {
+        DVec4::lerp(*self, *rhs, t as f64)
+    }
+}
+
+impl F32Lerp for DQuat {
+    fn f32lerp(&self, rhs: &Self, t: f32) -> Self {
+        DQuat::lerp(*self, *rhs, t as f64)
+    }
+}
+
 impl F32Lerp for Color {
-    #[inline]
     fn f32lerp(&self, rhs: &Self, t: f32) -> Self {
         Self::rgba(
             f32::lerp(self.r(), rhs.r(), t),
@@ -65,6 +91,16 @@ impl F32Lerp for Color {
             f32::lerp(self.b(), rhs.b(), t),
             f32::lerp(self.a(), rhs.a(), t),
         )
+    }
+}
+
+impl F32Lerp for Transform {
+    fn f32lerp(&self, rhs: &Self, t: f32) -> Self {
+        Self {
+            translation: Vec3::f32lerp(&self.translation, &rhs.translation, t),
+            rotation: Quat::f32lerp(&self.rotation, &rhs.rotation, t),
+            scale: Vec3::f32lerp(&self.scale, &rhs.scale, t),
+        }
     }
 }
 

@@ -1,9 +1,9 @@
 use bevy::{math::DVec2, prelude::*};
-use bevy_vello_renderer::{prelude::*, vello::kurbo};
+use bevy_vello_renderer::vello::kurbo;
 
 use super::VelloVector;
 
-#[derive(Component, Clone)]
+#[derive(Component, Clone, Copy)]
 pub struct VelloRect {
     pub size: DVec2,
     pub anchor: DVec2,
@@ -13,7 +13,7 @@ impl VelloRect {
     pub fn new(width: f64, height: f64) -> Self {
         Self {
             size: DVec2::new(width, height),
-            anchor: default(),
+            anchor: DVec2::splat(0.5),
         }
     }
 
@@ -25,18 +25,6 @@ impl VelloRect {
     pub fn with_anchor(mut self, x: f64, y: f64) -> Self {
         self.anchor = DVec2::new(x, y);
         self
-    }
-
-    pub fn build(self, commands: &mut Commands, scenes: &mut Assets<VelloScene>) -> Entity {
-        commands
-            .spawn((
-                self.clone(),
-                VelloSceneBundle {
-                    scene: scenes.add(VelloScene::default()),
-                    ..default()
-                },
-            ))
-            .id()
     }
 }
 

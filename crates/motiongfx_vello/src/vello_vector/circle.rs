@@ -3,12 +3,16 @@ use bevy_vello_renderer::vello::kurbo;
 
 use super::VelloVector;
 
-#[derive(Component, Default, Clone)]
+#[derive(Component, Default, Clone, Copy)]
 pub struct VelloCircle {
     pub radius: f64,
 }
 
 impl VelloCircle {
+    pub fn new(radius: f64) -> Self {
+        Self { radius }
+    }
+
     pub fn with_radius(mut self, radius: f64) -> Self {
         self.radius = radius;
         self

@@ -71,6 +71,11 @@ impl Fill {
         self.brush = brush;
         self
     }
+
+    pub fn with_color(mut self, color: Color) -> Self {
+        self.brush = Brush::from_color(color);
+        self
+    }
 }
 
 impl Default for Fill {
@@ -102,6 +107,11 @@ impl Stroke {
 
     pub fn with_brush(mut self, brush: Brush) -> Self {
         self.brush = brush;
+        self
+    }
+
+    pub fn with_color(mut self, color: Color) -> Self {
+        self.brush = Brush::from_color(color);
         self
     }
 }

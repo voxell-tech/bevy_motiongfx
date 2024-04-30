@@ -23,12 +23,8 @@ where
         self.palette.insert(key, value);
     }
 
-    pub fn get(&self, key: &Key) -> Option<&Color> {
-        self.palette.get(key)
-    }
-
-    pub fn get_or_default(&self, key: &Key) -> &Color {
-        self.palette.get(key).unwrap_or(&self.default)
+    pub fn get(&self, key: Key) -> &Color {
+        self.palette.get(&key).unwrap()
     }
 }
 

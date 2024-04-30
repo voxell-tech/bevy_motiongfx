@@ -38,7 +38,7 @@ fn hello_world(
 
     // Create cube objects (Entity)
     let material = StandardMaterial {
-        base_color: *palette.get_or_default(&ColorKey::Green),
+        base_color: *palette.get(ColorKey::Green),
         ..default()
     };
 
@@ -77,7 +77,8 @@ fn hello_world(
                 commands.play(
                     act!(
                         cube_ids[c],
-                        Transform = transforms[c] => scale,
+                        Transform = transforms[c],
+                        scale,
                         Vec3::splat(0.9)
                     )
                     .with_ease(ease::circ::ease_in_out),
@@ -86,7 +87,8 @@ fn hello_world(
                 commands.play(
                     act!(
                         cube_ids[c],
-                        Transform = transforms[c] => translation.x,
+                        Transform = transforms[c],
+                        translation.x,
                         transforms[c].translation.x + 1.0
                     )
                     .with_ease(ease::circ::ease_in_out),
@@ -95,13 +97,9 @@ fn hello_world(
                 commands.play(
                     act!(
                         cube_ids[c],
-                        Transform = transforms[c] => rotation,
-                        Quat::from_euler(
-                            EulerRot::XYZ,
-                            0.0,
-                            f32::to_radians(90.0),
-                            0.0,
-                        )
+                        Transform = transforms[c],
+                        rotation,
+                        Quat::from_euler(EulerRot::XYZ, 0.0, f32::to_radians(90.0), 0.0,)
                     )
                     .with_ease(ease::circ::ease_in_out),
                     1.0,
