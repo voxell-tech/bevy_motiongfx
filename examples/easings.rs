@@ -13,7 +13,7 @@ fn main() {
         // Bevy plugins
         .add_plugins((DefaultPlugins, TemporalAntiAliasPlugin))
         // Custom plugins
-        .add_plugins((MotionGfxPlugin, MotionGfxBevy))
+        .add_plugins(MotionGfxPlugin)
         .add_systems(Startup, (setup, easings))
         .add_systems(Update, timeline_movement)
         .run();
@@ -37,7 +37,7 @@ fn easings(
     // Create sphere objects (Entity)
     let material = StandardMaterial {
         base_color: Color::WHITE,
-        emissive: *palette.get_or_default(&ColorKey::Blue) * 100.0,
+        emissive: palette.get(ColorKey::Blue) * 100.0,
         ..default()
     };
 
@@ -83,8 +83,7 @@ fn easings(
             all(&[
                 commands.play(transform_motions[i].translate_add(Vec3::X * 10.0), 1.0),
                 commands.play(
-                    material_motions[i]
-                        .emissive_to(*palette.get_or_default(&ColorKey::Red) * 100.0),
+                    material_motions[i].emissive_to(palette.get(ColorKey::Red) * 100.0),
                     1.0,
                 ),
             ])

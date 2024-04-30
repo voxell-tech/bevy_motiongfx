@@ -38,7 +38,7 @@ fn hello_world(
 
     // Create cube objects (Entity)
     let material = StandardMaterial {
-        base_color: *palette.get(ColorKey::Green),
+        base_color: palette.get(ColorKey::Green),
         ..default()
     };
 

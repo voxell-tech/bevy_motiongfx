@@ -14,7 +14,7 @@ fn main() {
         .add_plugins((DefaultPlugins, TemporalAntiAliasPlugin))
         .insert_resource(Msaa::Off)
         // Custom plugins
-        .add_plugins((MotionGfxPlugin, MotionGfxBevy))
+        .add_plugins(MotionGfxPlugin)
         .add_systems(Startup, (setup, slide_basic))
         .add_systems(Update, slide_movement)
         .run();
@@ -30,11 +30,11 @@ fn slide_basic(
 
     // Materials
     let green_material = StandardMaterial {
-        base_color: *palette.get_or_default(&ColorKey::Green),
+        base_color: palette.get(ColorKey::Green),
         ..default()
     };
     let blue_material = StandardMaterial {
-        base_color: *palette.get_or_default(&ColorKey::Blue),
+        base_color: palette.get(ColorKey::Blue),
         ..default()
     };
 

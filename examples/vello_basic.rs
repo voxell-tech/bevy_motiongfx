@@ -20,7 +20,7 @@ fn vello_basic(mut commands: Commands) {
     // Spawning entities
     let mut line = VelloLine::new(DVec2::new(-300.0, 0.0), DVec2::new(300.0, 0.0));
     let mut line_stroke =
-        Stroke::default().with_brush(Brush::from_color(*palette.get(ColorKey::Base8)));
+        Stroke::default().with_brush(Brush::from_color(palette.get(ColorKey::Base8)));
     let mut line_transform = Transform::from_xyz(0.0, -100.0, 0.0);
 
     let line_id = commands
@@ -29,8 +29,8 @@ fn vello_basic(mut commands: Commands) {
         .id();
 
     let mut rect = VelloRect::new(100.0, 100.0);
-    let rect_fill = Fill::new().with_color(*palette.get(ColorKey::Blue));
-    let mut rect_stroke = Stroke::new(4.0).with_color(*palette.get(ColorKey::Blue) * 1.5);
+    let rect_fill = Fill::new().with_color(palette.get(ColorKey::Blue));
+    let mut rect_stroke = Stroke::new(4.0).with_color(palette.get(ColorKey::Blue) * 1.5);
     let mut rect_transform = Transform::from_xyz(-200.0, 0.0, 0.0);
 
     let rect_id = commands
@@ -39,8 +39,8 @@ fn vello_basic(mut commands: Commands) {
         .id();
 
     let mut circle = VelloCircle::new(50.0);
-    let circle_fill = Fill::new().with_color(*palette.get(ColorKey::Purple));
-    let mut circle_stroke = Stroke::new(4.0).with_color(*palette.get(ColorKey::Purple) * 1.5);
+    let circle_fill = Fill::new().with_color(palette.get(ColorKey::Purple));
+    let mut circle_stroke = Stroke::new(4.0).with_color(palette.get(ColorKey::Purple) * 1.5);
     let circle_transform = Transform::from_xyz(200.0, 0.0, 0.0);
 
     let circle_id = commands
