@@ -35,9 +35,9 @@ pub struct SvgPathBundle {
     pub transform: Transform,
     /// Bézier path.
     pub path: kurbo::BezPath,
-    /// [`FillStyle`] of the Svg.
+    /// [`Fill`] of the Svg.
     pub fill: Option<Fill>,
-    /// [`StrokeStyle`] of the Svg.
+    /// [`Stroke`] of the Svg.
     pub stroke: Option<Stroke>,
 }
 
