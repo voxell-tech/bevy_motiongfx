@@ -44,9 +44,9 @@ impl VelloVector for VelloLine {
 
 impl F32Lerp for VelloLine {
     fn f32lerp(&self, rhs: &Self, t: f32) -> Self {
-        VelloLine::new(
-            DVec2::lerp(self.p0, rhs.p0, t as f64),
-            DVec2::lerp(self.p1, rhs.p1, t as f64),
-        )
+        Self {
+            p0: DVec2::lerp(self.p0, rhs.p0, t as f64),
+            p1: DVec2::lerp(self.p1, rhs.p1, t as f64),
+        }
     }
 }

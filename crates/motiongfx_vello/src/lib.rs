@@ -44,8 +44,10 @@ impl Plugin for MotionGfxVelloPlugin {
                 update_sequence::<Stroke, Brush>,
                 update_sequence::<Stroke, kurbo::Stroke>,
                 // VelloCircle
+                update_sequence::<VelloCircle, VelloCircle>,
                 update_sequence::<VelloCircle, f64>,
                 // VelloRect
+                update_sequence::<VelloRect, VelloRect>,
                 update_sequence::<VelloRect, DVec2>,
                 update_sequence::<VelloRect, f64>,
                 // VelloLine

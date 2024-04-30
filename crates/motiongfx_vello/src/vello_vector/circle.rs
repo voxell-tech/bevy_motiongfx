@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy_vello_renderer::vello::kurbo;
+use motiongfx_core::f32lerp::F32Lerp;
 
 use super::VelloVector;
 
@@ -22,5 +23,13 @@ impl VelloCircle {
 impl VelloVector for VelloCircle {
     fn shape(&self) -> impl kurbo::Shape {
         kurbo::Circle::new(kurbo::Point::default(), self.radius)
+    }
+}
+
+impl F32Lerp for VelloCircle {
+    fn f32lerp(&self, rhs: &Self, t: f32) -> Self {
+        VelloCircle {
+            radius: f64::lerp(self.radius, rhs.radius, t as f64),
+        }
     }
 }

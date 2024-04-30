@@ -1,5 +1,6 @@
 use bevy::{math::DVec2, prelude::*};
 use bevy_vello_renderer::vello::kurbo;
+use motiongfx_core::f32lerp::F32Lerp;
 
 use super::VelloVector;
 
@@ -36,5 +37,14 @@ impl VelloVector for VelloRect {
             self.size.x * (1.0 - self.anchor.x),
             self.size.y * (1.0 - self.anchor.y),
         )
+    }
+}
+
+impl F32Lerp for VelloRect {
+    fn f32lerp(&self, rhs: &Self, t: f32) -> Self {
+        Self {
+            size: DVec2::lerp(self.size, rhs.size, t as f64),
+            anchor: DVec2::lerp(self.anchor, rhs.anchor, t as f64),
+        }
     }
 }
