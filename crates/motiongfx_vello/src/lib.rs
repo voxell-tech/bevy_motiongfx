@@ -12,11 +12,13 @@ use vello_vector::{
     Brush, Fill, Stroke,
 };
 
+pub mod builder;
 pub mod svg;
 pub mod vello_vector;
 
 pub mod prelude {
     pub use crate::{
+        builder::build_vector,
         vello_vector::{
             bezpath::VelloBezPath, circle::VelloCircle, line::VelloLine, rect::VelloRect, Brush,
             Fill, Stroke,
@@ -43,6 +45,7 @@ impl Plugin for MotionGfxVelloPlugin {
                 update_sequence::<Fill, Brush>,
                 update_sequence::<Stroke, Brush>,
                 update_sequence::<Stroke, kurbo::Stroke>,
+                update_sequence::<Stroke, f64>,
                 // VelloCircle
                 update_sequence::<VelloCircle, VelloCircle>,
                 update_sequence::<VelloCircle, f64>,
