@@ -87,7 +87,71 @@ pub struct SequencePlayer {
     pub time_scale: f32,
 }
 
-// ANIMATION FLOW FUNCTIONS
+// SEQUENCE ORDERING FUNCTIONS
+
+pub trait MultiSequenceOrdering {
+    /// Run one [`Sequence`] after another.
+    fn chain(self) -> Sequence;
+    /// Run all [`Sequence`]s concurrently and wait for all of them to finish.
+    fn all(self) -> Sequence;
+    /// Run all [`Sequence`]s concurrently and wait for any of them to finish.
+    fn any(self) -> Sequence;
+    /// Run one [`Sequence`] after another with a fixed delay time.
+    fn flow(self, delay: f32) -> Sequence;
+}
+
+pub trait SingleSequenceOrdering {
+    /// Run all [`Sequence`]s concurrently and wait for all of them to finish.
+    fn chain(self) -> Sequence;
+    /// Run all [`Sequence`]s concurrently and wait for any of them to finish.
+    fn all(self) -> Sequence;
+    /// Run one [`Sequence`] after another with a fixed delay time.
+    fn any(self) -> Sequence;
+    /// Run one [`Sequence`] after another with a fixed delay time.
+    fn flow(self, t: f32) -> Sequence;
+    /// Run an [`Sequence`] after a fixed delay time.
+    fn delay(self, t: f32) -> Sequence;
+}
+
+impl MultiSequenceOrdering for &[Sequence] {
+    fn chain(self) -> Sequence {
+        chain(self)
+    }
+
+    fn all(self) -> Sequence {
+        all(self)
+    }
+
+    fn any(self) -> Sequence {
+        any(self)
+    }
+
+    fn flow(self, t: f32) -> Sequence {
+        flow(t, self)
+    }
+}
+
+impl SingleSequenceOrdering for Sequence {
+    fn chain(self) -> Sequence {
+        chain(&[self])
+    }
+
+    fn all(self) -> Sequence {
+        all(&[self])
+    }
+
+    fn any(self) -> Sequence {
+        any(&[self])
+    }
+
+    fn flow(self, t: f32) -> Sequence {
+        flow(t, &[self])
+    }
+
+    fn delay(self, t: f32) -> Sequence {
+        delay(t, self)
+    }
+}
 
 /// Run one [`Sequence`] after another.
 pub fn chain(sequences: &[Sequence]) -> Sequence {
@@ -143,7 +207,7 @@ pub fn any(sequences: &[Sequence]) -> Sequence {
 }
 
 /// Run one [`Sequence`] after another with a fixed delay time.
-pub fn flow(delay: f32, sequences: &[Sequence]) -> Sequence {
+pub fn flow(t: f32, sequences: &[Sequence]) -> Sequence {
     let mut final_sequence = Sequence::default();
     let mut flow_duration = 0.0;
     let mut final_duration = 0.0;
@@ -155,7 +219,7 @@ pub fn flow(delay: f32, sequences: &[Sequence]) -> Sequence {
                 .push(action_meta.with_start_time(action_meta.start_time + flow_duration));
         }
 
-        flow_duration += delay;
+        flow_duration += t;
         final_duration = f32::max(final_duration, flow_duration + sequence.duration);
     }
 
@@ -164,16 +228,16 @@ pub fn flow(delay: f32, sequences: &[Sequence]) -> Sequence {
 }
 
 /// Run an [`Sequence`] after a fixed delay time.
-pub fn delay(delay: f32, sequence: &Sequence) -> Sequence {
+pub fn delay(t: f32, sequence: Sequence) -> Sequence {
     let mut final_sequence = Sequence::default();
 
     for action_meta in &sequence.action_metas {
         final_sequence
             .action_metas
-            .push(action_meta.with_start_time(action_meta.start_time + delay));
+            .push(action_meta.with_start_time(action_meta.start_time + t));
     }
 
-    final_sequence.duration = sequence.duration + delay;
+    final_sequence.duration = sequence.duration + t;
     final_sequence
 }
 
