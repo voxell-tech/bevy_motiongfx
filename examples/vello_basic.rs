@@ -1,6 +1,5 @@
 use bevy::{math::DVec2, prelude::*};
 use bevy_motiongfx::prelude::*;
-use motiongfx_core::sequence::MultiSequenceOrdering;
 
 fn main() {
     App::new()

@@ -19,8 +19,9 @@ pub mod prelude {
         ease,
         f32lerp::*,
         sequence::{
-            all, any, chain, delay, flow, update_sequence, Sequence, SequenceBundle,
-            SequenceController, SequencePlayer, SequencePlayerBundle,
+            all, any, chain, delay, flow, update_sequence, MultiSequenceOrdering, Sequence,
+            SequenceBundle, SequenceController, SequencePlayer, SequencePlayerBundle,
+            SingleSequenceOrdering,
         },
         slide::{create_slide, SlideBundle, SlideController, SlideCurrState, SlideTargetState},
         MotionGfxPlugin, UpdateSequenceSet,
