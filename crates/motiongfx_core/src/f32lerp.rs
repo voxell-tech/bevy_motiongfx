@@ -120,16 +120,12 @@ impl F32Lerp for peniko::Brush {
     fn f32lerp(&self, rhs: &Self, t: f32) -> Self {
         match self {
             Self::Solid(self_color) => match rhs {
-                // =====================
                 // Solid -> Solid
-                // =====================
                 Self::Solid(other_color) => {
                     return Self::Solid(peniko::Color::f32lerp(self_color, other_color, t));
                 }
 
-                // =====================
                 // Solid -> Gradient
-                // =====================
                 Self::Gradient(other_grad) => {
                     return Self::Gradient(peniko::Gradient {
                         kind: other_grad.kind,
@@ -138,14 +134,13 @@ impl F32Lerp for peniko::Brush {
                     });
                 }
 
-                // Image interpolation is not supported
-                Self::Image(_) => {}
+                Self::Image(_) => {
+                    panic!("Image interpolation is not supported.");
+                }
             },
 
             Self::Gradient(self_grad) => match rhs {
-                // =====================
                 // Gradient -> Solid
-                // =====================
                 Self::Solid(other_color) => {
                     return Self::Gradient(peniko::Gradient {
                         kind: self_grad.kind,
@@ -154,9 +149,7 @@ impl F32Lerp for peniko::Brush {
                     });
                 }
 
-                // =====================
                 // Gradient -> Gradient
-                // =====================
                 Self::Gradient(other_grad) => 'grad: {
                     // Gradient kind and extend must be the same, otherwise, fallback
                     if self_grad.kind != other_grad.kind && self_grad.extend != other_grad.extend {
@@ -170,12 +163,14 @@ impl F32Lerp for peniko::Brush {
                     });
                 }
 
-                // Image interpolation is not supported
-                Self::Image(_) => {}
+                Self::Image(_) => {
+                    panic!("Image interpolation is not supported.");
+                }
             },
 
-            // Image interpolation is not supported
-            Self::Image(_) => {}
+            Self::Image(_) => {
+                panic!("Image interpolation is not supported.");
+            }
         }
 
         // Fallback to discrete interpolation

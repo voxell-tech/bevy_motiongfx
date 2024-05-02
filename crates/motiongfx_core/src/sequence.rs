@@ -101,15 +101,7 @@ pub trait MultiSequenceOrdering {
 }
 
 pub trait SingleSequenceOrdering {
-    /// Run all [`Sequence`]s concurrently and wait for all of them to finish.
-    fn chain(self) -> Sequence;
-    /// Run all [`Sequence`]s concurrently and wait for any of them to finish.
-    fn all(self) -> Sequence;
-    /// Run one [`Sequence`] after another with a fixed delay time.
-    fn any(self) -> Sequence;
-    /// Run one [`Sequence`] after another with a fixed delay time.
-    fn flow(self, t: f32) -> Sequence;
-    /// Run an [`Sequence`] after a fixed delay time.
+    /// Run a [`Sequence`] after a fixed delay time.
     fn delay(self, t: f32) -> Sequence;
 }
 
@@ -132,22 +124,6 @@ impl MultiSequenceOrdering for &[Sequence] {
 }
 
 impl SingleSequenceOrdering for Sequence {
-    fn chain(self) -> Sequence {
-        chain(&[self])
-    }
-
-    fn all(self) -> Sequence {
-        all(&[self])
-    }
-
-    fn any(self) -> Sequence {
-        any(&[self])
-    }
-
-    fn flow(self, t: f32) -> Sequence {
-        flow(t, &[self])
-    }
-
     fn delay(self, t: f32) -> Sequence {
         delay(t, self)
     }
@@ -227,7 +203,7 @@ pub fn flow(t: f32, sequences: &[Sequence]) -> Sequence {
     final_sequence
 }
 
-/// Run an [`Sequence`] after a fixed delay time.
+/// Run a [`Sequence`] after a fixed delay time.
 pub fn delay(t: f32, sequence: Sequence) -> Sequence {
     let mut final_sequence = Sequence::default();
 

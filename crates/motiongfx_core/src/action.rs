@@ -204,7 +204,7 @@ impl ActionMeta {
     }
 }
 
-pub trait ActionBuilder {
+pub trait ActionBuilderExtension {
     fn play<C: Component, T: Clone>(&mut self, action: Action<C, T>, duration: f32) -> Sequence
     where
         T: Send + Sync + 'static;
@@ -212,7 +212,7 @@ pub trait ActionBuilder {
     fn sleep(&mut self, duration: f32) -> Sequence;
 }
 
-impl ActionBuilder for Commands<'_, '_> {
+impl ActionBuilderExtension for Commands<'_, '_> {
     fn play<C: Component, T: Clone>(&mut self, action: Action<C, T>, duration: f32) -> Sequence
     where
         T: Send + Sync + 'static,
@@ -221,7 +221,6 @@ impl ActionBuilder for Commands<'_, '_> {
         let mut action_meta = ActionMeta::new(action_id);
         action_meta.duration = duration;
 
-        // TODO: create single sequence
         Sequence::single(action_meta)
     }
 
