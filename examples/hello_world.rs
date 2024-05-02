@@ -73,42 +73,36 @@ fn hello_world(
         for h in 0..HEIGHT {
             let c = w * WIDTH + h;
 
-            cube_seqs.push(all(&[
-                commands.play(
-                    act!(
-                        cube_ids[c],
-                        Transform = transforms[c],
-                        scale,
-                        Vec3::splat(0.9)
-                    )
-                    .with_ease(ease::circ::ease_in_out),
-                    1.0,
+            let cube_motion = [
+                play!(
+                    (commands, cube_ids[c], Transform),
+                    from = { transforms[c] }.scale,
+                    to = Vec3::splat(0.9),
+                    duration = 1.0,
+                    ease = ease::circ::ease_in_out,
                 ),
-                commands.play(
-                    act!(
-                        cube_ids[c],
-                        Transform = transforms[c],
-                        translation.x,
-                        transforms[c].translation.x + 1.0
-                    )
-                    .with_ease(ease::circ::ease_in_out),
-                    1.0,
+                play!(
+                    (commands, cube_ids[c], Transform),
+                    from = { transforms[c] }.translation.x,
+                    to = transforms[c].translation.x + 1.0,
+                    duration = 1.0,
+                    ease = ease::circ::ease_in_out,
                 ),
-                commands.play(
-                    act!(
-                        cube_ids[c],
-                        Transform = transforms[c],
-                        rotation,
-                        Quat::from_euler(EulerRot::XYZ, 0.0, f32::to_radians(90.0), 0.0,)
-                    )
-                    .with_ease(ease::circ::ease_in_out),
-                    1.0,
+                play!(
+                    (commands, cube_ids[c], Transform),
+                    from = { transforms[c] }.rotation,
+                    to = Quat::from_euler(EulerRot::XYZ, 0.0, f32::to_radians(90.0), 0.0,),
+                    duration = 1.0,
+                    ease = ease::circ::ease_in_out,
                 ),
-            ]));
+            ]
+            .all();
+
+            cube_seqs.push(cube_motion);
         }
     }
 
-    let sequence = flow(0.01, &cube_seqs);
+    let sequence = cube_seqs.flow(0.01);
 
     commands.spawn(SequencePlayerBundle {
         sequence,

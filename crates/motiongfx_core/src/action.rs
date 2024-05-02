@@ -101,8 +101,50 @@ macro_rules! act_interp {
     };
 }
 
+#[macro_export]
+macro_rules! play {
+    (
+        ($commands:expr, $target_id:expr, $type:ty),
+        from = $root:block.$($path:tt).+,
+        to = $value:expr,
+        duration = $duration:expr,
+    ) => {
+        {
+            let action = $crate::action::Action::new_f32lerp(
+                $target_id,
+                $root.$($path).+.clone(),
+                $value.clone(),
+                |source: &mut $type| &mut source.$($path).+
+            );
+
+            $root.$($path).+ = $value;
+            $crate::action::ActionBuilderExtension::play(&mut $commands, action, $duration)
+        }
+    };
+    (
+        ($commands:expr, $target_id:expr, $type:ty),
+        from = $root:block.$($path:tt).+,
+        to = $value:expr,
+        duration = $duration:expr,
+        ease = $ease_fn:expr,
+    ) => {
+        {
+            let action = $crate::action::Action::new_f32lerp(
+                $target_id,
+                $root.$($path).+.clone(),
+                $value.clone(),
+                |source: &mut $type| &mut source.$($path).+
+            ).with_ease($ease_fn);
+
+            $root.$($path).+ = $value;
+            $crate::action::ActionBuilderExtension::play(&mut $commands, action, $duration)
+        }
+    };
+}
+
 pub use act;
 pub use act_interp;
+pub use play;
 
 /// Basic data structure to describe an animation action.
 #[derive(Component, Clone, Copy)]
