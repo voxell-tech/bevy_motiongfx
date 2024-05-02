@@ -28,11 +28,11 @@ fn hello_world(
     let mut cube_ids = Vec::with_capacity(CAPACITY);
     let mut transforms = Vec::with_capacity(CAPACITY);
 
-    // Create cube objects (Entity)
-    let material = StandardMaterial {
+    // Create cubes
+    let material_handle = materials.add(StandardMaterial {
         base_color: palette.get(ColorKey::Green),
         ..default()
-    };
+    });
 
     for w in 0..WIDTH {
         for h in 0..HEIGHT {
@@ -47,7 +47,7 @@ fn hello_world(
                 .spawn(PbrBundle {
                     transform,
                     mesh: meshes.add(Cuboid::default()),
-                    material: materials.add(material.clone()),
+                    material: material_handle.clone(),
                     ..default()
                 })
                 .insert(NotShadowCaster)
@@ -58,7 +58,7 @@ fn hello_world(
         }
     }
 
-    // Generate cube animations
+    // Generate sequence
     let mut cube_seqs = Vec::with_capacity(CAPACITY);
 
     for w in 0..WIDTH {
