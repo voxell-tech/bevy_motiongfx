@@ -43,37 +43,45 @@ fn vello_basic(mut commands: Commands) {
     // Generate sequence
     let line_seq = [
         [
-            commands.play(
-                act!(
-                    line.id,
-                    Transform = line.transform,
-                    translation.y,
-                    line.transform.translation.y - 100.0
-                ),
-                1.5,
+            play!(
+                (commands, line.id, Transform),
+                from = { line.transform }.translation.y,
+                to = line.transform.translation.y - 100.0,
+                duration = 1.5,
             ),
-            commands.play(
-                act!(line.id, VelloLine = line.vector, line.vector.extend(100.0)),
-                1.0,
+            play!(
+                (commands, line.id, VelloLine),
+                from = { line.vector },
+                to = line.vector.extend(100.0),
+                duration = 1.0,
             ),
-            commands.play(act!(line.id, Stroke = line.stroke, style.width, 10.0), 1.0),
+            play!(
+                (commands, line.id, Stroke),
+                from = { line.stroke }.style.width,
+                to = 10.0,
+                duration = 1.0,
+            ),
         ]
         .all(),
         [
-            commands.play(
-                act!(
-                    line.id,
-                    Transform = line.transform,
-                    translation.y,
-                    line.transform.translation.y + 100.0
-                ),
-                1.5,
+            play!(
+                (commands, line.id, Transform),
+                from = { line.transform }.translation.y,
+                to = line.transform.translation.y + 100.0,
+                duration = 1.5,
             ),
-            commands.play(
-                act!(line.id, VelloLine = line.vector, line.vector.extend(-100.0)),
-                1.0,
+            play!(
+                (commands, line.id, VelloLine),
+                from = { line.vector },
+                to = line.vector.extend(-100.0),
+                duration = 1.0,
             ),
-            commands.play(act!(line.id, Stroke = line.stroke, style.width, 1.0), 1.0),
+            play!(
+                (commands, line.id, Stroke),
+                from = { line.stroke }.style.width,
+                to = 1.0,
+                duration = 1.0,
+            ),
         ]
         .all(),
     ]
@@ -81,47 +89,45 @@ fn vello_basic(mut commands: Commands) {
 
     let rect_seq = [
         [
-            commands.play(
-                act!(
-                    rect.id,
-                    VelloRect = rect.vector,
-                    size,
-                    rect.vector.size + 50.0
-                ),
-                1.0,
+            play!(
+                (commands, rect.id, VelloRect),
+                from = { rect.vector }.size,
+                to = rect.vector.size + 50.0,
+                duration = 1.0,
             ),
-            commands.play(
-                act!(
-                    rect.id,
-                    Transform = rect.transform,
-                    rotation,
-                    Quat::from_euler(EulerRot::XYZ, 0.0, 0.0, std::f32::consts::PI)
-                ),
-                1.0,
+            play!(
+                (commands, rect.id, Transform),
+                from = { rect.transform }.rotation,
+                to = Quat::from_euler(EulerRot::XYZ, 0.0, 0.0, std::f32::consts::PI),
+                duration = 1.0,
             ),
-            commands.play(act!(rect.id, Stroke = rect.stroke, style.width, 20.0), 1.0),
+            play!(
+                (commands, rect.id, Stroke),
+                from = { rect.stroke }.style.width,
+                to = 20.0,
+                duration = 1.0,
+            ),
         ]
         .all(),
         [
-            commands.play(
-                act!(
-                    rect.id,
-                    VelloRect = rect.vector,
-                    size,
-                    rect.vector.size - 50.0
-                ),
-                1.0,
+            play!(
+                (commands, rect.id, VelloRect),
+                from = { rect.vector }.size,
+                to = rect.vector.size - 50.0,
+                duration = 1.0,
             ),
-            commands.play(
-                act!(
-                    rect.id,
-                    Transform = rect.transform,
-                    rotation,
-                    Quat::from_euler(EulerRot::XYZ, 0.0, 0.0, std::f32::consts::TAU)
-                ),
-                1.0,
+            play!(
+                (commands, rect.id, Transform),
+                from = { rect.transform }.rotation,
+                to = Quat::from_euler(EulerRot::XYZ, 0.0, 0.0, std::f32::consts::TAU),
+                duration = 1.0,
             ),
-            commands.play(act!(rect.id, Stroke = rect.stroke, style.width, 4.0), 1.0),
+            play!(
+                (commands, rect.id, Stroke),
+                from = { rect.stroke }.style.width,
+                to = 4.0,
+                duration = 1.0,
+            ),
         ]
         .all(),
     ]
@@ -129,34 +135,32 @@ fn vello_basic(mut commands: Commands) {
 
     let cirlce_seq = [
         [
-            commands.play(
-                act!(
-                    circle.id,
-                    VelloCircle = circle.vector,
-                    radius,
-                    circle.vector.radius + 50.0
-                ),
-                1.0,
+            play!(
+                (commands, circle.id, VelloCircle),
+                from = { circle.vector }.radius,
+                to = circle.vector.radius + 50.0,
+                duration = 1.0,
             ),
-            commands.play(
-                act!(circle.id, Stroke = circle.stroke, style.width, 20.0),
-                1.0,
+            play!(
+                (commands, circle.id, Stroke),
+                from = { circle.stroke }.style.width,
+                to = 20.0,
+                duration = 1.0,
             ),
         ]
         .all(),
         [
-            commands.play(
-                act!(
-                    circle.id,
-                    VelloCircle = circle.vector,
-                    radius,
-                    circle.vector.radius - 50.0
-                ),
-                1.0,
+            play!(
+                (commands, circle.id, VelloCircle),
+                from = { circle.vector }.radius,
+                to = circle.vector.radius - 50.0,
+                duration = 1.0,
             ),
-            commands.play(
-                act!(circle.id, Stroke = circle.stroke, style.width, 4.0),
-                1.0,
+            play!(
+                (commands, circle.id, Stroke),
+                from = { circle.stroke }.style.width,
+                to = 4.0,
+                duration = 1.0,
             ),
         ]
         .all(),

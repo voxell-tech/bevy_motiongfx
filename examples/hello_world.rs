@@ -1,18 +1,10 @@
-use bevy::{
-    core_pipeline::{
-        bloom::BloomSettings,
-        experimental::taa::{TemporalAntiAliasBundle, TemporalAntiAliasPlugin},
-    },
-    pbr::{NotShadowCaster, ScreenSpaceAmbientOcclusionBundle},
-    prelude::*,
-};
+use bevy::{core_pipeline::tonemapping::Tonemapping, pbr::NotShadowCaster, prelude::*};
 use bevy_motiongfx::prelude::*;
 
 fn main() {
     App::new()
         // Bevy plugins
-        .add_plugins((DefaultPlugins, TemporalAntiAliasPlugin))
-        .insert_resource(Msaa::Off)
+        .add_plugins(DefaultPlugins)
         // Custom plugins
         .add_plugins(MotionGfxPlugin)
         .add_systems(Startup, (setup, hello_world))
@@ -112,19 +104,15 @@ fn hello_world(
 
 fn setup(mut commands: Commands) {
     // Camera
-    commands
-        .spawn(Camera3dBundle {
-            camera: Camera {
-                hdr: true,
-                ..default()
-            },
-            transform: Transform::from_xyz(-0.5, -0.5, 15.0),
-            tonemapping: bevy::core_pipeline::tonemapping::Tonemapping::AcesFitted,
+    commands.spawn(Camera3dBundle {
+        camera: Camera {
+            hdr: true,
             ..default()
-        })
-        .insert(BloomSettings::default())
-        .insert(ScreenSpaceAmbientOcclusionBundle::default())
-        .insert(TemporalAntiAliasBundle::default());
+        },
+        transform: Transform::from_xyz(-0.5, -0.5, 15.0),
+        tonemapping: Tonemapping::AcesFitted,
+        ..default()
+    });
 
     // Directional light
     commands.spawn(DirectionalLightBundle {

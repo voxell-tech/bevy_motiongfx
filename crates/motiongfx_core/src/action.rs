@@ -14,16 +14,16 @@ pub type GetFieldMut<T, U> = fn(comp: &mut U) -> &mut T;
 #[macro_export]
 macro_rules! act {
     (
-        $target_id:expr,
-        $type:ty = $root:expr, $($path:tt).+,
-        $value:expr
+        ($target_id:expr, $comp_ty:ty),
+        from = { $root:expr }.$($path:tt).+,
+        to = $value:expr,
     ) => {
         {
             let action = $crate::action::Action::new_f32lerp(
                 $target_id,
                 $root.$($path).+.clone(),
                 $value.clone(),
-                |source: &mut $type| &mut source.$($path).+
+                |source: &mut $comp_ty| &mut source.$($path).+
             );
 
             $root.$($path).+ = $value;
@@ -32,16 +32,30 @@ macro_rules! act {
         }
     };
     (
-        $target_id:expr,
-        $type:ty = $root:expr,
-        $value:expr
+        ($target_id:expr, $comp_ty:ty),
+        from = { $root:expr }.$($path:tt).+,
+        to = $value:expr,
+        ease = $ease:expr,
+    ) => {
+        {
+            $crate::action::act!(
+                ($target_id, $comp_ty),
+                from = { $root }.$($path).+,
+                to = $value,
+            ).with_ease($ease)
+        }
+    };
+    (
+        ($target_id:expr, $comp_ty:ty),
+        from = { $root:expr },
+        to = $value:expr,
     ) => {
         {
             let action = $crate::action::Action::new_f32lerp(
                 $target_id,
                 $root.clone(),
                 $value.clone(),
-                |source: &mut $type| source
+                |source: &mut $comp_ty| source
             );
 
             #[allow(unused_assignments)]
@@ -50,6 +64,92 @@ macro_rules! act {
             }
 
             action
+        }
+    };
+    (
+        ($target_id:expr, $comp_ty:ty),
+        from = { $root:expr },
+        to = $value:expr,
+        ease = $ease:expr,
+    ) => {
+        {
+            $crate::action::act!(
+                ($target_id, $comp_ty),
+                from = { $root },
+                to = $value,
+            ).with_ease($ease)
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! play {
+    (
+        ($commands:expr, $target_id:expr, $comp_ty:ty),
+        from = { $root:expr }.$($path:tt).+,
+        to = $value:expr,
+        duration = $duration:expr,
+    ) => {
+        {
+            let action = $crate::action::act!(
+                ($target_id, $comp_ty),
+                from = { $root }.$($path).+,
+                to = $value,
+            );
+
+            $crate::action::ActionBuilderExtension::play(&mut $commands, action, $duration)
+        }
+    };
+    (
+        ($commands:expr, $target_id:expr, $comp_ty:ty),
+        from = { $root:expr }.$($path:tt).+,
+        to = $value:expr,
+        duration = $duration:expr,
+        ease = $ease_fn:expr,
+    ) => {
+        {
+            let action = $crate::action::act!(
+                ($target_id, $comp_ty),
+                from = { $root }.$($path).+,
+                to = $value,
+                ease = $ease_fn,
+            );
+
+            $crate::action::ActionBuilderExtension::play(&mut $commands, action, $duration)
+        }
+    };
+    (
+        ($commands:expr, $target_id:expr, $comp_ty:ty),
+        from = { $root:expr },
+        to = $value:expr,
+        duration = $duration:expr,
+    ) => {
+        {
+            let action = $crate::action::act!(
+                ($target_id, $comp_ty),
+                from = { $root },
+                to = $value,
+            );
+
+            $crate::action::ActionBuilderExtension::play(&mut $commands, action, $duration)
+        }
+    };
+    (
+        ($commands:expr, $target_id:expr, $comp_ty:ty),
+        from = { $root:expr },
+        to = $value:expr,
+        duration = $duration:expr,
+        ease = $ease_fn:expr,
+    ) => {
+        {
+            let action = $crate::action::act!(
+                ($target_id, $comp_ty),
+                from = { $root },
+                to = $value,
+                ease = $ease_fn,
+            );
+
+            $crate::action::ActionBuilderExtension::play(&mut $commands, action, $duration)
         }
     };
 }
@@ -58,7 +158,7 @@ macro_rules! act {
 macro_rules! act_interp {
     (
         $target_id:expr,
-        $type:ty = $root:expr, $($path:tt).+,
+        $comp_ty:ty = $root:expr, $($path:tt).+,
         $value:expr,
         $interp_fn:expr
     ) => {
@@ -68,7 +168,7 @@ macro_rules! act_interp {
                 $root.$($path).+.clone(),
                 $value.clone(),
                 $interp_fn,
-                |source: &mut $type| &mut source.$($path).+
+                |source: &mut $comp_ty| &mut source.$($path).+
             );
 
             $root.$($path).+ = $value;
@@ -78,7 +178,7 @@ macro_rules! act_interp {
     };
     (
         $target_id:expr,
-        $type:ty = $root:expr,
+        $comp_ty:ty = $root:expr,
         $value:expr,
         $interp_fn:expr
     ) => {
@@ -88,7 +188,7 @@ macro_rules! act_interp {
                 $root.clone(),
                 $value.clone(),
                 $interp_fn,
-                |source: &mut $type| source
+                |source: &mut $comp_ty| source
             );
 
             #[allow(unused_assignments)]
@@ -97,47 +197,6 @@ macro_rules! act_interp {
             }
 
             action
-        }
-    };
-}
-
-#[macro_export]
-macro_rules! play {
-    (
-        ($commands:expr, $target_id:expr, $type:ty),
-        from = $root:block.$($path:tt).+,
-        to = $value:expr,
-        duration = $duration:expr,
-    ) => {
-        {
-            let action = $crate::action::Action::new_f32lerp(
-                $target_id,
-                $root.$($path).+.clone(),
-                $value.clone(),
-                |source: &mut $type| &mut source.$($path).+
-            );
-
-            $root.$($path).+ = $value;
-            $crate::action::ActionBuilderExtension::play(&mut $commands, action, $duration)
-        }
-    };
-    (
-        ($commands:expr, $target_id:expr, $type:ty),
-        from = $root:block.$($path:tt).+,
-        to = $value:expr,
-        duration = $duration:expr,
-        ease = $ease_fn:expr,
-    ) => {
-        {
-            let action = $crate::action::Action::new_f32lerp(
-                $target_id,
-                $root.$($path).+.clone(),
-                $value.clone(),
-                |source: &mut $type| &mut source.$($path).+
-            ).with_ease($ease_fn);
-
-            $root.$($path).+ = $value;
-            $crate::action::ActionBuilderExtension::play(&mut $commands, action, $duration)
         }
     };
 }
