@@ -273,7 +273,7 @@ pub fn update_asset<U, T>(
                 };
 
                 // Get asset to mutate based on the handle id
-                let Some(mut asset) = assets.get_mut(handle) else {
+                let Some(asset) = assets.get_mut(handle) else {
                     continue;
                 };
 
@@ -290,7 +290,7 @@ pub fn update_asset<U, T>(
                 unit_time = (action.ease_fn)(unit_time);
 
                 // Mutate the component using interpolate function
-                let field = (action.get_field_fn)(&mut asset);
+                let field = (action.get_field_fn)(asset);
                 *field = (action.interp_fn)(&action.start, &action.end, unit_time);
             }
         }
