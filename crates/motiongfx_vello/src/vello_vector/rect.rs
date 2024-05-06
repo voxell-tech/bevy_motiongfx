@@ -4,7 +4,7 @@ use motiongfx_core::f32lerp::F32Lerp;
 
 use super::VelloVector;
 
-#[derive(Component, Clone, Copy)]
+#[derive(Component, Default, Debug, Clone, Copy)]
 pub struct VelloRect {
     pub size: DVec2,
     pub anchor: DVec2,

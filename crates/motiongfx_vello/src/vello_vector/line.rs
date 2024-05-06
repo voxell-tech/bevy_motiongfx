@@ -4,7 +4,7 @@ use motiongfx_core::f32lerp::F32Lerp;
 
 use crate::vello_vector::VelloVector;
 
-#[derive(Component, Default, Clone, Copy)]
+#[derive(Component, Default, Debug, Clone, Copy)]
 pub struct VelloLine {
     pub p0: DVec2,
     pub p1: DVec2,

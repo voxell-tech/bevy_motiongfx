@@ -45,20 +45,20 @@ fn vello_basic(mut commands: Commands) {
         [
             play!(
                 (commands, line.id, Transform),
-                from = { line.transform }.translation.y,
-                to = line.transform.translation.y - 100.0,
+                start = { line.transform }.translation.y,
+                end = line.transform.translation.y - 100.0,
                 duration = 1.5,
             ),
             play!(
                 (commands, line.id, VelloLine),
-                from = { line.vector },
-                to = line.vector.extend(100.0),
+                start = { line.vector },
+                end = line.vector.extend(100.0),
                 duration = 1.0,
             ),
             play!(
                 (commands, line.id, Stroke),
-                from = { line.stroke }.style.width,
-                to = 10.0,
+                start = { line.stroke }.style.width,
+                end = 10.0,
                 duration = 1.0,
             ),
         ]
@@ -66,20 +66,20 @@ fn vello_basic(mut commands: Commands) {
         [
             play!(
                 (commands, line.id, Transform),
-                from = { line.transform }.translation.y,
-                to = line.transform.translation.y + 100.0,
+                start = { line.transform }.translation.y,
+                end = line.transform.translation.y + 100.0,
                 duration = 1.5,
             ),
             play!(
                 (commands, line.id, VelloLine),
-                from = { line.vector },
-                to = line.vector.extend(-100.0),
+                start = { line.vector },
+                end = line.vector.extend(-100.0),
                 duration = 1.0,
             ),
             play!(
                 (commands, line.id, Stroke),
-                from = { line.stroke }.style.width,
-                to = 1.0,
+                start = { line.stroke }.style.width,
+                end = 1.0,
                 duration = 1.0,
             ),
         ]
@@ -91,20 +91,20 @@ fn vello_basic(mut commands: Commands) {
         [
             play!(
                 (commands, rect.id, VelloRect),
-                from = { rect.vector }.size,
-                to = rect.vector.size + 50.0,
+                start = { rect.vector }.size,
+                end = rect.vector.size + 50.0,
                 duration = 1.0,
             ),
             play!(
                 (commands, rect.id, Transform),
-                from = { rect.transform }.rotation,
-                to = Quat::from_euler(EulerRot::XYZ, 0.0, 0.0, std::f32::consts::PI),
+                start = { rect.transform }.rotation,
+                end = Quat::from_euler(EulerRot::XYZ, 0.0, 0.0, std::f32::consts::PI),
                 duration = 1.0,
             ),
             play!(
                 (commands, rect.id, Stroke),
-                from = { rect.stroke }.style.width,
-                to = 20.0,
+                start = { rect.stroke }.style.width,
+                end = 20.0,
                 duration = 1.0,
             ),
         ]
@@ -112,20 +112,20 @@ fn vello_basic(mut commands: Commands) {
         [
             play!(
                 (commands, rect.id, VelloRect),
-                from = { rect.vector }.size,
-                to = rect.vector.size - 50.0,
+                start = { rect.vector }.size,
+                end = rect.vector.size - 50.0,
                 duration = 1.0,
             ),
             play!(
                 (commands, rect.id, Transform),
-                from = { rect.transform }.rotation,
-                to = Quat::from_euler(EulerRot::XYZ, 0.0, 0.0, std::f32::consts::TAU),
+                start = { rect.transform }.rotation,
+                end = Quat::from_euler(EulerRot::XYZ, 0.0, 0.0, std::f32::consts::TAU),
                 duration = 1.0,
             ),
             play!(
                 (commands, rect.id, Stroke),
-                from = { rect.stroke }.style.width,
-                to = 4.0,
+                start = { rect.stroke }.style.width,
+                end = 4.0,
                 duration = 1.0,
             ),
         ]
@@ -137,14 +137,14 @@ fn vello_basic(mut commands: Commands) {
         [
             play!(
                 (commands, circle.id, VelloCircle),
-                from = { circle.vector }.radius,
-                to = circle.vector.radius + 50.0,
+                start = { circle.vector }.radius,
+                end = circle.vector.radius + 50.0,
                 duration = 1.0,
             ),
             play!(
                 (commands, circle.id, Stroke),
-                from = { circle.stroke }.style.width,
-                to = 20.0,
+                start = { circle.stroke }.style.width,
+                end = 20.0,
                 duration = 1.0,
             ),
         ]
@@ -152,14 +152,14 @@ fn vello_basic(mut commands: Commands) {
         [
             play!(
                 (commands, circle.id, VelloCircle),
-                from = { circle.vector }.radius,
-                to = circle.vector.radius - 50.0,
+                start = { circle.vector }.radius,
+                end = circle.vector.radius - 50.0,
                 duration = 1.0,
             ),
             play!(
                 (commands, circle.id, Stroke),
-                from = { circle.stroke }.style.width,
-                to = 4.0,
+                start = { circle.stroke }.style.width,
+                end = 4.0,
                 duration = 1.0,
             ),
         ]

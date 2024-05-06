@@ -4,7 +4,7 @@ use bevy_vello_renderer::vello::kurbo;
 use super::VelloVector;
 
 /// Vello Bézier path component.
-#[derive(Component, Default, Clone)]
+#[derive(Component, Default, Debug, Clone)]
 pub struct VelloBezPath {
     pub path: kurbo::BezPath,
     pub trace: f32,

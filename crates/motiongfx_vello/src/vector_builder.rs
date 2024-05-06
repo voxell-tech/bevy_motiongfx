@@ -1,7 +1,3 @@
-use bevy::prelude::*;
-
-use crate::prelude::{Fill, Stroke};
-
 #[macro_export]
 macro_rules! build_vector {
     (
@@ -11,7 +7,7 @@ macro_rules! build_vector {
         stroke = $stroke:expr,
         transform = $transform:expr
     ) => {
-        $crate::builder::FillStrokeMotion {
+        $crate::vector_motion::FillStrokeMotion {
             id: $crate::AddVelloHandleCommandExtension::add_vello_handle(&mut $commands.spawn((
                 $vector.clone(),
                 $fill.clone(),
@@ -31,7 +27,7 @@ macro_rules! build_vector {
         fill = $fill:expr,
         transform = $transform:expr
     ) => {
-        $crate::builder::FillMotion {
+        $crate::vector_motion::FillMotion {
             id: $crate::AddVelloHandleCommandExtension::add_vello_handle(&mut $commands.spawn((
                 $vector.clone(),
                 $fill.clone(),
@@ -49,7 +45,7 @@ macro_rules! build_vector {
         stroke = $stroke:expr,
         transform = $transform:expr
     ) => {
-        $crate::builder::StrokeMotion {
+        $crate::vector_motion::StrokeMotion {
             id: $crate::AddVelloHandleCommandExtension::add_vello_handle(&mut $commands.spawn((
                 $vector.clone(),
                 $stroke.clone(),
@@ -63,28 +59,3 @@ macro_rules! build_vector {
     };
 }
 pub use build_vector;
-
-#[derive(Clone)]
-pub struct FillStrokeMotion<T> {
-    pub id: Entity,
-    pub vector: T,
-    pub fill: Fill,
-    pub stroke: Stroke,
-    pub transform: Transform,
-}
-
-#[derive(Clone)]
-pub struct FillMotion<T> {
-    pub id: Entity,
-    pub vector: T,
-    pub fill: Fill,
-    pub transform: Transform,
-}
-
-#[derive(Clone)]
-pub struct StrokeMotion<T> {
-    pub id: Entity,
-    pub vector: T,
-    pub stroke: Stroke,
-    pub transform: Transform,
-}

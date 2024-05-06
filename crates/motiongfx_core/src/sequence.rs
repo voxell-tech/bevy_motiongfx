@@ -218,12 +218,13 @@ pub fn delay(t: f32, sequence: Sequence) -> Sequence {
 }
 
 /// System for playing the [`Action`]s that are inside the [`Sequence`].
-pub fn update_sequence<C: Component, T: Clone>(
-    mut q_components: Query<&mut C>,
-    q_actions: Query<&Action<C, T>>,
+pub fn update_sequence<U, T>(
+    mut q_components: Query<&mut U>,
+    q_actions: Query<&Action<T, U>>,
     q_sequences: Query<(&Sequence, &SequenceController)>,
 ) where
     T: Send + Sync + 'static,
+    U: Component,
 {
     for (sequence, sequence_controller) in q_sequences.iter() {
         play_sequence(&mut q_components, &q_actions, sequence, sequence_controller);
@@ -253,13 +254,14 @@ pub(crate) fn sequence_player(
     }
 }
 
-fn play_sequence<C: Component, T: Clone>(
-    q_components: &mut Query<&mut C>,
-    q_actions: &Query<&Action<C, T>>,
+fn play_sequence<T, U>(
+    q_components: &mut Query<&mut U>,
+    q_actions: &Query<&Action<T, U>>,
     sequence: &Sequence,
     sequence_controller: &SequenceController,
 ) where
     T: Send + Sync + 'static,
+    U: Component,
 {
     // Do not perform any actions if there are no changes to the timeline timings
     // or there are no actions at all.

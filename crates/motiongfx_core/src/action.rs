@@ -15,8 +15,8 @@ pub type GetFieldMut<T, U> = fn(comp: &mut U) -> &mut T;
 macro_rules! act {
     (
         ($target_id:expr, $comp_ty:ty),
-        from = { $root:expr }.$($path:tt).+,
-        to = $value:expr,
+        start = { $root:expr }.$($path:tt).+,
+        end = $value:expr,
     ) => {
         {
             let action = $crate::action::Action::new_f32lerp(
@@ -33,22 +33,22 @@ macro_rules! act {
     };
     (
         ($target_id:expr, $comp_ty:ty),
-        from = { $root:expr }.$($path:tt).+,
-        to = $value:expr,
+        start = { $root:expr }.$($path:tt).+,
+        end = $value:expr,
         ease = $ease:expr,
     ) => {
         {
             $crate::action::act!(
                 ($target_id, $comp_ty),
-                from = { $root }.$($path).+,
-                to = $value,
+                start = { $root }.$($path).+,
+                end = $value,
             ).with_ease($ease)
         }
     };
     (
         ($target_id:expr, $comp_ty:ty),
-        from = { $root:expr },
-        to = $value:expr,
+        start = { $root:expr },
+        end = $value:expr,
     ) => {
         {
             let action = $crate::action::Action::new_f32lerp(
@@ -68,15 +68,15 @@ macro_rules! act {
     };
     (
         ($target_id:expr, $comp_ty:ty),
-        from = { $root:expr },
-        to = $value:expr,
+        start = { $root:expr },
+        end = $value:expr,
         ease = $ease:expr,
     ) => {
         {
             $crate::action::act!(
                 ($target_id, $comp_ty),
-                from = { $root },
-                to = $value,
+                start = { $root },
+                end = $value,
             ).with_ease($ease)
         }
     };
@@ -86,15 +86,15 @@ macro_rules! act {
 macro_rules! play {
     (
         ($commands:expr, $target_id:expr, $comp_ty:ty),
-        from = { $root:expr }.$($path:tt).+,
-        to = $value:expr,
+        start = { $root:expr }.$($path:tt).+,
+        end = $value:expr,
         duration = $duration:expr,
     ) => {
         {
             let action = $crate::action::act!(
                 ($target_id, $comp_ty),
-                from = { $root }.$($path).+,
-                to = $value,
+                start = { $root }.$($path).+,
+                end = $value,
             );
 
             $crate::action::ActionBuilderExtension::play(&mut $commands, action, $duration)
@@ -102,16 +102,16 @@ macro_rules! play {
     };
     (
         ($commands:expr, $target_id:expr, $comp_ty:ty),
-        from = { $root:expr }.$($path:tt).+,
-        to = $value:expr,
+        start = { $root:expr }.$($path:tt).+,
+        end = $value:expr,
         duration = $duration:expr,
         ease = $ease_fn:expr,
     ) => {
         {
             let action = $crate::action::act!(
                 ($target_id, $comp_ty),
-                from = { $root }.$($path).+,
-                to = $value,
+                start = { $root }.$($path).+,
+                end = $value,
                 ease = $ease_fn,
             );
 
@@ -120,15 +120,15 @@ macro_rules! play {
     };
     (
         ($commands:expr, $target_id:expr, $comp_ty:ty),
-        from = { $root:expr },
-        to = $value:expr,
+        start = { $root:expr },
+        end = $value:expr,
         duration = $duration:expr,
     ) => {
         {
             let action = $crate::action::act!(
                 ($target_id, $comp_ty),
-                from = { $root },
-                to = $value,
+                start = { $root },
+                end = $value,
             );
 
             $crate::action::ActionBuilderExtension::play(&mut $commands, action, $duration)
@@ -136,16 +136,16 @@ macro_rules! play {
     };
     (
         ($commands:expr, $target_id:expr, $comp_ty:ty),
-        from = { $root:expr },
-        to = $value:expr,
+        start = { $root:expr },
+        end = $value:expr,
         duration = $duration:expr,
         ease = $ease_fn:expr,
     ) => {
         {
             let action = $crate::action::act!(
                 ($target_id, $comp_ty),
-                from = { $root },
-                to = $value,
+                start = { $root },
+                end = $value,
                 ease = $ease_fn,
             );
 
@@ -207,7 +207,7 @@ pub use play;
 
 /// Basic data structure to describe an animation action.
 #[derive(Component, Clone, Copy)]
-pub struct Action<C: Component, T: Clone> {
+pub struct Action<T, U> {
     /// Target [`Entity`] for [`Component`] manipulation.
     pub(crate) target_id: Entity,
     /// Initial value of the action.
@@ -217,18 +217,18 @@ pub struct Action<C: Component, T: Clone> {
     /// Function for interpolating the value based on a [`f32`] time.
     pub(crate) interp_fn: InterpFn<T>,
     /// Function for getting a mutable reference of a field (or itself) from the component.
-    pub(crate) get_field_fn: GetFieldMut<T, C>,
+    pub(crate) get_field_fn: GetFieldMut<T, U>,
     /// Function for easing the [`f32`] time value for the action.
     pub(crate) ease_fn: EaseFn,
 }
 
-impl<C: Component, T: Clone> Action<C, T> {
+impl<T, U> Action<T, U> {
     pub fn new(
         target_id: Entity,
         start: T,
         end: T,
         interp_fn: InterpFn<T>,
-        get_field_fn: GetFieldMut<T, C>,
+        get_field_fn: GetFieldMut<T, U>,
     ) -> Self {
         Self {
             target_id,
@@ -246,7 +246,7 @@ impl<C: Component, T: Clone> Action<C, T> {
     }
 }
 
-impl<C: Component, T: Clone> Action<C, T>
+impl<T, U> Action<T, U>
 where
     T: F32Lerp,
 {
@@ -254,7 +254,7 @@ where
         target_id: Entity,
         start: T,
         end: T,
-        get_field_fn: GetFieldMut<T, C>,
+        get_field_fn: GetFieldMut<T, U>,
     ) -> Self {
         Self {
             target_id,
@@ -306,17 +306,19 @@ impl ActionMeta {
 }
 
 pub trait ActionBuilderExtension {
-    fn play<C: Component, T: Clone>(&mut self, action: Action<C, T>, duration: f32) -> Sequence
+    fn play<T, U>(&mut self, action: Action<T, U>, duration: f32) -> Sequence
     where
-        T: Send + Sync + 'static;
+        T: Send + Sync + 'static,
+        U: Send + Sync + 'static;
 
     fn sleep(&mut self, duration: f32) -> Sequence;
 }
 
 impl ActionBuilderExtension for Commands<'_, '_> {
-    fn play<C: Component, T: Clone>(&mut self, action: Action<C, T>, duration: f32) -> Sequence
+    fn play<T, U>(&mut self, action: Action<T, U>, duration: f32) -> Sequence
     where
         T: Send + Sync + 'static,
+        U: Send + Sync + 'static,
     {
         let action_id = self.spawn(action).id();
         let mut action_meta = ActionMeta::new(action_id);

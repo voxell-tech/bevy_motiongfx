@@ -12,13 +12,14 @@ use vello_vector::{
     Brush, Fill, Stroke,
 };
 
-pub mod builder;
 pub mod svg;
+pub mod vector_builder;
+pub mod vector_motion;
 pub mod vello_vector;
 
 pub mod prelude {
     pub use crate::{
-        builder::build_vector,
+        vector_builder::build_vector,
         vello_vector::{
             bezpath::VelloBezPath, circle::VelloCircle, line::VelloLine, rect::VelloRect, Brush,
             Fill, Stroke,

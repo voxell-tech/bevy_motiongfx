@@ -207,7 +207,10 @@ fn build_fill_and_stroke_vector<Vector: VelloVector + Component>(
 
             // Build the vector to the VelloScene
             vector.build_fill(fill, &mut scene);
-            vector.build_stroke(stroke, &mut scene);
+            // Skip building stroke if there is no width to it
+            if stroke.style.width != 0.0 {
+                vector.build_stroke(stroke, &mut scene);
+            }
 
             // Replace with new scene
             vello_scene.scene = scene.into();

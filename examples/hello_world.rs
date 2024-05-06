@@ -68,22 +68,22 @@ fn hello_world(
             let cube_motion = [
                 play!(
                     (commands, cube_ids[c], Transform),
-                    from = { transforms[c] }.scale,
-                    to = Vec3::splat(0.9),
+                    start = { transforms[c] }.scale,
+                    end = Vec3::splat(0.9),
                     duration = 1.0,
                     ease = ease::circ::ease_in_out,
                 ),
                 play!(
                     (commands, cube_ids[c], Transform),
-                    from = { transforms[c] }.translation.x,
-                    to = transforms[c].translation.x + 1.0,
+                    start = { transforms[c] }.translation.x,
+                    end = transforms[c].translation.x + 1.0,
                     duration = 1.0,
                     ease = ease::circ::ease_in_out,
                 ),
                 play!(
                     (commands, cube_ids[c], Transform),
-                    from = { transforms[c] }.rotation,
-                    to = Quat::from_euler(EulerRot::XYZ, 0.0, f32::to_radians(90.0), 0.0,),
+                    start = { transforms[c] }.rotation,
+                    end = Quat::from_euler(EulerRot::XYZ, 0.0, f32::to_radians(90.0), 0.0,),
                     duration = 1.0,
                     ease = ease::circ::ease_in_out,
                 ),
