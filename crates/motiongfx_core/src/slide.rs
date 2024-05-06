@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::sequence::{chain, Sequence, SequenceController};
+use crate::prelude::{MultiSequenceOrdering, Sequence, SequenceController};
 
 #[derive(Bundle, Default)]
 pub struct SlideBundle {
@@ -99,7 +99,7 @@ pub fn create_slide(mut sequences: Vec<Sequence>) -> SlideBundle {
     start_times.push(start_time);
 
     SlideBundle {
-        sequence: chain(&sequences),
+        sequence: sequences.chain(),
         slide_controller: SlideController {
             start_times,
             ..default()

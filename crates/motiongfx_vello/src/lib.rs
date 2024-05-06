@@ -6,7 +6,7 @@ use bevy::{
     prelude::*,
 };
 use bevy_vello_renderer::{prelude::*, vello::kurbo};
-use motiongfx_core::{sequence::update_sequence, UpdateSequenceSet};
+use motiongfx_core::{sequence::update_component, UpdateSequenceSet};
 use vello_vector::{
     bezpath::VelloBezPath, build_vector, circle::VelloCircle, line::VelloLine, rect::VelloRect,
     Brush, Fill, Stroke,
@@ -42,24 +42,25 @@ impl Plugin for MotionGfxVelloPlugin {
                 build_vector::<VelloCircle>(),
                 build_vector::<VelloLine>(),
                 build_vector::<VelloBezPath>(),
-                // Sequences
-                update_sequence::<Fill, Brush>,
-                update_sequence::<Stroke, Brush>,
-                update_sequence::<Stroke, kurbo::Stroke>,
-                update_sequence::<Stroke, f64>,
+                // Sequence updates
+                // Fill & Stroke
+                update_component::<Fill, Brush>,
+                update_component::<Stroke, Brush>,
+                update_component::<Stroke, kurbo::Stroke>,
+                update_component::<Stroke, f64>,
                 // VelloCircle
-                update_sequence::<VelloCircle, VelloCircle>,
-                update_sequence::<VelloCircle, f64>,
+                update_component::<VelloCircle, VelloCircle>,
+                update_component::<VelloCircle, f64>,
                 // VelloRect
-                update_sequence::<VelloRect, VelloRect>,
-                update_sequence::<VelloRect, DVec2>,
-                update_sequence::<VelloRect, f64>,
+                update_component::<VelloRect, VelloRect>,
+                update_component::<VelloRect, DVec2>,
+                update_component::<VelloRect, f64>,
                 // VelloLine
-                update_sequence::<VelloLine, VelloLine>,
-                update_sequence::<VelloLine, DVec2>,
-                update_sequence::<VelloLine, f64>,
+                update_component::<VelloLine, VelloLine>,
+                update_component::<VelloLine, DVec2>,
+                update_component::<VelloLine, f64>,
                 // VelloBezPath
-                update_sequence::<VelloBezPath, f32>,
+                update_component::<VelloBezPath, f32>,
             )
                 .in_set(UpdateSequenceSet),
         );

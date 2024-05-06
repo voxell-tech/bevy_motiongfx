@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use prelude::update_sequence;
+use prelude::{update_asset, update_component};
 use sequence::{sequence_controller, sequence_player};
 use slide::slide_controller;
 
@@ -19,8 +19,8 @@ pub mod prelude {
         ease,
         f32lerp::*,
         sequence::{
-            all, any, chain, delay, flow, update_sequence, MultiSequenceOrdering, Sequence,
-            SequenceBundle, SequenceController, SequencePlayer, SequencePlayerBundle,
+            all, any, chain, delay, flow, update_asset, update_component, MultiSequenceOrdering,
+            Sequence, SequenceBundle, SequenceController, SequencePlayer, SequencePlayerBundle,
             SingleSequenceOrdering,
         },
         slide::{create_slide, SlideBundle, SlideController, SlideCurrState, SlideTargetState},
@@ -39,10 +39,12 @@ impl Plugin for MotionGfxPlugin {
         .add_systems(
             Update,
             (
-                update_sequence::<Transform, f32>,
-                update_sequence::<Transform, Vec3>,
-                update_sequence::<Transform, Quat>,
-                update_sequence::<Sprite, Color>,
+                update_component::<Transform, f32>,
+                update_component::<Transform, Vec3>,
+                update_component::<Transform, Quat>,
+                update_component::<Sprite, Color>,
+                update_asset::<StandardMaterial, Color>,
+                update_asset::<StandardMaterial, f32>,
             )
                 .in_set(UpdateSequenceSet),
         )

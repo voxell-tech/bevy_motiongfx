@@ -15,7 +15,7 @@ fn main() {
 fn easings(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut material_assets: ResMut<Assets<StandardMaterial>>,
 ) {
     const CAPACITY: usize = 10;
 
@@ -23,15 +23,15 @@ fn easings(
     let palette = ColorPalette::default();
 
     let mut sphere_ids = Vec::with_capacity(CAPACITY);
-    // States
     let mut transforms = Vec::with_capacity(CAPACITY);
+    let mut materials = Vec::with_capacity(CAPACITY);
 
     // Create sphere objects (Entity)
-    let material_handle = materials.add(StandardMaterial {
+    let material = StandardMaterial {
         base_color: Color::WHITE,
         emissive: palette.get(ColorKey::Blue) * 100.0,
         ..default()
-    });
+    };
 
     for i in 0..CAPACITY {
         let transform =
@@ -42,14 +42,15 @@ fn easings(
             .spawn(PbrBundle {
                 transform,
                 mesh: meshes.add(Sphere::default()),
-                material: material_handle.clone(),
+                material: material_assets.add(material.clone()),
                 ..default()
             })
             .insert(NotShadowCaster)
             .id();
 
-        transforms.push(transform);
         sphere_ids.push(sphere);
+        transforms.push(transform);
+        materials.push(material.clone());
     }
 
     // Generate sequence
@@ -68,15 +69,26 @@ fn easings(
 
     let easing_seqs: Vec<Sequence> = transforms
         .iter_mut()
+        .zip(materials.iter_mut())
         .enumerate()
-        .map(|(i, t)| {
-            play!(
-                (commands, sphere_ids[i], Transform),
-                start = { t }.translation.x,
-                end = t.translation.x + 10.0,
-                duration = 1.0,
-                ease = easings[i],
-            )
+        .map(|(i, (t, m))| {
+            [
+                play!(
+                    (commands, sphere_ids[i], Transform),
+                    start = { t }.translation.x,
+                    end = t.translation.x + 10.0,
+                    duration = 1.0,
+                    ease = easings[i],
+                ),
+                play!(
+                    (commands, sphere_ids[i], StandardMaterial),
+                    start = { m }.emissive,
+                    end = palette.get(ColorKey::Red) * 100.0,
+                    duration = 1.0,
+                    ease = easings[i],
+                ),
+            ]
+            .all()
         })
         .collect();
 

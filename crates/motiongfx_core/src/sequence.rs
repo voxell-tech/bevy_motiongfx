@@ -217,17 +217,83 @@ pub fn delay(t: f32, sequence: Sequence) -> Sequence {
     final_sequence
 }
 
-/// System for playing the [`Action`]s that are inside the [`Sequence`].
-pub fn update_sequence<U, T>(
+/// System for mutating the [`Component`] related [`Action`]s that are inside the [`Sequence`].
+pub fn update_component<U, T>(
     mut q_components: Query<&mut U>,
-    q_actions: Query<&Action<T, U>>,
+    q_actions: Query<&'static Action<T, U>>,
     q_sequences: Query<(&Sequence, &SequenceController)>,
 ) where
     T: Send + Sync + 'static,
     U: Component,
 {
     for (sequence, sequence_controller) in q_sequences.iter() {
-        play_sequence(&mut q_components, &q_actions, sequence, sequence_controller);
+        if let Some(action) = generate_action_iter(&q_actions, sequence, sequence_controller) {
+            for (action, action_meta) in action {
+                // Get component to mutate based on action id
+                let Ok(mut component) = q_components.get_mut(action.target_id) else {
+                    continue;
+                };
+
+                let mut unit_time = (sequence_controller.target_time - action_meta.start_time)
+                    / action_meta.duration;
+
+                // In case of division by 0.0
+                if f32::is_nan(unit_time) {
+                    unit_time = 0.0;
+                }
+
+                unit_time = f32::clamp(unit_time, 0.0, 1.0);
+                // Calculate unit time using ease function
+                unit_time = (action.ease_fn)(unit_time);
+
+                // Mutate the component using interpolate function
+                let field = (action.get_field_fn)(&mut component);
+                *field = (action.interp_fn)(&action.start, &action.end, unit_time);
+            }
+        }
+    }
+}
+
+/// System for mutating the [`Asset`] related [`Action`]s that are inside the [`Sequence`].
+pub fn update_asset<U, T>(
+    q_handles: Query<&Handle<U>>,
+    mut assets: ResMut<Assets<U>>,
+    q_actions: Query<&'static Action<T, U>>,
+    q_sequences: Query<(&Sequence, &SequenceController)>,
+) where
+    T: Send + Sync + 'static,
+    U: Asset,
+{
+    for (sequence, sequence_controller) in q_sequences.iter() {
+        if let Some(action) = generate_action_iter(&q_actions, sequence, sequence_controller) {
+            for (action, action_meta) in action {
+                // Get handle based on action id
+                let Ok(handle) = q_handles.get(action.target_id) else {
+                    continue;
+                };
+
+                // Get asset to mutate based on the handle id
+                let Some(mut asset) = assets.get_mut(handle) else {
+                    continue;
+                };
+
+                let mut unit_time = (sequence_controller.target_time - action_meta.start_time)
+                    / action_meta.duration;
+
+                // In case of division by 0.0
+                if f32::is_nan(unit_time) {
+                    unit_time = 0.0;
+                }
+
+                unit_time = f32::clamp(unit_time, 0.0, 1.0);
+                // Calculate unit time using ease function
+                unit_time = (action.ease_fn)(unit_time);
+
+                // Mutate the component using interpolate function
+                let field = (action.get_field_fn)(&mut asset);
+                *field = (action.interp_fn)(&action.start, &action.end, unit_time);
+            }
+        }
     }
 }
 
@@ -254,21 +320,20 @@ pub(crate) fn sequence_player(
     }
 }
 
-fn play_sequence<T, U>(
-    q_components: &mut Query<&mut U>,
-    q_actions: &Query<&Action<T, U>>,
-    sequence: &Sequence,
-    sequence_controller: &SequenceController,
-) where
+fn generate_action_iter<'a, T, U>(
+    q_actions: &'a Query<&'static Action<T, U>>,
+    sequence: &'a Sequence,
+    sequence_controller: &'a SequenceController,
+) -> Option<impl std::iter::Iterator<Item = (&'a Action<T, U>, &'a ActionMeta)>>
+where
     T: Send + Sync + 'static,
-    U: Component,
 {
     // Do not perform any actions if there are no changes to the timeline timings
     // or there are no actions at all.
     if sequence_controller.curr_time == sequence_controller.target_time
         || sequence.action_metas.is_empty()
     {
-        return;
+        return None;
     }
 
     // Calculate time flow direction based on time difference
@@ -295,61 +360,44 @@ fn play_sequence<T, U>(
 
     let mut action_index = start_index;
 
-    // Loop through `Action`s in the direction that the timeline is going towards.
-    loop {
-        if action_index == (end_index as isize + direction) as usize {
-            break;
-        }
-
-        let action_meta = &sequence.action_metas[action_index];
-        let action_id = action_meta.id();
-
-        let slide_direction = isize::signum(
-            sequence_controller.target_slide_index as isize - action_meta.slide_index as isize,
-        );
-
-        // Continue only when slide direction matches or is 0
-        if slide_direction != 0 && slide_direction != direction {
-            break;
-        }
-
-        action_index = (action_index as isize + direction) as usize;
-
-        let is_time_overlap = time_range_overlap(
-            action_meta.start_time,
-            action_meta.end_time(),
-            timeline_start,
-            timeline_end,
-        );
-        // Ignore if `ActionMeta` not in range
-        if is_time_overlap == false {
-            continue;
-        }
-
-        // Ignore if `Action` does not exists
-        let Ok(action) = q_actions.get(action_id) else {
-            continue;
-        };
-
-        // Get component to mutate based on action id
-        if let Ok(mut component) = q_components.get_mut(action.target_id) {
-            let mut unit_time =
-                (sequence_controller.target_time - action_meta.start_time) / action_meta.duration;
-
-            // In case of division by 0.0
-            if f32::is_nan(unit_time) {
-                unit_time = 0.0;
+    Some(std::iter::from_fn(move || {
+        // Loop through `Action`s in the direction that the timeline is going towards.
+        loop {
+            if action_index == (end_index as isize + direction) as usize {
+                return None;
             }
 
-            unit_time = f32::clamp(unit_time, 0.0, 1.0);
-            // Calculate unit time using ease function
-            unit_time = (action.ease_fn)(unit_time);
+            let action_meta = &sequence.action_metas[action_index];
+            let action_id = action_meta.id();
 
-            // Mutate the component using interpolate function
-            let field = (action.get_field_fn)(&mut component);
-            *field = (action.interp_fn)(&action.start, &action.end, unit_time);
+            let slide_direction = isize::signum(
+                sequence_controller.target_slide_index as isize - action_meta.slide_index as isize,
+            );
+
+            // Continue only when slide direction matches or is 0
+            if slide_direction != 0 && slide_direction != direction {
+                return None;
+            }
+
+            action_index = (action_index as isize + direction) as usize;
+
+            let is_time_overlap = time_range_overlap(
+                action_meta.start_time,
+                action_meta.end_time(),
+                timeline_start,
+                timeline_end,
+            );
+            // Ignore if `ActionMeta` not in range
+            if is_time_overlap == false {
+                continue;
+            }
+
+            // Ignore if `Action` does not exists
+            if let Ok(action) = q_actions.get(action_id) {
+                return Some((action, action_meta));
+            }
         }
-    }
+    }))
 }
 
 /// Calculate if 2 time range (in float) overlaps.
