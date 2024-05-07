@@ -757,7 +757,6 @@ name = "bevy_motiongfx"
 version = "0.1.0"
 dependencies = [
  "bevy",
- "motiongfx_bevy",
  "motiongfx_core",
  "motiongfx_typst",
  "motiongfx_vello",
@@ -3096,42 +3095,27 @@ dependencies = [
 ]
 
 [[package]]
-name = "motiongfx_bevy"
-version = "0.1.0"
-dependencies = [
- "bevy_app",
- "bevy_asset",
- "bevy_ecs",
- "bevy_math",
- "bevy_pbr",
- "bevy_render",
- "bevy_sprite",
- "bevy_transform",
- "motiongfx_core",
-]
-
-[[package]]
 name = "motiongfx_core"
 version = "0.1.0"
 dependencies = [
- "bevy_app",
- "bevy_ecs",
- "bevy_math",
- "bevy_render",
- "bevy_time",
- "bevy_utils",
+ "bevy",
  "bevy_vello_renderer",
  "smallvec",
+]
+
+[[package]]
+name = "motiongfx_macro_utils"
+version = "0.1.0"
+dependencies = [
+ "quote",
+ "syn 2.0.46",
 ]
 
 [[package]]
 name = "motiongfx_typst"
 version = "0.1.0"
 dependencies = [
- "bevy_app",
- "bevy_asset",
- "bevy_ecs",
- "bevy_utils",
+ "bevy",
  "bevy_vello_renderer",
  "chrono",
  "codespan-reporting",
@@ -3142,6 +3126,7 @@ dependencies = [
  "flate2",
  "fontdb 0.16.0",
  "motiongfx_core",
+ "motiongfx_typst_macros",
  "motiongfx_vello",
  "parking_lot",
  "tar",
@@ -3151,32 +3136,20 @@ dependencies = [
 ]
 
 [[package]]
-name = "motiongfx_vello"
-version = "0.1.0"
-dependencies = [
- "bevy_app",
- "bevy_asset",
- "bevy_ecs",
- "bevy_hierarchy",
- "bevy_log",
- "bevy_math",
- "bevy_pbr",
- "bevy_reflect",
- "bevy_render",
- "bevy_transform",
- "bevy_utils",
- "bevy_vello_renderer",
- "motiongfx_bevy",
- "motiongfx_core",
- "motiongfx_vello_macros",
-]
-
-[[package]]
-name = "motiongfx_vello_macros"
+name = "motiongfx_typst_macros"
 version = "0.1.0"
 dependencies = [
  "quote",
  "syn 2.0.46",
+]
+
+[[package]]
+name = "motiongfx_vello"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "bevy_vello_renderer",
+ "motiongfx_core",
 ]
 
 [[package]]

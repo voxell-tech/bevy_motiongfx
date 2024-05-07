@@ -1,18 +1,11 @@
-use bevy_asset::prelude::*;
-use bevy_ecs::{prelude::*, system::EntityCommands};
-use bevy_hierarchy::prelude::*;
-use bevy_math::prelude::*;
-use bevy_render::prelude::*;
-use bevy_transform::prelude::*;
+use bevy::{ecs::system::EntityCommands, prelude::*};
 use bevy_vello_renderer::{
     prelude::*,
     vello::{kurbo, peniko},
     vello_svg::usvg::{self, NodeExt},
 };
 
-use crate::{
-    fill_style::FillStyle, stroke_style::StrokeStyle, vello_vector::bezpath::VelloBezPath,
-};
+use crate::prelude::{Brush, Fill, Stroke, VelloBezPath};
 
 /// Vello Bézier path group spawned from a Svg tree.
 pub struct SvgTreeBundle {
@@ -42,10 +35,10 @@ pub struct SvgPathBundle {
     pub transform: Transform,
     /// Bézier path.
     pub path: kurbo::BezPath,
-    /// [`FillStyle`] of the Svg.
-    pub fill: Option<FillStyle>,
-    /// [`StrokeStyle`] of the Svg.
-    pub stroke: Option<StrokeStyle>,
+    /// [`Fill`] of the Svg.
+    pub fill: Option<Fill>,
+    /// [`Stroke`] of the Svg.
+    pub stroke: Option<Stroke>,
 }
 
 impl SvgPathBundle {
@@ -60,15 +53,19 @@ impl SvgPathBundle {
     }
 }
 
+pub enum SvgPath {
+    Fill(VelloBezPath, Fill),
+    Stroke(VelloBezPath, Stroke),
+    FillStroke(VelloBezPath, Fill, Stroke),
+}
+
 /// Flattens the Svg hierarchy into a [`SvgTreeBundle`] while spawning the associated entities with corresponding components attached to them.
 pub fn spawn_tree_flatten(
     commands: &mut Commands,
     scenes: &mut ResMut<Assets<VelloScene>>,
     svg: &usvg::Tree,
 ) -> SvgTreeBundle {
-    let root_entity = commands
-        .spawn((TransformBundle::default(), VisibilityBundle::default()))
-        .id();
+    let root_entity = commands.spawn(SpatialBundle::default()).id();
 
     let mut svg_tree_bundle =
         SvgTreeBundle::new(root_entity, Vec2::new(svg.size.width(), svg.size.height()));
@@ -79,11 +76,7 @@ pub fn spawn_tree_flatten(
             usvg::NodeKind::Group(_) => {}
             usvg::NodeKind::Path(path) => {
                 let transform = svg_to_bevy_transform(node.abs_transform());
-                let mut entity_commands = commands.spawn((
-                    TransformBundle::from_transform(transform),
-                    VisibilityBundle::default(),
-                ));
-
+                let mut entity_commands = commands.spawn(transform);
                 let mut svg_path_bundle = SvgPathBundle::new(entity_commands.id(), transform);
 
                 populate_with_path(&mut entity_commands, &mut svg_path_bundle, scenes, path);
@@ -158,7 +151,7 @@ fn populate_with_path(
         }
     }
 
-    entity_commands.insert(VelloBezPath::new(local_path.clone()));
+    entity_commands.insert(VelloBezPath::new().with_path(local_path.clone()));
     svg_path_bundle.path = local_path;
 
     // FIXME: let path.paint_order determine the fill/stroke order.
@@ -169,10 +162,11 @@ fn populate_with_path(
                 usvg::FillRule::NonZero => peniko::Fill::NonZero,
                 usvg::FillRule::EvenOdd => peniko::Fill::EvenOdd,
             };
-            let fill_style = FillStyle::new(fill_rule, brush, transform);
+            let fill = Fill::from_style(fill_rule)
+                .with_brush(Brush::from_brush(brush).with_transform(transform));
 
-            entity_commands.insert(fill_style.clone());
-            svg_path_bundle.fill = Some(fill_style);
+            entity_commands.insert(fill.clone());
+            svg_path_bundle.fill = Some(fill);
         } else {
             // on_err(sb, &elt)?;
         }
@@ -199,10 +193,11 @@ fn populate_with_path(
                 );
             }
 
-            let stroke_style = StrokeStyle::new(conv_stroke, brush, transform);
+            let stroke = Stroke::from_style(conv_stroke)
+                .with_brush(Brush::from_brush(brush).with_transform(transform));
 
-            entity_commands.insert(stroke_style.clone());
-            svg_path_bundle.stroke = Some(stroke_style);
+            entity_commands.insert(stroke.clone());
+            svg_path_bundle.stroke = Some(stroke);
         } else {
             // on_err(sb, &elt)?;
         }

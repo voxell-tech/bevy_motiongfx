@@ -22,15 +22,13 @@
 //! - The interpolation function to use for interpolating between the begin and end state.
 //!
 //! # Sequence
-//! A [`Sequence`] is made up of multiple [`Action`]s. You can think of it as a group of actions. A [`Sequence`] also defines the order of [`Action`]s through the use of [action ordering functions](motiongfx_core::sequence#functions).
+//! A [`Sequence`] is made up of multiple [`Action`]s. You can think of it as a group of actions. A [`Sequence`] also defines the order of [`Action`]s through the use of [action ordering functions](motiongfx_core::sequence).
 
-pub use motiongfx_bevy as bevy;
 pub use motiongfx_core as core;
 pub use motiongfx_typst as typst;
 pub use motiongfx_vello as vello;
 
 pub mod prelude {
-    pub use motiongfx_bevy::prelude::*;
     pub use motiongfx_core::prelude::*;
     pub use motiongfx_typst::prelude::*;
     pub use motiongfx_vello::prelude::*;

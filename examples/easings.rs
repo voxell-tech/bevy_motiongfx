@@ -1,19 +1,12 @@
-use bevy::{
-    core_pipeline::{
-        bloom::BloomSettings,
-        experimental::taa::{TemporalAntiAliasBundle, TemporalAntiAliasPlugin},
-    },
-    pbr::{NotShadowCaster, ScreenSpaceAmbientOcclusionBundle},
-    prelude::*,
-};
+use bevy::{core_pipeline::bloom::BloomSettings, pbr::NotShadowCaster, prelude::*};
 use bevy_motiongfx::prelude::*;
 
 fn main() {
     App::new()
         // Bevy plugins
-        .add_plugins((DefaultPlugins, TemporalAntiAliasPlugin))
+        .add_plugins(DefaultPlugins)
         // Custom plugins
-        .add_plugins((MotionGfx, MotionGfxBevy))
+        .add_plugins(MotionGfxPlugin)
         .add_systems(Startup, (setup, easings))
         .add_systems(Update, timeline_movement)
         .run();
@@ -22,22 +15,21 @@ fn main() {
 fn easings(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut material_assets: ResMut<Assets<StandardMaterial>>,
 ) {
     const CAPACITY: usize = 10;
 
     // Color palette
     let palette = ColorPalette::default();
 
-    let mut spheres = Vec::with_capacity(CAPACITY);
-    // States
-    let mut transform_motions = Vec::with_capacity(CAPACITY);
-    let mut material_motions = Vec::with_capacity(CAPACITY);
+    let mut sphere_ids = Vec::with_capacity(CAPACITY);
+    let mut transforms = Vec::with_capacity(CAPACITY);
+    let mut materials = Vec::with_capacity(CAPACITY);
 
     // Create sphere objects (Entity)
     let material = StandardMaterial {
         base_color: Color::WHITE,
-        emissive: *palette.get_or_default(&ColorKey::Blue) * 100.0,
+        emissive: palette.get(ColorKey::Blue) * 100.0,
         ..default()
     };
 
@@ -50,21 +42,18 @@ fn easings(
             .spawn(PbrBundle {
                 transform,
                 mesh: meshes.add(Sphere::default()),
-                material: materials.add(material.clone()),
+                material: material_assets.add(material.clone()),
                 ..default()
             })
             .insert(NotShadowCaster)
             .id();
 
-        transform_motions.push(TransformMotion::new(sphere, transform));
-        material_motions.push(StandardMaterialMotion::new(sphere, material.clone()));
-
-        spheres.push(sphere);
+        sphere_ids.push(sphere);
+        transforms.push(transform);
+        materials.push(material.clone());
     }
 
-    // Generate easing animations
-    let mut easing_seqs = Vec::with_capacity(CAPACITY);
-
+    // Generate sequence
     let easings = [
         ease::linear,
         ease::sine::ease_in_out,
@@ -78,21 +67,33 @@ fn easings(
         ease::elastic::ease_in_out,
     ];
 
-    for i in 0..CAPACITY {
-        easing_seqs.push(
-            all(&[
-                commands.play(transform_motions[i].translate_add(Vec3::X * 10.0), 1.0),
-                commands.play(
-                    material_motions[i]
-                        .emissive_to(*palette.get_or_default(&ColorKey::Red) * 100.0),
-                    1.0,
-                ),
-            ])
-            .with_ease(easings[i]),
-        );
-    }
+    let easing_seqs: Vec<Sequence> = transforms
+        .iter_mut()
+        .zip(materials.iter_mut())
+        .enumerate()
+        .map(|(i, (t, m))| {
+            play!(
+                commands,
+                act!(
+                    (sphere_ids[i], Transform),
+                    start = { t }.translation.x,
+                    end = t.translation.x + 10.0,
+                )
+                .with_ease(easings[i])
+                .animate(1.0),
+                act!(
+                    (sphere_ids[i], StandardMaterial),
+                    start = { m }.emissive,
+                    end = palette.get(ColorKey::Red) * 100.0,
+                )
+                .with_ease(easings[i])
+                .animate(1.0),
+            )
+            .all()
+        })
+        .collect();
 
-    let sequence = chain(&easing_seqs);
+    let sequence = easing_seqs.chain();
 
     commands.spawn(SequencePlayerBundle {
         sequence,
@@ -112,15 +113,7 @@ fn setup(mut commands: Commands) {
             tonemapping: bevy::core_pipeline::tonemapping::Tonemapping::AcesFitted,
             ..default()
         })
-        .insert(BloomSettings::default())
-        .insert(ScreenSpaceAmbientOcclusionBundle::default())
-        .insert(TemporalAntiAliasBundle::default());
-
-    // Directional light
-    commands.spawn(DirectionalLightBundle {
-        transform: Transform::from_xyz(3.0, 10.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-        ..default()
-    });
+        .insert(BloomSettings::default());
 }
 
 fn timeline_movement(

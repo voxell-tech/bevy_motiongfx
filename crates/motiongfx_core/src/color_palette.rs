@@ -1,10 +1,8 @@
-use bevy_render::color::Color;
-use bevy_utils::HashMap;
+use bevy::{prelude::*, utils::HashMap};
 use core::hash::Hash;
 
 #[derive(Clone)]
 pub struct ColorPalette<Key: Sized> {
-    default: Color,
     palette: HashMap<Key, Color>,
 }
 
@@ -13,41 +11,30 @@ where
     Key: PartialEq + Eq + Hash,
 {
     /// Creates a new [`ColorPalette<Key>`].
-    pub fn new() -> Self {
-        Self {
-            default: Color::default(),
-            palette: HashMap::new(),
-        }
+    pub fn new(palette: HashMap<Key, Color>) -> Self {
+        Self { palette }
     }
 
     pub fn insert(&mut self, key: Key, value: Color) {
         self.palette.insert(key, value);
     }
 
-    pub fn get(&self, key: &Key) -> Option<&Color> {
-        self.palette.get(key)
-    }
-
-    pub fn get_or_default(&self, key: &Key) -> &Color {
-        self.palette.get(key).unwrap_or(&self.default)
+    pub fn get(&self, key: Key) -> Color {
+        *self.palette.get(&key).unwrap()
     }
 }
 
 impl<Key> From<HashMap<Key, Color>> for ColorPalette<Key> {
     fn from(palette: HashMap<Key, Color>) -> Self {
-        Self {
-            default: Color::default(),
-            palette,
-        }
+        Self { palette }
     }
 }
 
 impl Default for ColorPalette<ColorKey> {
     /// Monokai Pro as the default `ColorPalatte`.
     fn default() -> Self {
-        Self {
-            default: Color::default(),
-            palette: [
+        Self::new(
+            [
                 // Primary colors
                 (ColorKey::Red, Color::hex("FF6188").unwrap()),
                 (ColorKey::Orange, Color::hex("FC9867").unwrap()),
@@ -67,7 +54,7 @@ impl Default for ColorPalette<ColorKey> {
                 (ColorKey::Base8, Color::hex("FCFCFA").unwrap()),
             ]
             .into(),
-        }
+        )
     }
 }
 
@@ -89,4 +76,14 @@ pub enum ColorKey {
     Base7,
     #[default]
     Base8,
+}
+
+impl ColorKey {
+    pub fn darkest() -> Self {
+        Self::Base0
+    }
+
+    pub fn lightest() -> Self {
+        Self::Base8
+    }
 }

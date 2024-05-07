@@ -1,6 +1,6 @@
 use bevy_vello_renderer::vello::peniko;
 
-use crate::lerp::Lerp;
+use crate::f32lerp::F32Lerp;
 
 pub trait CrossLerp<Time, Other, Return> {
     fn cross_lerp(&self, other: &Other, t: Time) -> Return;
@@ -13,7 +13,7 @@ impl CrossLerp<f32, peniko::ColorStops, peniko::ColorStops> for peniko::Color {
             color: *self,
         }]);
 
-        peniko::ColorStops::lerp(&self_stops, other, t)
+        peniko::ColorStops::f32lerp(&self_stops, other, t)
     }
 }
 
@@ -24,6 +24,6 @@ impl CrossLerp<f32, peniko::Color, peniko::ColorStops> for peniko::ColorStops {
             color: *other,
         }]);
 
-        peniko::ColorStops::lerp(self, &other_stops, t)
+        peniko::ColorStops::f32lerp(self, &other_stops, t)
     }
 }

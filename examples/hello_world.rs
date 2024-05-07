@@ -1,20 +1,12 @@
-use bevy::{
-    core_pipeline::{
-        bloom::BloomSettings,
-        experimental::taa::{TemporalAntiAliasBundle, TemporalAntiAliasPlugin},
-    },
-    pbr::{NotShadowCaster, ScreenSpaceAmbientOcclusionBundle},
-    prelude::*,
-};
+use bevy::{core_pipeline::tonemapping::Tonemapping, pbr::NotShadowCaster, prelude::*};
 use bevy_motiongfx::prelude::*;
 
 fn main() {
     App::new()
         // Bevy plugins
-        .add_plugins((DefaultPlugins, TemporalAntiAliasPlugin))
-        .insert_resource(Msaa::Off)
+        .add_plugins(DefaultPlugins)
         // Custom plugins
-        .add_plugins((MotionGfx, MotionGfxBevy))
+        .add_plugins(MotionGfxPlugin)
         .add_systems(Startup, (setup, hello_world))
         .add_systems(Update, timeline_movement)
         .run();
@@ -33,15 +25,14 @@ fn hello_world(
     // Color palette
     let palette = ColorPalette::default();
 
-    let mut cubes = Vec::with_capacity(CAPACITY);
-    // Motion
-    let mut transform_motions = Vec::with_capacity(CAPACITY);
+    let mut cube_ids = Vec::with_capacity(CAPACITY);
+    let mut transforms = Vec::with_capacity(CAPACITY);
 
-    // Create cube objects (Entity)
-    let material = StandardMaterial {
-        base_color: *palette.get_or_default(&ColorKey::Green),
+    // Create cubes
+    let material_handle = materials.add(StandardMaterial {
+        base_color: palette.get(ColorKey::Green),
         ..default()
-    };
+    });
 
     for w in 0..WIDTH {
         for h in 0..HEIGHT {
@@ -52,49 +43,59 @@ fn hello_world(
             ))
             .with_scale(Vec3::ZERO);
 
-            let cube = commands
+            let cube_id = commands
                 .spawn(PbrBundle {
                     transform,
                     mesh: meshes.add(Cuboid::default()),
-                    material: materials.add(material.clone()),
+                    material: material_handle.clone(),
                     ..default()
                 })
                 .insert(NotShadowCaster)
                 .id();
 
-            transform_motions.push(TransformMotion::new(cube, transform));
-
-            cubes.push(cube);
+            cube_ids.push(cube_id);
+            transforms.push(transform);
         }
     }
 
-    // Generate cube animations
+    // Generate sequence
     let mut cube_seqs = Vec::with_capacity(CAPACITY);
 
     for w in 0..WIDTH {
         for h in 0..HEIGHT {
             let c = w * WIDTH + h;
 
-            cube_seqs.push(
-                all(&[
-                    commands.play(transform_motions[c].translate_add(Vec3::X), 1.0),
-                    commands.play(transform_motions[c].scale_to(Vec3::splat(0.9)), 1.0),
-                    commands.play(
-                        transform_motions[c].rotate_to(Quat::from_euler(
-                            EulerRot::XYZ,
-                            0.0,
-                            f32::to_radians(90.0),
-                            0.0,
-                        )),
-                        1.0,
-                    ),
-                ])
-                .with_ease(ease::circ::ease_in_out),
-            );
+            let sequence = play!(
+                commands,
+                act!(
+                    (cube_ids[c], Transform),
+                    start = { transforms[c] }.scale,
+                    end = Vec3::splat(0.9),
+                )
+                .with_ease(ease::circ::ease_in_out)
+                .animate(1.0),
+                act!(
+                    (cube_ids[c], Transform),
+                    start = { transforms[c] }.translation.x,
+                    end = transforms[c].translation.x + 1.0,
+                )
+                .with_ease(ease::circ::ease_in_out)
+                .animate(1.0),
+                act!(
+                    (cube_ids[c], Transform),
+                    start = { transforms[c] }.rotation,
+                    end = Quat::from_euler(EulerRot::XYZ, 0.0, f32::to_radians(90.0), 0.0,),
+                )
+                .with_ease(ease::circ::ease_in_out)
+                .animate(1.0),
+            )
+            .all();
+
+            cube_seqs.push(sequence);
         }
     }
 
-    let sequence = flow(0.01, &cube_seqs);
+    let sequence = cube_seqs.flow(0.01);
 
     commands.spawn(SequencePlayerBundle {
         sequence,
@@ -104,19 +105,15 @@ fn hello_world(
 
 fn setup(mut commands: Commands) {
     // Camera
-    commands
-        .spawn(Camera3dBundle {
-            camera: Camera {
-                hdr: true,
-                ..default()
-            },
-            transform: Transform::from_xyz(-0.5, -0.5, 15.0),
-            tonemapping: bevy::core_pipeline::tonemapping::Tonemapping::AcesFitted,
+    commands.spawn(Camera3dBundle {
+        camera: Camera {
+            hdr: true,
             ..default()
-        })
-        .insert(BloomSettings::default())
-        .insert(ScreenSpaceAmbientOcclusionBundle::default())
-        .insert(TemporalAntiAliasBundle::default());
+        },
+        transform: Transform::from_xyz(-0.5, -0.5, 15.0),
+        tonemapping: Tonemapping::AcesFitted,
+        ..default()
+    });
 
     // Directional light
     commands.spawn(DirectionalLightBundle {

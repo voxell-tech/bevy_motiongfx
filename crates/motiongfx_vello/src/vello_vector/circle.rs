@@ -1,47 +1,35 @@
-use bevy_ecs::prelude::*;
-use bevy_math::DVec2;
-use bevy_utils::prelude::*;
-use bevy_vello_renderer::{prelude::*, vello::kurbo};
+use bevy::prelude::*;
+use bevy_vello_renderer::vello::kurbo;
+use motiongfx_core::f32lerp::F32Lerp;
 
-use crate::{
-    fill_style::FillStyle,
-    stroke_style::StrokeStyle,
-    vello_vector::{VelloBuilder, VelloVector},
-};
+use super::VelloVector;
 
-#[derive(Bundle, Clone, Default)]
-pub struct VelloCircleBundle {
-    pub circle: VelloCircle,
-    pub fill: FillStyle,
-    pub stroke: StrokeStyle,
-    pub scene_bundle: VelloSceneBundle,
-}
-
-#[derive(VelloBuilder, VelloVector, Component, Clone, Default)]
+#[derive(Component, Default, Debug, Clone, Copy)]
 pub struct VelloCircle {
-    #[shape]
-    pub circle: kurbo::Circle,
-    built: bool,
+    pub radius: f64,
 }
 
 impl VelloCircle {
-    #[inline]
-    pub fn new(circle: kurbo::Circle) -> Self {
-        Self {
-            circle,
-            ..default()
+    pub fn new(radius: f64) -> Self {
+        Self { radius }
+    }
+
+    pub fn with_radius(mut self, radius: f64) -> Self {
+        self.radius = radius;
+        self
+    }
+}
+
+impl VelloVector for VelloCircle {
+    fn shape(&self) -> impl kurbo::Shape {
+        kurbo::Circle::new(kurbo::Point::default(), self.radius)
+    }
+}
+
+impl F32Lerp for VelloCircle {
+    fn f32lerp(&self, rhs: &Self, t: f32) -> Self {
+        VelloCircle {
+            radius: f64::lerp(self.radius, rhs.radius, t as f64),
         }
-    }
-
-    pub fn from_vec(center: DVec2, radius: f64) -> Self {
-        Self::new(kurbo::Circle::new(
-            kurbo::Point::new(center.x, center.y),
-            radius,
-        ))
-    }
-
-    #[inline]
-    pub fn from_radius(radius: f64) -> Self {
-        Self::new(kurbo::Circle::new(kurbo::Point::default(), radius))
     }
 }

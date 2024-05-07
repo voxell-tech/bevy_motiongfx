@@ -1,101 +1,50 @@
-use bevy_ecs::prelude::*;
-use bevy_math::{DVec2, DVec4};
-use bevy_utils::prelude::*;
-use bevy_vello_renderer::{prelude::*, vello::kurbo};
+use bevy::{math::DVec2, prelude::*};
+use bevy_vello_renderer::vello::kurbo;
+use motiongfx_core::f32lerp::F32Lerp;
 
-use crate::{
-    fill_style::FillStyle,
-    stroke_style::StrokeStyle,
-    vello_vector::{VelloBuilder, VelloVector},
-};
+use super::VelloVector;
 
-#[derive(Bundle, Clone, Default)]
-pub struct VelloRectBundle {
-    pub rect: VelloRect,
-    pub fill: FillStyle,
-    pub stroke: StrokeStyle,
-    pub scene_bundle: VelloSceneBundle,
-}
-
-#[derive(VelloBuilder, Component, Clone, Default)]
+#[derive(Component, Default, Debug, Clone, Copy)]
 pub struct VelloRect {
-    /// Coordinates of the rectangle.
-    pub rect: kurbo::Rect,
-    /// Radius of all four corners.
-    pub radii: kurbo::RoundedRectRadii,
-    built: bool,
+    pub size: DVec2,
+    pub anchor: DVec2,
 }
 
 impl VelloRect {
-    #[inline]
-    pub fn new(rect: kurbo::Rect, radii: impl Into<kurbo::RoundedRectRadii>) -> Self {
-        let radii: kurbo::RoundedRectRadii = radii.into();
-
+    pub fn new(width: f64, height: f64) -> Self {
         Self {
-            rect,
-            radii,
-            ..default()
+            size: DVec2::new(width, height),
+            anchor: DVec2::splat(0.5),
         }
     }
 
-    pub fn from_vec(points: DVec4, radii: DVec4) -> Self {
-        Self::new(
-            kurbo::Rect::new(points.x, points.y, points.z, points.w),
-            kurbo::RoundedRectRadii::new(radii.x, radii.y, radii.z, radii.w),
-        )
-    }
-
-    pub fn with_rect(mut self, rect: kurbo::Rect) -> Self {
-        self.rect = rect;
+    pub fn with_size(mut self, width: f64, height: f64) -> Self {
+        self.size = DVec2::new(width, height);
         self
     }
 
-    pub fn with_radii(mut self, radii: impl Into<kurbo::RoundedRectRadii>) -> Self {
-        self.radii = radii.into();
+    pub fn with_anchor(mut self, x: f64, y: f64) -> Self {
+        self.anchor = DVec2::new(x, y);
         self
-    }
-
-    pub fn percentage_anchor(size: DVec2, radius: DVec4, percentage: DVec2) -> Self {
-        Self::new(
-            kurbo::Rect::new(
-                -size.x * percentage.x,
-                -size.y * percentage.y,
-                size.x * (1.0 - percentage.x),
-                size.y * (1.0 - percentage.y),
-            ),
-            kurbo::RoundedRectRadii::new(radius.x, radius.y, radius.z, radius.w),
-        )
-    }
-
-    #[inline]
-    pub fn anchor_left(size: DVec2, radius: DVec4) -> Self {
-        Self::percentage_anchor(size, radius, DVec2::new(1.0, 0.5))
-    }
-
-    #[inline]
-    pub fn anchor_right(size: DVec2, radius: DVec4) -> Self {
-        Self::percentage_anchor(size, radius, DVec2::new(0.0, 0.5))
-    }
-
-    #[inline]
-    pub fn anchor_bottom(size: DVec2, radius: DVec4) -> Self {
-        Self::percentage_anchor(size, radius, DVec2::new(0.5, 0.0))
-    }
-
-    #[inline]
-    pub fn anchor_top(size: DVec2, radius: DVec4) -> Self {
-        Self::percentage_anchor(size, radius, DVec2::new(0.5, 1.0))
-    }
-
-    #[inline]
-    pub fn anchor_center(size: DVec2, radius: DVec4) -> Self {
-        Self::percentage_anchor(size, radius, DVec2::new(0.5, 0.5))
     }
 }
 
 impl VelloVector for VelloRect {
-    #[inline]
     fn shape(&self) -> impl kurbo::Shape {
-        kurbo::RoundedRect::from_rect(self.rect, self.radii)
+        kurbo::Rect::new(
+            -self.size.x * self.anchor.x,
+            -self.size.y * self.anchor.y,
+            self.size.x * (1.0 - self.anchor.x),
+            self.size.y * (1.0 - self.anchor.y),
+        )
+    }
+}
+
+impl F32Lerp for VelloRect {
+    fn f32lerp(&self, rhs: &Self, t: f32) -> Self {
+        Self {
+            size: DVec2::lerp(self.size, rhs.size, t as f64),
+            anchor: DVec2::lerp(self.anchor, rhs.anchor, t as f64),
+        }
     }
 }

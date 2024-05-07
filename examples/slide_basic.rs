@@ -14,7 +14,7 @@ fn main() {
         .add_plugins((DefaultPlugins, TemporalAntiAliasPlugin))
         .insert_resource(Msaa::Off)
         // Custom plugins
-        .add_plugins((MotionGfx, MotionGfxBevy))
+        .add_plugins(MotionGfxPlugin)
         .add_systems(Startup, (setup, slide_basic))
         .add_systems(Update, slide_movement)
         .run();
@@ -29,66 +29,81 @@ fn slide_basic(
     let palette = ColorPalette::default();
 
     // Materials
-    let green_material = StandardMaterial {
-        base_color: *palette.get_or_default(&ColorKey::Green),
+    let mut cube_material = StandardMaterial {
+        base_color: palette.get(ColorKey::Green),
         ..default()
     };
-    let blue_material = StandardMaterial {
-        base_color: *palette.get_or_default(&ColorKey::Blue),
+    let sphere_material = StandardMaterial {
+        base_color: palette.get(ColorKey::Blue),
         ..default()
     };
 
     let x_offset = 2.0;
     // Cube
-    let cube_pbr = PbrBundle {
+    let mut cube_pbr = PbrBundle {
         transform: Transform::default().with_scale(Vec3::splat(0.0)),
         mesh: meshes.add(Cuboid::default()),
-        material: materials.add(green_material.clone()),
+        material: materials.add(cube_material.clone()),
         ..default()
     };
-    let cube = commands
+    let cube_id = commands
         .spawn(cube_pbr.clone())
         .insert(NotShadowCaster)
         .id();
 
-    let mut cube_transform = TransformMotion::new(cube, cube_pbr.transform);
-    let mut cube_material = StandardMaterialMotion::new(cube, green_material);
-
     // Sphere
-    let sphere_pbr = PbrBundle {
+    let mut sphere_pbr = PbrBundle {
         transform: Transform::default()
             .with_translation(Vec3::X * x_offset)
             .with_scale(Vec3::splat(0.0)),
         mesh: meshes.add(Sphere::default()),
-        material: materials.add(blue_material),
+        material: materials.add(sphere_material),
         ..default()
     };
-    let sphere = commands
+    let sphere_id = commands
         .spawn(sphere_pbr.clone())
         .insert(NotShadowCaster)
         .id();
 
-    let mut sphere_tranform = TransformMotion::new(sphere, sphere_pbr.transform);
-
     // Create slides
-    let slide0 = commands
-        .play(cube_transform.scale_to(Vec3::ONE), 1.0)
-        .with_ease(ease::cubic::ease_in_out);
+    let slide0 = play!(
+        commands,
+        act!(
+            (cube_id, Transform),
+            start = { cube_pbr.transform }.scale,
+            end = Vec3::ONE,
+        )
+        .animate(1.0),
+    );
 
-    let slide1 = flow(
-        0.1,
-        &[
-            all(&[
-                commands.play(cube_transform.translate_add(Vec3::X * -x_offset), 1.0),
-                commands.play(
-                    cube_material.base_color_to(*palette.get_or_default(&ColorKey::Base0)),
-                    1.0,
-                ),
-            ]),
-            commands.play(sphere_tranform.scale_to(Vec3::ONE), 1.0),
-        ],
-    )
-    .with_ease(ease::cubic::ease_in_out);
+    let slide1 = [
+        play!(
+            commands,
+            act!(
+                (cube_id, Transform),
+                start = { cube_pbr.transform }.translation.x,
+                end = -x_offset,
+            )
+            .animate(1.0),
+            act!(
+                (cube_id, StandardMaterial),
+                start = { cube_material }.base_color,
+                end = palette.get(ColorKey::Base0),
+            )
+            .animate(1.0),
+        )
+        .all(),
+        play!(
+            commands,
+            act!(
+                (sphere_id, Transform),
+                start = { sphere_pbr.transform }.scale,
+                end = Vec3::ONE,
+            )
+            .animate(1.0),
+        ),
+    ]
+    .flow(0.1);
 
     commands.spawn(create_slide(vec![slide0, slide1]));
 }

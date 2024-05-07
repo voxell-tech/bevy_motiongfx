@@ -1,8 +1,6 @@
 use std::path::PathBuf;
 
-use bevy_app::prelude::*;
-use bevy_asset::prelude::*;
-use bevy_ecs::prelude::*;
+use bevy::prelude::*;
 use bevy_vello_renderer::{
     prelude::*,
     vello_svg::usvg::{self, TreeParsing},
@@ -44,8 +42,7 @@ impl Plugin for TypstCompilerPlugin {
 ///
 /// This compiler can be accessed from the resource:
 /// ```
-/// use bevy_ecs::prelude::*;
-/// use bevy_asset::prelude::*;
+/// use bevy::prelude::*;
 /// use motiongfx_vello::prelude::*;
 /// use motiongfx_typst::TypstCompiler;
 ///

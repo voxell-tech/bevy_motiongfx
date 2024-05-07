@@ -1,66 +1,103 @@
 pub use bevy_vello_renderer;
 
-use bevy_app::prelude::*;
-use bevy_vello_renderer::{
+use bevy::{
+    ecs::system::{EntityCommand, EntityCommands},
+    math::DVec2,
     prelude::*,
-    vello::{kurbo, peniko},
 };
-use motiongfx_core::{prelude::*, sequence::sequence_update_system};
+use bevy_vello_renderer::{prelude::*, vello::kurbo};
+use motiongfx_core::{sequence::update_component, UpdateSequenceSet};
+use vello_vector::{
+    bezpath::VelloBezPath, build_vector, circle::VelloCircle, line::VelloLine, rect::VelloRect,
+    Brush, Fill, Stroke,
+};
 
-pub mod convert;
-pub mod fill_style;
-pub mod stroke_style;
 pub mod svg;
-pub mod vello_motion;
+pub mod vector_builder;
+pub mod vector_motion;
 pub mod vello_vector;
 
 pub mod prelude {
     pub use crate::{
-        convert::*,
-        fill_style::{FillStyle, FillStyleMotion},
-        stroke_style::{StrokeStyle, StrokeStyleMotion},
-        vello_motion::{
-            bezpath_motion::{VelloBezPathBundleMotion, VelloBezPathMotion},
-            circle_motion::{VelloCircleBundleMotion, VelloCircleMotion},
-            line_motion::{VelloLineBundleMotion, VelloLineMotion},
-            rect_motion::{VelloRectBundleMotion, VelloRectMotion},
-        },
+        vector_builder::build_vector,
         vello_vector::{
-            bezpath::{VelloBezPath, VelloBezPathBundle},
-            circle::{VelloCircle, VelloCircleBundle},
-            line::{VelloLine, VelloLineBundle},
-            rect::{VelloRect, VelloRectBundle},
+            bezpath::VelloBezPath, circle::VelloCircle, line::VelloLine, rect::VelloRect, Brush,
+            Fill, Stroke,
         },
-        MotionGfxVello,
+        AddVelloHandleCommandExtension, MotionGfxVelloPlugin,
     };
+
     pub use bevy_vello_renderer::prelude::*;
 }
 
-pub struct MotionGfxVello;
+pub struct MotionGfxVelloPlugin;
 
-impl Plugin for MotionGfxVello {
+impl Plugin for MotionGfxVelloPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(VelloRenderPlugin)
-            .add_plugins((
-                // Motion plugins
-                vello_motion::circle_motion::VelloCircleMotionPlugin,
-                vello_motion::rect_motion::VelloRectMotionPlugin,
-                vello_motion::line_motion::VelloLineMotionPlugin,
-                vello_motion::bezpath_motion::VelloBezPathMotionPlugin,
-            ))
-            .add_systems(
-                PostUpdate,
-                (
-                    // Vector builders
-                    vello_vector::vector_builder_system::<vello_vector::rect::VelloRect>,
-                    vello_vector::vector_builder_system::<vello_vector::circle::VelloCircle>,
-                    vello_vector::vector_builder_system::<vello_vector::line::VelloLine>,
-                    vello_vector::vector_builder_system::<vello_vector::bezpath::VelloBezPath>,
-                    // Sequences
-                    sequence_update_system::<fill_style::FillStyle, peniko::Brush, EmptyRes>,
-                    sequence_update_system::<stroke_style::StrokeStyle, peniko::Brush, EmptyRes>,
-                    sequence_update_system::<stroke_style::StrokeStyle, kurbo::Stroke, EmptyRes>,
-                ),
-            );
+        app.add_plugins(VelloRenderPlugin).add_systems(
+            Update,
+            (
+                // Vector builders
+                build_vector::<VelloRect>(),
+                build_vector::<VelloCircle>(),
+                build_vector::<VelloLine>(),
+                build_vector::<VelloBezPath>(),
+                // Sequence updates
+                // Fill & Stroke
+                update_component::<Fill, Brush>,
+                update_component::<Stroke, Brush>,
+                update_component::<Stroke, kurbo::Stroke>,
+                update_component::<Stroke, f64>,
+                // VelloCircle
+                update_component::<VelloCircle, VelloCircle>,
+                update_component::<VelloCircle, f64>,
+                // VelloRect
+                update_component::<VelloRect, VelloRect>,
+                update_component::<VelloRect, DVec2>,
+                update_component::<VelloRect, f64>,
+                // VelloLine
+                update_component::<VelloLine, VelloLine>,
+                update_component::<VelloLine, DVec2>,
+                update_component::<VelloLine, f64>,
+                // VelloBezPath
+                update_component::<VelloBezPath, f32>,
+            )
+                .in_set(UpdateSequenceSet),
+        );
+    }
+}
+
+pub trait AddVelloHandleCommandExtension {
+    fn add_vello_handle(&mut self) -> &mut Self;
+}
+
+impl<'a> AddVelloHandleCommandExtension for EntityCommands<'a> {
+    fn add_vello_handle(&mut self) -> &mut Self {
+        self.add(AddVelloHandleCommand);
+        self
+    }
+}
+
+pub struct AddVelloHandleCommand;
+
+impl EntityCommand for AddVelloHandleCommand {
+    fn apply(self, id: Entity, world: &mut World) {
+        let mut vello_scenes = world
+            .get_resource_mut::<Assets<VelloScene>>()
+            .expect("Assets<VelloScene> resource not initialized. MotionGfxVelloPlugin is needed.");
+
+        let vello_handle = vello_scenes.add(VelloScene::default());
+
+        world.entity_mut(id).insert(vello_handle);
+
+        // SpatialBundle is needed for Vello graphics to be visible to the camera
+        let transform = world.entity(id).get::<Transform>().copied();
+        let visibility = world.entity(id).get::<Visibility>().copied();
+
+        world.entity_mut(id).insert(SpatialBundle {
+            transform: transform.unwrap_or_default(),
+            visibility: visibility.unwrap_or_default(),
+            ..default()
+        });
     }
 }
