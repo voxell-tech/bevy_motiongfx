@@ -1,4 +1,4 @@
-use bevy::{pbr::wireframe::WireframeMaterial, prelude::*};
+use bevy::prelude::*;
 use prelude::{update_asset, update_component};
 use sequence::{sequence_controller, sequence_player};
 use slide::slide_controller;
@@ -48,8 +48,6 @@ impl Plugin for MotionGfxPlugin {
                 update_asset::<StandardMaterial, f32>,
                 update_asset::<ColorMaterial, Color>,
                 update_asset::<ColorMaterial, f32>,
-                update_asset::<WireframeMaterial, Color>,
-                update_asset::<WireframeMaterial, f32>,
             )
                 .in_set(UpdateSequenceSet),
         )
