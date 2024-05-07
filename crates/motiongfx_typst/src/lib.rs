@@ -42,8 +42,7 @@ impl Plugin for TypstCompilerPlugin {
 ///
 /// This compiler can be accessed from the resource:
 /// ```
-/// use bevy_ecs::prelude::*;
-/// use bevy_asset::prelude::*;
+/// use bevy::prelude::*;
 /// use motiongfx_vello::prelude::*;
 /// use motiongfx_typst::TypstCompiler;
 ///
