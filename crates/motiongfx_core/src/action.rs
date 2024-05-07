@@ -33,20 +33,6 @@ macro_rules! act {
     };
     (
         ($target_id:expr, $comp_ty:ty),
-        start = { $root:expr }.$($path:tt).+,
-        end = $value:expr,
-        ease = $ease:expr,
-    ) => {
-        {
-            $crate::action::act!(
-                ($target_id, $comp_ty),
-                start = { $root }.$($path).+,
-                end = $value,
-            ).with_ease($ease)
-        }
-    };
-    (
-        ($target_id:expr, $comp_ty:ty),
         start = { $root:expr },
         end = $value:expr,
     ) => {
@@ -66,143 +52,24 @@ macro_rules! act {
             action
         }
     };
-    (
-        ($target_id:expr, $comp_ty:ty),
-        start = { $root:expr },
-        end = $value:expr,
-        ease = $ease:expr,
-    ) => {
-        {
-            $crate::action::act!(
-                ($target_id, $comp_ty),
-                start = { $root },
-                end = $value,
-            ).with_ease($ease)
-        }
-    };
 }
 
 #[macro_export]
 macro_rules! play {
-    (
-        ($commands:expr, $target_id:expr, $comp_ty:ty),
-        start = { $root:expr }.$($path:tt).+,
-        end = $value:expr,
-        duration = $duration:expr,
-    ) => {
-        {
-            let action = $crate::action::act!(
-                ($target_id, $comp_ty),
-                start = { $root }.$($path).+,
-                end = $value,
-            );
-
-            $crate::action::ActionBuilderExtension::play(&mut $commands, action, $duration)
-        }
+    ($commands:expr, $motion:expr,) => {
+        $crate::action::ActionBuilderExtension::play(&mut $commands, $motion)
     };
-    (
-        ($commands:expr, $target_id:expr, $comp_ty:ty),
-        start = { $root:expr }.$($path:tt).+,
-        end = $value:expr,
-        duration = $duration:expr,
-        ease = $ease_fn:expr,
-    ) => {
+    ($commands:expr, $($motion:expr,)+) => {
         {
-            let action = $crate::action::act!(
-                ($target_id, $comp_ty),
-                start = { $root }.$($path).+,
-                end = $value,
-                ease = $ease_fn,
-            );
-
-            $crate::action::ActionBuilderExtension::play(&mut $commands, action, $duration)
-        }
-    };
-    (
-        ($commands:expr, $target_id:expr, $comp_ty:ty),
-        start = { $root:expr },
-        end = $value:expr,
-        duration = $duration:expr,
-    ) => {
-        {
-            let action = $crate::action::act!(
-                ($target_id, $comp_ty),
-                start = { $root },
-                end = $value,
-            );
-
-            $crate::action::ActionBuilderExtension::play(&mut $commands, action, $duration)
-        }
-    };
-    (
-        ($commands:expr, $target_id:expr, $comp_ty:ty),
-        start = { $root:expr },
-        end = $value:expr,
-        duration = $duration:expr,
-        ease = $ease_fn:expr,
-    ) => {
-        {
-            let action = $crate::action::act!(
-                ($target_id, $comp_ty),
-                start = { $root },
-                end = $value,
-                ease = $ease_fn,
-            );
-
-            $crate::action::ActionBuilderExtension::play(&mut $commands, action, $duration)
-        }
-    };
-}
-
-#[macro_export]
-macro_rules! act_interp {
-    (
-        $target_id:expr,
-        $comp_ty:ty = $root:expr, $($path:tt).+,
-        $value:expr,
-        $interp_fn:expr
-    ) => {
-        {
-            let action = $crate::action::Action::new(
-                $target_id,
-                $root.$($path).+.clone(),
-                $value.clone(),
-                $interp_fn,
-                |source: &mut $comp_ty| &mut source.$($path).+
-            );
-
-            $root.$($path).+ = $value;
-
-            action
-        }
-    };
-    (
-        $target_id:expr,
-        $comp_ty:ty = $root:expr,
-        $value:expr,
-        $interp_fn:expr
-    ) => {
-        {
-            let action = $crate::action::Action::new(
-                $target_id,
-                $root.clone(),
-                $value.clone(),
-                $interp_fn,
-                |source: &mut $comp_ty| source
-            );
-
-            #[allow(unused_assignments)]
-            {
-                $root = $value;
-            }
-
-            action
+            let commands = &mut $commands;
+            [
+                $($crate::action::ActionBuilderExtension::play(commands, ($motion))),+
+            ]
         }
     };
 }
 
 pub use act;
-pub use act_interp;
 pub use play;
 
 /// Basic data structure to describe an animation action.
@@ -243,6 +110,18 @@ impl<T, U> Action<T, U> {
     pub fn with_ease(mut self, ease_fn: EaseFn) -> Self {
         self.ease_fn = ease_fn;
         self
+    }
+
+    pub fn with_interp(mut self, interp_fn: InterpFn<T>) -> Self {
+        self.interp_fn = interp_fn;
+        self
+    }
+
+    pub fn animate(self, duration: f32) -> Motion<T, U> {
+        Motion {
+            action: self,
+            duration,
+        }
     }
 }
 
@@ -305,8 +184,13 @@ impl ActionMeta {
     }
 }
 
+pub struct Motion<T, U> {
+    pub action: Action<T, U>,
+    pub duration: f32,
+}
+
 pub trait ActionBuilderExtension {
-    fn play<T, U>(&mut self, action: Action<T, U>, duration: f32) -> Sequence
+    fn play<T, U>(&mut self, motion: Motion<T, U>) -> Sequence
     where
         T: Send + Sync + 'static,
         U: Send + Sync + 'static;
@@ -315,14 +199,14 @@ pub trait ActionBuilderExtension {
 }
 
 impl ActionBuilderExtension for Commands<'_, '_> {
-    fn play<T, U>(&mut self, action: Action<T, U>, duration: f32) -> Sequence
+    fn play<T, U>(&mut self, motion: Motion<T, U>) -> Sequence
     where
         T: Send + Sync + 'static,
         U: Send + Sync + 'static,
     {
-        let action_id = self.spawn(action).id();
+        let action_id = self.spawn(motion.action).id();
         let mut action_meta = ActionMeta::new(action_id);
-        action_meta.duration = duration;
+        action_meta.duration = motion.duration;
 
         Sequence::single(action_meta)
     }

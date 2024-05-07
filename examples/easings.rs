@@ -72,22 +72,23 @@ fn easings(
         .zip(materials.iter_mut())
         .enumerate()
         .map(|(i, (t, m))| {
-            [
-                play!(
-                    (commands, sphere_ids[i], Transform),
+            play!(
+                commands,
+                act!(
+                    (sphere_ids[i], Transform),
                     start = { t }.translation.x,
                     end = t.translation.x + 10.0,
-                    duration = 1.0,
-                    ease = easings[i],
-                ),
-                play!(
-                    (commands, sphere_ids[i], StandardMaterial),
+                )
+                .with_ease(easings[i])
+                .animate(1.0),
+                act!(
+                    (sphere_ids[i], StandardMaterial),
                     start = { m }.emissive,
                     end = palette.get(ColorKey::Red) * 100.0,
-                    duration = 1.0,
-                    ease = easings[i],
-                ),
-            ]
+                )
+                .with_ease(easings[i])
+                .animate(1.0),
+            )
             .all()
         })
         .collect();

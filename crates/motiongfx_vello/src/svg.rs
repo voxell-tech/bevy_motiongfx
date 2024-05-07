@@ -5,7 +5,7 @@ use bevy_vello_renderer::{
     vello_svg::usvg::{self, NodeExt},
 };
 
-use crate::vello_vector::{bezpath::VelloBezPath, Brush, Fill, Stroke};
+use crate::prelude::{Brush, Fill, Stroke, VelloBezPath};
 
 /// Vello Bézier path group spawned from a Svg tree.
 pub struct SvgTreeBundle {
@@ -53,15 +53,19 @@ impl SvgPathBundle {
     }
 }
 
+pub enum SvgPath {
+    Fill(VelloBezPath, Fill),
+    Stroke(VelloBezPath, Stroke),
+    FillStroke(VelloBezPath, Fill, Stroke),
+}
+
 /// Flattens the Svg hierarchy into a [`SvgTreeBundle`] while spawning the associated entities with corresponding components attached to them.
 pub fn spawn_tree_flatten(
     commands: &mut Commands,
     scenes: &mut ResMut<Assets<VelloScene>>,
     svg: &usvg::Tree,
 ) -> SvgTreeBundle {
-    let root_entity = commands
-        .spawn((TransformBundle::default(), VisibilityBundle::default()))
-        .id();
+    let root_entity = commands.spawn(SpatialBundle::default()).id();
 
     let mut svg_tree_bundle =
         SvgTreeBundle::new(root_entity, Vec2::new(svg.size.width(), svg.size.height()));
@@ -72,11 +76,7 @@ pub fn spawn_tree_flatten(
             usvg::NodeKind::Group(_) => {}
             usvg::NodeKind::Path(path) => {
                 let transform = svg_to_bevy_transform(node.abs_transform());
-                let mut entity_commands = commands.spawn((
-                    TransformBundle::from_transform(transform),
-                    VisibilityBundle::default(),
-                ));
-
+                let mut entity_commands = commands.spawn(transform);
                 let mut svg_path_bundle = SvgPathBundle::new(entity_commands.id(), transform);
 
                 populate_with_path(&mut entity_commands, &mut svg_path_bundle, scenes, path);
@@ -162,11 +162,11 @@ fn populate_with_path(
                 usvg::FillRule::NonZero => peniko::Fill::NonZero,
                 usvg::FillRule::EvenOdd => peniko::Fill::EvenOdd,
             };
-            let fill_style = Fill::from_style(fill_rule)
+            let fill = Fill::from_style(fill_rule)
                 .with_brush(Brush::from_brush(brush).with_transform(transform));
 
-            entity_commands.insert(fill_style.clone());
-            svg_path_bundle.fill = Some(fill_style);
+            entity_commands.insert(fill.clone());
+            svg_path_bundle.fill = Some(fill);
         } else {
             // on_err(sb, &elt)?;
         }
@@ -193,11 +193,11 @@ fn populate_with_path(
                 );
             }
 
-            let stroke_style = Stroke::from_style(conv_stroke)
+            let stroke = Stroke::from_style(conv_stroke)
                 .with_brush(Brush::from_brush(brush).with_transform(transform));
 
-            entity_commands.insert(stroke_style.clone());
-            svg_path_bundle.stroke = Some(stroke_style);
+            entity_commands.insert(stroke.clone());
+            svg_path_bundle.stroke = Some(stroke);
         } else {
             // on_err(sb, &elt)?;
         }

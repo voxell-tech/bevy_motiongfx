@@ -65,32 +65,33 @@ fn hello_world(
         for h in 0..HEIGHT {
             let c = w * WIDTH + h;
 
-            let cube_motion = [
-                play!(
-                    (commands, cube_ids[c], Transform),
+            let sequence = play!(
+                commands,
+                act!(
+                    (cube_ids[c], Transform),
                     start = { transforms[c] }.scale,
                     end = Vec3::splat(0.9),
-                    duration = 1.0,
-                    ease = ease::circ::ease_in_out,
-                ),
-                play!(
-                    (commands, cube_ids[c], Transform),
+                )
+                .with_ease(ease::circ::ease_in_out)
+                .animate(1.0),
+                act!(
+                    (cube_ids[c], Transform),
                     start = { transforms[c] }.translation.x,
                     end = transforms[c].translation.x + 1.0,
-                    duration = 1.0,
-                    ease = ease::circ::ease_in_out,
-                ),
-                play!(
-                    (commands, cube_ids[c], Transform),
+                )
+                .with_ease(ease::circ::ease_in_out)
+                .animate(1.0),
+                act!(
+                    (cube_ids[c], Transform),
                     start = { transforms[c] }.rotation,
                     end = Quat::from_euler(EulerRot::XYZ, 0.0, f32::to_radians(90.0), 0.0,),
-                    duration = 1.0,
-                    ease = ease::circ::ease_in_out,
-                ),
-            ]
+                )
+                .with_ease(ease::circ::ease_in_out)
+                .animate(1.0),
+            )
             .all();
 
-            cube_seqs.push(cube_motion);
+            cube_seqs.push(sequence);
         }
     }
 

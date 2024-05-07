@@ -67,33 +67,40 @@ fn slide_basic(
 
     // Create slides
     let slide0 = play!(
-        (commands, cube_id, Transform),
-        start = { cube_pbr.transform }.scale,
-        end = Vec3::ONE,
-        duration = 1.0,
+        commands,
+        act!(
+            (cube_id, Transform),
+            start = { cube_pbr.transform }.scale,
+            end = Vec3::ONE,
+        )
+        .animate(1.0),
     );
 
     let slide1 = [
-        [
-            play!(
-                (commands, cube_id, Transform),
+        play!(
+            commands,
+            act!(
+                (cube_id, Transform),
                 start = { cube_pbr.transform }.translation.x,
                 end = -x_offset,
-                duration = 1.0,
-            ),
-            play!(
-                (commands, cube_id, StandardMaterial),
+            )
+            .animate(1.0),
+            act!(
+                (cube_id, StandardMaterial),
                 start = { cube_material }.base_color,
                 end = palette.get(ColorKey::Base0),
-                duration = 1.0,
-            ),
-        ]
+            )
+            .animate(1.0),
+        )
         .all(),
         play!(
-            (commands, sphere_id, Transform),
-            start = { sphere_pbr.transform }.scale,
-            end = Vec3::ONE,
-            duration = 1.0,
+            commands,
+            act!(
+                (sphere_id, Transform),
+                start = { sphere_pbr.transform }.scale,
+                end = Vec3::ONE,
+            )
+            .animate(1.0),
         ),
     ]
     .flow(0.1);

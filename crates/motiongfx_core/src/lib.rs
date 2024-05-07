@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{pbr::wireframe::WireframeMaterial, prelude::*};
 use prelude::{update_asset, update_component};
 use sequence::{sequence_controller, sequence_player};
 use slide::slide_controller;
@@ -13,7 +13,7 @@ pub mod slide;
 
 pub mod prelude {
     pub use crate::{
-        action::{act, act_interp, play, Action, ActionBuilderExtension},
+        action::{act, play, Action, ActionBuilderExtension},
         color_palette::{ColorKey, ColorPalette},
         cross_lerp::*,
         ease,
@@ -39,12 +39,17 @@ impl Plugin for MotionGfxPlugin {
         .add_systems(
             Update,
             (
-                update_component::<Transform, f32>,
                 update_component::<Transform, Vec3>,
                 update_component::<Transform, Quat>,
+                update_component::<Transform, f32>,
                 update_component::<Sprite, Color>,
+                update_component::<Sprite, f32>,
                 update_asset::<StandardMaterial, Color>,
                 update_asset::<StandardMaterial, f32>,
+                update_asset::<ColorMaterial, Color>,
+                update_asset::<ColorMaterial, f32>,
+                update_asset::<WireframeMaterial, Color>,
+                update_asset::<WireframeMaterial, f32>,
             )
                 .in_set(UpdateSequenceSet),
         )

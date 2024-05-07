@@ -100,11 +100,6 @@ pub trait MultiSequenceOrdering {
     fn flow(self, delay: f32) -> Sequence;
 }
 
-pub trait SingleSequenceOrdering {
-    /// Run a [`Sequence`] after a fixed delay time.
-    fn delay(self, t: f32) -> Sequence;
-}
-
 impl MultiSequenceOrdering for &[Sequence] {
     fn chain(self) -> Sequence {
         chain(self)
@@ -121,6 +116,11 @@ impl MultiSequenceOrdering for &[Sequence] {
     fn flow(self, t: f32) -> Sequence {
         flow(t, self)
     }
+}
+
+pub trait SingleSequenceOrdering {
+    /// Run a [`Sequence`] after a fixed delay time.
+    fn delay(self, t: f32) -> Sequence;
 }
 
 impl SingleSequenceOrdering for Sequence {

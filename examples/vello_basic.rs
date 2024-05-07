@@ -42,127 +42,133 @@ fn vello_basic(mut commands: Commands) {
 
     // Generate sequence
     let line_seq = [
-        [
-            play!(
-                (commands, line.id, Transform),
+        play!(
+            commands,
+            act!(
+                (line.id, Transform),
                 start = { line.transform }.translation.y,
                 end = line.transform.translation.y - 100.0,
-                duration = 1.5,
-            ),
-            play!(
-                (commands, line.id, VelloLine),
+            )
+            .animate(1.5),
+            act!(
+                (line.id, VelloLine),
                 start = { line.vector },
                 end = line.vector.extend(100.0),
-                duration = 1.0,
-            ),
-            play!(
-                (commands, line.id, Stroke),
+            )
+            .animate(1.0),
+            act!(
+                (line.id, Stroke),
                 start = { line.stroke }.style.width,
                 end = 10.0,
-                duration = 1.0,
-            ),
-        ]
+            )
+            .animate(1.0),
+        )
         .all(),
-        [
-            play!(
-                (commands, line.id, Transform),
+        play!(
+            commands,
+            act!(
+                (line.id, Transform),
                 start = { line.transform }.translation.y,
                 end = line.transform.translation.y + 100.0,
-                duration = 1.5,
-            ),
-            play!(
-                (commands, line.id, VelloLine),
+            )
+            .animate(1.5),
+            act!(
+                (line.id, VelloLine),
                 start = { line.vector },
                 end = line.vector.extend(-100.0),
-                duration = 1.0,
-            ),
-            play!(
-                (commands, line.id, Stroke),
+            )
+            .animate(1.0),
+            act!(
+                (line.id, Stroke),
                 start = { line.stroke }.style.width,
                 end = 1.0,
-                duration = 1.0,
-            ),
-        ]
+            )
+            .animate(1.0),
+        )
         .all(),
     ]
     .chain();
 
     let rect_seq = [
-        [
-            play!(
-                (commands, rect.id, VelloRect),
+        play!(
+            commands,
+            act!(
+                (rect.id, VelloRect),
                 start = { rect.vector }.size,
                 end = rect.vector.size + 50.0,
-                duration = 1.0,
-            ),
-            play!(
-                (commands, rect.id, Transform),
+            )
+            .animate(1.0),
+            act!(
+                (rect.id, Transform),
                 start = { rect.transform }.rotation,
                 end = Quat::from_euler(EulerRot::XYZ, 0.0, 0.0, std::f32::consts::PI),
-                duration = 1.0,
-            ),
-            play!(
-                (commands, rect.id, Stroke),
+            )
+            .animate(1.0),
+            act!(
+                (rect.id, Stroke),
                 start = { rect.stroke }.style.width,
                 end = 20.0,
-                duration = 1.0,
-            ),
-        ]
+            )
+            .animate(1.0),
+        )
         .all(),
-        [
-            play!(
-                (commands, rect.id, VelloRect),
+        play!(
+            commands,
+            act!(
+                (rect.id, VelloRect),
                 start = { rect.vector }.size,
                 end = rect.vector.size - 50.0,
-                duration = 1.0,
-            ),
-            play!(
-                (commands, rect.id, Transform),
+            )
+            .animate(1.0),
+            act!(
+                (rect.id, Transform),
                 start = { rect.transform }.rotation,
                 end = Quat::from_euler(EulerRot::XYZ, 0.0, 0.0, std::f32::consts::TAU),
-                duration = 1.0,
-            ),
-            play!(
-                (commands, rect.id, Stroke),
+            )
+            .animate(1.0),
+            act!(
+                (rect.id, Stroke),
                 start = { rect.stroke }.style.width,
                 end = 4.0,
-                duration = 1.0,
-            ),
-        ]
+            )
+            .animate(1.0),
+        )
         .all(),
     ]
     .chain();
 
     let cirlce_seq = [
-        [
-            play!(
-                (commands, circle.id, VelloCircle),
+        play!(
+            commands,
+            act!(
+                (circle.id, VelloCircle),
                 start = { circle.vector }.radius,
                 end = circle.vector.radius + 50.0,
-                duration = 1.0,
-            ),
-            play!(
-                (commands, circle.id, Stroke),
+            )
+            .animate(1.0),
+            act!(
+                (circle.id, Stroke),
                 start = { circle.stroke }.style.width,
                 end = 20.0,
-                duration = 1.0,
-            ),
-        ]
+            )
+            .animate(1.0),
+        )
         .all(),
-        [
-            play!(
-                (commands, circle.id, VelloCircle),
+        play!(
+            commands,
+            act!(
+                (circle.id, VelloCircle),
                 start = { circle.vector }.radius,
                 end = circle.vector.radius - 50.0,
-                duration = 1.0,
-            ),
-            play!(
-                (commands, circle.id, Stroke),
+            )
+            .animate(1.0),
+            act!(
+                (circle.id, Stroke),
                 start = { circle.stroke }.style.width,
                 end = 4.0,
-                duration = 1.0,
-            ),
-        ]
+            )
+            .animate(1.0),
+        )
         .all(),
     ]
     .chain();
