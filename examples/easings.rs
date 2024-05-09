@@ -17,14 +17,27 @@ fn easings(
     mut meshes: ResMut<Assets<Mesh>>,
     mut material_assets: ResMut<Assets<StandardMaterial>>,
 ) {
-    const CAPACITY: usize = 10;
+    let easings = [
+        ease::linear,
+        ease::sine::ease_in_out,
+        ease::quad::ease_in_out,
+        ease::cubic::ease_in_out,
+        ease::quart::ease_in_out,
+        ease::quint::ease_in_out,
+        ease::expo::ease_in_out,
+        ease::circ::ease_in_out,
+        ease::back::ease_in_out,
+        ease::elastic::ease_in_out,
+    ];
+
+    let capacity = easings.len();
 
     // Color palette
     let palette = ColorPalette::default();
 
-    let mut sphere_ids = Vec::with_capacity(CAPACITY);
-    let mut transforms = Vec::with_capacity(CAPACITY);
-    let mut materials = Vec::with_capacity(CAPACITY);
+    let mut sphere_ids = Vec::with_capacity(capacity);
+    let mut transforms = Vec::with_capacity(capacity);
+    let mut materials = Vec::with_capacity(capacity);
 
     // Create sphere objects (Entity)
     let material = StandardMaterial {
@@ -33,9 +46,9 @@ fn easings(
         ..default()
     };
 
-    for i in 0..CAPACITY {
+    for i in 0..capacity {
         let transform =
-            Transform::from_translation(Vec3::new(-5.0, (i as f32) - (CAPACITY as f32) * 0.5, 0.0))
+            Transform::from_translation(Vec3::new(-5.0, (i as f32) - (capacity as f32) * 0.5, 0.0))
                 .with_scale(Vec3::ONE);
 
         let sphere = commands
@@ -54,19 +67,6 @@ fn easings(
     }
 
     // Generate sequence
-    let easings = [
-        ease::linear,
-        ease::sine::ease_in_out,
-        ease::quad::ease_in_out,
-        ease::cubic::ease_in_out,
-        ease::quart::ease_in_out,
-        ease::quint::ease_in_out,
-        ease::expo::ease_in_out,
-        ease::circ::ease_in_out,
-        ease::back::ease_in_out,
-        ease::elastic::ease_in_out,
-    ];
-
     let easing_seqs: Vec<Sequence> = transforms
         .iter_mut()
         .zip(materials.iter_mut())
