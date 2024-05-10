@@ -13,13 +13,12 @@ use vello_vector::{
 };
 
 pub mod svg;
-pub mod vector_builder;
 pub mod vector_motion;
 pub mod vello_vector;
 
 pub mod prelude {
     pub use crate::{
-        vector_builder::build_vector,
+        vector_motion::build_vector,
         vello_vector::{
             bezpath::VelloBezPath, circle::VelloCircle, line::VelloLine, rect::VelloRect, Brush,
             Fill, Stroke,
@@ -71,7 +70,7 @@ pub trait AddVelloHandleCommandExtension {
     fn add_vello_handle(&mut self) -> &mut Self;
 }
 
-impl<'a> AddVelloHandleCommandExtension for EntityCommands<'a> {
+impl AddVelloHandleCommandExtension for EntityCommands<'_> {
     fn add_vello_handle(&mut self) -> &mut Self {
         self.add(AddVelloHandleCommand);
         self
