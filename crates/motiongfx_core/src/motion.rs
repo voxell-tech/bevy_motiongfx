@@ -25,13 +25,12 @@ pub struct AddNewAssetCommand<A: Asset>(A);
 
 impl<A: Asset> EntityCommand for AddNewAssetCommand<A> {
     fn apply(self, id: Entity, world: &mut World) {
-        let mut materials = world.get_resource_mut::<Assets<A>>().expect(
-            format!(
+        let mut materials = world.get_resource_mut::<Assets<A>>().unwrap_or_else(|| {
+            panic!(
                 "Assets<{}> resource not initialized.",
                 A::type_ident().unwrap()
             )
-            .as_str(),
-        );
+        });
 
         let material = materials.add(self.0);
 
