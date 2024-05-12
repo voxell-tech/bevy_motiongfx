@@ -8,14 +8,24 @@ pub struct PbrMotion {
     pub material: StandardMaterial,
 }
 
-impl PbrMotion {
-    fn new(
-        commands: &mut Commands,
+pub trait BuildPbrMotionExt {
+    /// Builds a [`PbrMotion`].
+    fn build_pbr(
+        &mut self,
         transform: Transform,
         mesh: Handle<Mesh>,
         material: StandardMaterial,
-    ) -> Self {
-        let id = commands
+    ) -> PbrMotion;
+}
+
+impl BuildPbrMotionExt for Commands<'_, '_> {
+    fn build_pbr(
+        &mut self,
+        transform: Transform,
+        mesh: Handle<Mesh>,
+        material: StandardMaterial,
+    ) -> PbrMotion {
+        let id = self
             .spawn(PbrBundle {
                 transform,
                 mesh,
@@ -24,7 +34,7 @@ impl PbrMotion {
             .add_new_asset(material.clone())
             .id();
 
-        Self {
+        PbrMotion {
             id,
             transform,
             material,

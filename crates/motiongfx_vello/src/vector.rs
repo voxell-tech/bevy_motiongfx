@@ -1,15 +1,8 @@
-use bevy::{
-    ecs::{
-        schedule::SystemConfigs,
-        system::{EntityCommand, EntityCommands},
-    },
-    prelude::*,
-};
+use bevy::{ecs::schedule::SystemConfigs, prelude::*};
 use bevy_vello_renderer::{
     prelude::*,
     vello::{self, kurbo, peniko},
 };
-use motiongfx_core::motion::AddNewAssetCommandExtension;
 
 pub mod bezpath;
 pub mod circle;

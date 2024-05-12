@@ -12,11 +12,7 @@ fn main() {
         .run();
 }
 
-fn easings(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut material_assets: ResMut<Assets<StandardMaterial>>,
-) {
+fn easings(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
     let easings = [
         ease::linear,
         ease::sine::ease_in_out,
@@ -35,11 +31,9 @@ fn easings(
     // Color palette
     let palette = ColorPalette::default();
 
-    let mut sphere_ids = Vec::with_capacity(capacity);
-    let mut transforms = Vec::with_capacity(capacity);
-    let mut materials = Vec::with_capacity(capacity);
-
-    // Create sphere objects (Entity)
+    // Create spheres
+    let mut spheres = Vec::with_capacity(capacity);
+    let mesh_handle = meshes.add(Sphere::default());
     let material = StandardMaterial {
         base_color: Color::WHITE,
         emissive: palette.get(ColorKey::Blue) * 100.0,
@@ -47,53 +41,42 @@ fn easings(
     };
 
     for i in 0..capacity {
-        let transform =
+        let sphere = commands.build_pbr(
             Transform::from_translation(Vec3::new(-5.0, (i as f32) - (capacity as f32) * 0.5, 0.0))
-                .with_scale(Vec3::ONE);
-
-        let sphere = commands
-            .spawn(PbrBundle {
-                transform,
-                mesh: meshes.add(Sphere::default()),
-                material: material_assets.add(material.clone()),
-                ..default()
-            })
-            .insert(NotShadowCaster)
-            .id();
-
-        sphere_ids.push(sphere);
-        transforms.push(transform);
-        materials.push(material.clone());
+                .with_scale(Vec3::ONE),
+            mesh_handle.clone(),
+            material.clone(),
+        );
+        commands.entity(sphere.id).insert(NotShadowCaster);
+        spheres.push(sphere);
     }
 
     // Generate sequence
-    let easing_seqs: Vec<Sequence> = transforms
+    let sequence = spheres
         .iter_mut()
-        .zip(materials.iter_mut())
-        .enumerate()
-        .map(|(i, (t, m))| {
+        .zip(easings)
+        .map(|(s, e)| {
             play!(
                 commands,
                 act!(
-                    (sphere_ids[i], Transform),
-                    start = { t }.translation.x,
-                    end = t.translation.x + 10.0,
+                    (s.id, Transform),
+                    start = { s.transform }.translation.x,
+                    end = s.transform.translation.x + 10.0,
                 )
-                .with_ease(easings[i])
-                .animate(1.0),
+                .with_ease(e)
+                .animate(4.0),
                 act!(
-                    (sphere_ids[i], StandardMaterial),
-                    start = { m }.emissive,
+                    (s.id, StandardMaterial),
+                    start = { s.material }.emissive,
                     end = palette.get(ColorKey::Red) * 100.0,
                 )
-                .with_ease(easings[i])
-                .animate(1.0),
+                .with_ease(e)
+                .animate(4.0),
             )
             .all()
         })
-        .collect();
-
-    let sequence = easing_seqs.chain();
+        .collect::<Vec<Sequence>>()
+        .all();
 
     commands.spawn(SequencePlayerBundle {
         sequence,

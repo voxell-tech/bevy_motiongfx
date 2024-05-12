@@ -12,11 +12,7 @@ fn main() {
         .run();
 }
 
-fn hello_world(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
+fn hello_world(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
     const WIDTH: usize = 10;
     const HEIGHT: usize = 10;
 
@@ -25,36 +21,28 @@ fn hello_world(
     // Color palette
     let palette = ColorPalette::default();
 
-    let mut cube_ids = Vec::with_capacity(CAPACITY);
-    let mut transforms = Vec::with_capacity(CAPACITY);
-
     // Create cubes
-    let material_handle = materials.add(StandardMaterial {
+    let mut cubes = Vec::with_capacity(CAPACITY);
+    let mesh_handle = meshes.add(Cuboid::default());
+    let material = StandardMaterial {
         base_color: palette.get(ColorKey::Green),
         ..default()
-    });
+    };
 
     for w in 0..WIDTH {
         for h in 0..HEIGHT {
-            let transform = Transform::from_translation(Vec3::new(
-                (w as f32) - (WIDTH as f32) * 0.5 - 1.0,
-                (h as f32) - (HEIGHT as f32) * 0.5,
-                0.0,
-            ))
-            .with_scale(Vec3::ZERO);
-
-            let cube_id = commands
-                .spawn(PbrBundle {
-                    transform,
-                    mesh: meshes.add(Cuboid::default()),
-                    material: material_handle.clone(),
-                    ..default()
-                })
-                .insert(NotShadowCaster)
-                .id();
-
-            cube_ids.push(cube_id);
-            transforms.push(transform);
+            let cube = commands.build_pbr(
+                Transform::from_translation(Vec3::new(
+                    (w as f32) - (WIDTH as f32) * 0.5 - 1.0,
+                    (h as f32) - (HEIGHT as f32) * 0.5,
+                    0.0,
+                ))
+                .with_scale(Vec3::ZERO),
+                mesh_handle.clone(),
+                material.clone(),
+            );
+            commands.entity(cube.id).insert(NotShadowCaster);
+            cubes.push(cube);
         }
     }
 
@@ -64,26 +52,27 @@ fn hello_world(
     for w in 0..WIDTH {
         for h in 0..HEIGHT {
             let c = w * WIDTH + h;
+            let cube = &mut cubes[c];
 
             let sequence = play!(
                 commands,
                 act!(
-                    (cube_ids[c], Transform),
-                    start = { transforms[c] }.scale,
+                    (cube.id, Transform),
+                    start = { cube.transform }.scale,
                     end = Vec3::splat(0.9),
                 )
                 .with_ease(ease::circ::ease_in_out)
                 .animate(1.0),
                 act!(
-                    (cube_ids[c], Transform),
-                    start = { transforms[c] }.translation.x,
-                    end = transforms[c].translation.x + 1.0,
+                    (cube.id, Transform),
+                    start = { cube.transform }.translation.x,
+                    end = cube.transform.translation.x + 1.0,
                 )
                 .with_ease(ease::circ::ease_in_out)
                 .animate(1.0),
                 act!(
-                    (cube_ids[c], Transform),
-                    start = { transforms[c] }.rotation,
+                    (cube.id, Transform),
+                    start = { cube.transform }.rotation,
                     end = Quat::from_euler(EulerRot::XYZ, 0.0, f32::to_radians(90.0), 0.0,),
                 )
                 .with_ease(ease::circ::ease_in_out)

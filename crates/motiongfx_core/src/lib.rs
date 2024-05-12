@@ -19,6 +19,7 @@ pub mod prelude {
         cross_lerp::*,
         ease,
         f32lerp::*,
+        motion::pbr_motion::BuildPbrMotionExt,
         sequence::{
             all, any, chain, delay, flow, update_asset, update_component, MultiSequenceOrdering,
             Sequence, SequenceBundle, SequenceController, SequencePlayer, SequencePlayerBundle,
