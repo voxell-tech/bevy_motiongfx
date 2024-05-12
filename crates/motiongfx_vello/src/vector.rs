@@ -1,8 +1,15 @@
-use bevy::{ecs::schedule::SystemConfigs, prelude::*};
+use bevy::{
+    ecs::{
+        schedule::SystemConfigs,
+        system::{EntityCommand, EntityCommands},
+    },
+    prelude::*,
+};
 use bevy_vello_renderer::{
     prelude::*,
     vello::{self, kurbo, peniko},
 };
+use motiongfx_core::motion::AddNewAssetCommandExtension;
 
 pub mod bezpath;
 pub mod circle;
@@ -11,8 +18,8 @@ pub mod rect;
 
 #[derive(Default, Clone)]
 pub struct Brush {
-    value: peniko::Brush,
-    transform: Option<kurbo::Affine>,
+    pub value: peniko::Brush,
+    pub transform: kurbo::Affine,
 }
 
 impl Brush {
@@ -43,12 +50,8 @@ impl Brush {
     }
 
     pub fn with_transform(mut self, transform: kurbo::Affine) -> Self {
-        self.transform = Some(transform);
+        self.transform = transform;
         self
-    }
-
-    pub fn clear_transform(&mut self) {
-        self.transform = None;
     }
 }
 
@@ -125,7 +128,7 @@ pub trait VelloVector {
             fill.style,
             default(),
             &fill.brush.value,
-            fill.brush.transform,
+            Some(fill.brush.transform),
             &self.shape(),
         );
     }
@@ -136,7 +139,7 @@ pub trait VelloVector {
             &stroke.style,
             default(),
             &stroke.brush.value,
-            stroke.brush.transform,
+            Some(stroke.brush.transform),
             &self.shape(),
         );
     }

@@ -2,7 +2,7 @@ use bevy::{math::DVec2, prelude::*};
 use bevy_vello_renderer::vello::kurbo;
 use motiongfx_core::f32lerp::F32Lerp;
 
-use crate::vello_vector::VelloVector;
+use super::VelloVector;
 
 #[derive(Component, Default, Debug, Clone, Copy)]
 pub struct VelloLine {

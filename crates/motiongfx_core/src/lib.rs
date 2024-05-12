@@ -8,6 +8,7 @@ pub mod color_palette;
 pub mod cross_lerp;
 pub mod ease;
 pub mod f32lerp;
+pub mod motion;
 pub mod sequence;
 pub mod slide;
 
