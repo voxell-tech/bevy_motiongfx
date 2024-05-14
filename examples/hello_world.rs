@@ -54,28 +54,23 @@ fn hello_world(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
             let c = w * WIDTH + h;
             let cube = &mut cubes[c];
 
+            let circ_ease = ease::circ::ease_in_out;
+
             let sequence = play!(
                 commands,
-                act!(
-                    (cube.id, Transform),
-                    start = { cube.transform }.scale,
-                    end = Vec3::splat(0.9),
-                )
-                .with_ease(ease::circ::ease_in_out)
-                .animate(1.0),
-                act!(
-                    (cube.id, Transform),
-                    start = { cube.transform }.translation.x,
-                    end = cube.transform.translation.x + 1.0,
-                )
-                .with_ease(ease::circ::ease_in_out)
-                .animate(1.0),
-                act!(
-                    (cube.id, Transform),
-                    start = { cube.transform }.rotation,
-                    end = Quat::from_euler(EulerRot::XYZ, 0.0, f32::to_radians(90.0), 0.0,),
-                )
-                .with_ease(ease::circ::ease_in_out)
+                cube.to_scale(Vec3::splat(0.9))
+                    .with_ease(circ_ease)
+                    .animate(1.0),
+                cube.to_translation_x(cube.transform.translation.x + 1.0)
+                    .with_ease(circ_ease)
+                    .animate(1.0),
+                cube.to_rotation(Quat::from_euler(
+                    EulerRot::XYZ,
+                    0.0,
+                    f32::to_radians(90.0),
+                    0.0,
+                ))
+                .with_ease(circ_ease)
                 .animate(1.0),
             )
             .all();

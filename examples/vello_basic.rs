@@ -41,12 +41,8 @@ fn vello_basic(mut commands: Commands) {
     let line_seq = [
         play!(
             commands,
-            act!(
-                (line.id, Transform),
-                start = { line.transform }.translation.y,
-                end = line.transform.translation.y - 100.0,
-            )
-            .animate(1.5),
+            line.to_translation_y(line.transform.translation.y - 100.0)
+                .animate(1.5),
             act!(
                 (line.id, VelloLine),
                 start = { line.vector },
@@ -58,12 +54,8 @@ fn vello_basic(mut commands: Commands) {
         .all(),
         play!(
             commands,
-            act!(
-                (line.id, Transform),
-                start = { line.transform }.translation.y,
-                end = line.transform.translation.y + 100.0,
-            )
-            .animate(1.5),
+            line.to_translation_y(line.transform.translation.y + 100.0)
+                .animate(1.5),
             act!(
                 (line.id, VelloLine),
                 start = { line.vector },
@@ -85,19 +77,14 @@ fn vello_basic(mut commands: Commands) {
                 end = rect.vector.size + 50.0,
             )
             .animate(1.0),
-            act!(
-                (rect.id, Transform),
-                start = { rect.transform }.rotation,
-                end = Quat::from_euler(EulerRot::XYZ, 0.0, 0.0, std::f32::consts::PI),
-            )
+            rect.to_rotation(Quat::from_euler(
+                EulerRot::XYZ,
+                0.0,
+                0.0,
+                std::f32::consts::PI
+            ))
             .animate(1.0),
             rect.to_width(20.0).animate(1.0),
-            act!(
-                (rect.id, Stroke),
-                start = { rect.stroke }.style.width,
-                end = 20.0,
-            )
-            .animate(1.0),
         )
         .all(),
         play!(
@@ -108,18 +95,14 @@ fn vello_basic(mut commands: Commands) {
                 end = rect.vector.size - 50.0,
             )
             .animate(1.0),
-            act!(
-                (rect.id, Transform),
-                start = { rect.transform }.rotation,
-                end = Quat::from_euler(EulerRot::XYZ, 0.0, 0.0, std::f32::consts::TAU),
-            )
+            rect.to_rotation(Quat::from_euler(
+                EulerRot::XYZ,
+                0.0,
+                0.0,
+                std::f32::consts::TAU
+            ))
             .animate(1.0),
-            act!(
-                (rect.id, Stroke),
-                start = { rect.stroke }.style.width,
-                end = 4.0,
-            )
-            .animate(1.0),
+            rect.to_width(4.0).animate(1.0),
         )
         .all(),
     ]
@@ -134,12 +117,7 @@ fn vello_basic(mut commands: Commands) {
                 end = circle.vector.radius + 50.0,
             )
             .animate(1.0),
-            act!(
-                (circle.id, Stroke),
-                start = { circle.stroke }.style.width,
-                end = 20.0,
-            )
-            .animate(1.0),
+            circle.to_width(20.0).animate(1.0),
         )
         .all(),
         play!(
@@ -150,12 +128,7 @@ fn vello_basic(mut commands: Commands) {
                 end = circle.vector.radius - 50.0,
             )
             .animate(1.0),
-            act!(
-                (circle.id, Stroke),
-                start = { circle.stroke }.style.width,
-                end = 4.0,
-            )
-            .animate(1.0),
+            circle.to_width(4.0).animate(1.0),
         )
         .all(),
     ]

@@ -58,20 +58,12 @@ fn easings(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
         .map(|(s, e)| {
             play!(
                 commands,
-                act!(
-                    (s.id, Transform),
-                    start = { s.transform }.translation.x,
-                    end = s.transform.translation.x + 10.0,
-                )
-                .with_ease(e)
-                .animate(4.0),
-                act!(
-                    (s.id, StandardMaterial),
-                    start = { s.material }.emissive,
-                    end = palette.get(ColorKey::Red) * 100.0,
-                )
-                .with_ease(e)
-                .animate(4.0),
+                s.to_translation_x(s.transform.translation.x + 10.0)
+                    .with_ease(e)
+                    .animate(4.0),
+                s.to_emissive(palette.get(ColorKey::Red) * 100.0)
+                    .with_ease(e)
+                    .animate(4.0),
             )
             .all()
         })

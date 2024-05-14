@@ -1,6 +1,11 @@
 use bevy::prelude::*;
 
-use super::{transform_motion::TransformMotion, AddNewAssetCommandExtension, GetId};
+use super::AddNewAssetCommandExtension;
+
+use crate::{
+    act,
+    prelude::{Action, GetId, TransformMotion},
+};
 
 #[derive(TransformMotion, GetId, Clone)]
 pub struct PbrMotion {
@@ -9,6 +14,24 @@ pub struct PbrMotion {
     #[transform]
     pub transform: Transform,
     pub material: StandardMaterial,
+}
+
+impl PbrMotion {
+    pub fn to_emissive(&mut self, color: Color) -> Action<Color, StandardMaterial> {
+        act!(
+            (self.get_id(), StandardMaterial),
+            start = { self.material }.emissive,
+            end = color,
+        )
+    }
+
+    pub fn to_base_color(&mut self, color: Color) -> Action<Color, StandardMaterial> {
+        act!(
+            (self.get_id(), StandardMaterial),
+            start = { self.material }.base_color,
+            end = color,
+        )
+    }
 }
 
 pub trait BuildPbrMotionExt {
