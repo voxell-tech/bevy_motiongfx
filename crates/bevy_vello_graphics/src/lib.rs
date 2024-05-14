@@ -1,114 +1,42 @@
 use bevy::{ecs::schedule::SystemConfigs, prelude::*};
 use bevy_vello_renderer::{
     prelude::*,
-    vello::{self, kurbo, peniko},
+    vello::{self, kurbo},
 };
+use bezpath::VelloBezPath;
+use circle::VelloCircle;
+use fill::Fill;
+use line::VelloLine;
+use rect::VelloRect;
+use stroke::Stroke;
 
 pub mod bezpath;
+pub mod brush;
 pub mod circle;
+pub mod fill;
 pub mod line;
 pub mod rect;
+pub mod stroke;
 
-#[derive(Default, Clone)]
-pub struct Brush {
-    pub value: peniko::Brush,
-    pub transform: kurbo::Affine,
+pub mod prelude {
+    pub use crate::VelloGraphicsPlugin;
+    pub use crate::{bezpath::VelloBezPath, circle::VelloCircle, line::VelloLine, rect::VelloRect};
+    pub use crate::{brush::Brush, fill::Fill, stroke::Stroke};
 }
 
-impl Brush {
-    pub fn from_brush(brush: peniko::Brush) -> Self {
-        Self {
-            value: brush,
-            ..default()
-        }
-    }
+pub struct VelloGraphicsPlugin;
 
-    pub fn from_color(color: Color) -> Self {
-        Self {
-            value: peniko::Brush::Solid(peniko::Color::rgba(
-                color.r() as f64,
-                color.g() as f64,
-                color.b() as f64,
-                color.a() as f64,
-            )),
-            ..default()
-        }
-    }
-
-    pub fn from_gradient(gradient: peniko::Gradient) -> Self {
-        Self {
-            value: peniko::Brush::Gradient(gradient),
-            ..default()
-        }
-    }
-
-    pub fn with_transform(mut self, transform: kurbo::Affine) -> Self {
-        self.transform = transform;
-        self
-    }
-}
-
-#[derive(Component, Clone)]
-pub struct Fill {
-    pub style: peniko::Fill,
-    pub brush: Brush,
-}
-
-impl Fill {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    pub fn from_style(style: peniko::Fill) -> Self {
-        Self { style, ..default() }
-    }
-
-    pub fn with_brush(mut self, brush: Brush) -> Self {
-        self.brush = brush;
-        self
-    }
-
-    pub fn with_color(mut self, color: Color) -> Self {
-        self.brush = Brush::from_color(color);
-        self
-    }
-}
-
-impl Default for Fill {
-    fn default() -> Self {
-        Self {
-            style: peniko::Fill::NonZero,
-            brush: default(),
-        }
-    }
-}
-
-#[derive(Component, Default, Clone)]
-pub struct Stroke {
-    pub style: kurbo::Stroke,
-    pub brush: Brush,
-}
-
-impl Stroke {
-    pub fn new(width: f64) -> Self {
-        Self {
-            style: kurbo::Stroke::new(width),
-            ..default()
-        }
-    }
-
-    pub fn from_style(style: kurbo::Stroke) -> Self {
-        Self { style, ..default() }
-    }
-
-    pub fn with_brush(mut self, brush: Brush) -> Self {
-        self.brush = brush;
-        self
-    }
-
-    pub fn with_color(mut self, color: Color) -> Self {
-        self.brush = Brush::from_color(color);
-        self
+impl Plugin for VelloGraphicsPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(
+            Update,
+            (
+                build_vector::<VelloRect>(),
+                build_vector::<VelloCircle>(),
+                build_vector::<VelloLine>(),
+                build_vector::<VelloBezPath>(),
+            ),
+        );
     }
 }
 
@@ -203,10 +131,7 @@ fn build_fill_and_stroke_vector<Vector: VelloVector + Component>(
 
             // Build the vector to the VelloScene
             vector.build_fill(fill, &mut scene);
-            // Skip building stroke if there is no width to it
-            if stroke.style.width != 0.0 {
-                vector.build_stroke(stroke, &mut scene);
-            }
+            vector.build_stroke(stroke, &mut scene);
 
             // Replace with new scene
             vello_scene.scene = scene.into();

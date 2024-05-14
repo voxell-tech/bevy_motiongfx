@@ -1,9 +1,12 @@
 use bevy::prelude::*;
 
-use super::AddNewAssetCommandExtension;
+use super::{transform_motion::TransformMotion, AddNewAssetCommandExtension, GetId};
 
+#[derive(TransformMotion, GetId, Clone)]
 pub struct PbrMotion {
+    #[id]
     pub id: Entity,
+    #[transform]
     pub transform: Transform,
     pub material: StandardMaterial,
 }

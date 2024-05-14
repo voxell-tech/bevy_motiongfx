@@ -1,3 +1,5 @@
+pub use motiongfx_core_macros::GetId;
+
 use bevy::{
     ecs::system::{EntityCommand, EntityCommands},
     prelude::*,

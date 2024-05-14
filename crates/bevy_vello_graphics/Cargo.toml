@@ -1,15 +1,16 @@
 [package]
-name = "motiongfx_core"
+name = "bevy_vello_graphics"
 version = "0.1.0"
 edition = "2021"
-license = "MIT OR Apache-2.0"
 
 [dependencies]
-motiongfx_core_macros = { path = "macros" }
-
+motiongfx_core = { path = "../motiongfx_core", optional = true }
 bevy_vello_renderer = { git = "https://github.com/nixon-voxell/bevy_vello_renderer", rev = "49ef841842b3170f225614c7d3ffffba31522150" }
 bevy = "0.13"
-smallvec = "1.11"
+
+[features]
+default = ["motiongfx"]
+motiongfx = ["dep:motiongfx_core"]
 
 [lints]
 workspace = true

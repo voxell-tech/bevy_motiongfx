@@ -1,40 +1,9 @@
-use bevy::prelude::*;
+pub use motiongfx_vello_macros::StrokeMotion;
+
+use bevy_vello_graphics::prelude::*;
 use motiongfx_core::{act, action::Action, motion::GetId};
 
-use crate::prelude::Stroke;
-
-use super::AddVelloSceneCommandExt;
-
-#[derive(Clone)]
-pub struct StrokeMotion<T> {
-    pub id: Entity,
-    pub vector: T,
-    pub stroke: Stroke,
-    pub transform: Transform,
-}
-
-pub trait BuildStrokeMotionExt<T> {
-    /// Builds a vector into [`StrokeMotion`].
-    fn build_stroke(&mut self, transform: Transform, vector: T, stroke: Stroke) -> StrokeMotion<T>;
-}
-
-impl<T: Component + Clone> BuildStrokeMotionExt<T> for Commands<'_, '_> {
-    fn build_stroke(&mut self, transform: Transform, vector: T, stroke: Stroke) -> StrokeMotion<T> {
-        let id = self
-            .spawn((transform, vector.clone(), stroke.clone()))
-            .add_vello_scene()
-            .id();
-
-        StrokeMotion {
-            id,
-            transform,
-            vector,
-            stroke,
-        }
-    }
-}
-
-pub trait StrokeMotionExt: GetId {
+pub trait StrokeMotion: GetId {
     fn get_stroke(&mut self) -> &mut Stroke;
 
     fn to_width(&mut self, width: f64) -> Action<f64, Stroke> {

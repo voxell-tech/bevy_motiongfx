@@ -1,10 +1,12 @@
+pub use motiongfx_core_macros::TransformMotion;
+
 use bevy::prelude::*;
 
 use crate::{act, prelude::Action};
 
 use super::GetId;
 
-pub trait TransformMotionExtension: GetId {
+pub trait TransformMotion: GetId {
     fn get_transform(&mut self) -> &mut Transform;
 
     fn to_transform(&mut self, transfrom: Transform) -> Action<Transform, Transform> {

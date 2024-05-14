@@ -16,9 +16,9 @@ resolver = "2"
 
 [dependencies]
 motiongfx_core = { path = "crates/motiongfx_core" }
-# motiongfx_bevy = { path = "crates/motiongfx_bevy" }
 motiongfx_vello = { path = "crates/motiongfx_vello" }
 motiongfx_typst = { path = "crates/motiongfx_typst" }
+bevy_vello_graphics = { path = "crates/bevy_vello_graphics" }
 
 [dev-dependencies]
 bevy = "0.13"
