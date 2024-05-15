@@ -757,6 +757,7 @@ name = "bevy_motiongfx"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "bevy_vello_graphics",
  "motiongfx_core",
  "motiongfx_typst",
  "motiongfx_vello",
@@ -1047,6 +1048,15 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.46",
+]
+
+[[package]]
+name = "bevy_vello_graphics"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "bevy_vello_renderer",
+ "motiongfx_core",
 ]
 
 [[package]]
@@ -3100,7 +3110,17 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy_vello_renderer",
+ "motiongfx_core_macros",
  "smallvec",
+]
+
+[[package]]
+name = "motiongfx_core_macros"
+version = "0.1.0"
+dependencies = [
+ "motiongfx_macro_utils",
+ "quote",
+ "syn 2.0.46",
 ]
 
 [[package]]
@@ -3148,8 +3168,19 @@ name = "motiongfx_vello"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "bevy_vello_graphics",
  "bevy_vello_renderer",
  "motiongfx_core",
+ "motiongfx_vello_macros",
+]
+
+[[package]]
+name = "motiongfx_vello_macros"
+version = "0.1.0"
+dependencies = [
+ "motiongfx_macro_utils",
+ "quote",
+ "syn 2.0.46",
 ]
 
 [[package]]

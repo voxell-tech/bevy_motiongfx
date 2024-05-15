@@ -8,6 +8,7 @@ pub mod color_palette;
 pub mod cross_lerp;
 pub mod ease;
 pub mod f32lerp;
+pub mod motion;
 pub mod sequence;
 pub mod slide;
 
@@ -18,6 +19,7 @@ pub mod prelude {
         cross_lerp::*,
         ease,
         f32lerp::*,
+        motion::{pbr_motion::BuildPbrMotionExt, transform_motion::TransformMotion, GetId},
         sequence::{
             all, any, chain, delay, flow, update_asset, update_component, MultiSequenceOrdering,
             Sequence, SequenceBundle, SequenceController, SequencePlayer, SequencePlayerBundle,

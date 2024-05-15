@@ -17,73 +17,52 @@ fn vello_basic(mut commands: Commands) {
     let palette = ColorPalette::default();
 
     // Create vello graphics
-    let mut line = build_vector!(
-        commands,
-        vector = VelloLine::new(DVec2::new(-300.0, 0.0), DVec2::new(300.0, 0.0)),
-        stroke = Stroke::default().with_brush(Brush::from_color(palette.get(ColorKey::Base8))),
-        transform = Transform::from_xyz(0.0, -100.0, 0.0)
+    let mut line = commands.build_svector(
+        Transform::from_xyz(0.0, -100.0, 0.0),
+        VelloLine::new(DVec2::new(-300.0, 0.0), DVec2::new(300.0, 0.0)),
+        Stroke::default().with_brush(Brush::from_color(palette.get(ColorKey::Base8))),
     );
 
-    let mut rect = build_vector!(
-        commands,
-        vector = VelloRect::new(100.0, 100.0),
-        fill = Fill::new().with_color(palette.get(ColorKey::Blue)),
-        stroke = Stroke::new(4.0).with_color(palette.get(ColorKey::Blue) * 1.5),
-        transform = Transform::from_xyz(-200.0, 0.0, 0.0)
+    let mut rect = commands.build_fsvector(
+        Transform::from_xyz(-200.0, 0.0, 0.0),
+        VelloRect::new(100.0, 100.0),
+        Fill::new().with_color(palette.get(ColorKey::Blue)),
+        Stroke::new(4.0).with_color(palette.get(ColorKey::Blue) * 1.5),
     );
 
-    let mut circle = build_vector!(
-        commands,
-        vector = VelloCircle::new(50.0),
-        fill = Fill::new().with_color(palette.get(ColorKey::Purple)),
-        stroke = Stroke::new(4.0).with_color(palette.get(ColorKey::Purple) * 1.5),
-        transform = Transform::from_xyz(200.0, 0.0, 0.0)
+    let mut circle = commands.build_fsvector(
+        Transform::from_xyz(200.0, 0.0, 0.0),
+        VelloCircle::new(50.0),
+        Fill::new().with_color(palette.get(ColorKey::Purple)),
+        Stroke::new(4.0).with_color(palette.get(ColorKey::Purple) * 1.5),
     );
 
     // Generate sequence
     let line_seq = [
         play!(
             commands,
-            act!(
-                (line.id, Transform),
-                start = { line.transform }.translation.y,
-                end = line.transform.translation.y - 100.0,
-            )
-            .animate(1.5),
+            line.to_translation_y(line.transform.translation.y - 100.0)
+                .animate(1.5),
             act!(
                 (line.id, VelloLine),
                 start = { line.vector },
                 end = line.vector.extend(100.0),
             )
             .animate(1.0),
-            act!(
-                (line.id, Stroke),
-                start = { line.stroke }.style.width,
-                end = 10.0,
-            )
-            .animate(1.0),
+            line.to_width(10.0).animate(1.0),
         )
         .all(),
         play!(
             commands,
-            act!(
-                (line.id, Transform),
-                start = { line.transform }.translation.y,
-                end = line.transform.translation.y + 100.0,
-            )
-            .animate(1.5),
+            line.to_translation_y(line.transform.translation.y + 100.0)
+                .animate(1.5),
             act!(
                 (line.id, VelloLine),
                 start = { line.vector },
                 end = line.vector.extend(-100.0),
             )
             .animate(1.0),
-            act!(
-                (line.id, Stroke),
-                start = { line.stroke }.style.width,
-                end = 1.0,
-            )
-            .animate(1.0),
+            line.to_width(1.0).animate(1.0),
         )
         .all(),
     ]
@@ -98,18 +77,14 @@ fn vello_basic(mut commands: Commands) {
                 end = rect.vector.size + 50.0,
             )
             .animate(1.0),
-            act!(
-                (rect.id, Transform),
-                start = { rect.transform }.rotation,
-                end = Quat::from_euler(EulerRot::XYZ, 0.0, 0.0, std::f32::consts::PI),
-            )
+            rect.to_rotation(Quat::from_euler(
+                EulerRot::XYZ,
+                0.0,
+                0.0,
+                std::f32::consts::PI
+            ))
             .animate(1.0),
-            act!(
-                (rect.id, Stroke),
-                start = { rect.stroke }.style.width,
-                end = 20.0,
-            )
-            .animate(1.0),
+            rect.to_width(20.0).animate(1.0),
         )
         .all(),
         play!(
@@ -120,18 +95,14 @@ fn vello_basic(mut commands: Commands) {
                 end = rect.vector.size - 50.0,
             )
             .animate(1.0),
-            act!(
-                (rect.id, Transform),
-                start = { rect.transform }.rotation,
-                end = Quat::from_euler(EulerRot::XYZ, 0.0, 0.0, std::f32::consts::TAU),
-            )
+            rect.to_rotation(Quat::from_euler(
+                EulerRot::XYZ,
+                0.0,
+                0.0,
+                std::f32::consts::TAU
+            ))
             .animate(1.0),
-            act!(
-                (rect.id, Stroke),
-                start = { rect.stroke }.style.width,
-                end = 4.0,
-            )
-            .animate(1.0),
+            rect.to_width(4.0).animate(1.0),
         )
         .all(),
     ]
@@ -146,12 +117,7 @@ fn vello_basic(mut commands: Commands) {
                 end = circle.vector.radius + 50.0,
             )
             .animate(1.0),
-            act!(
-                (circle.id, Stroke),
-                start = { circle.stroke }.style.width,
-                end = 20.0,
-            )
-            .animate(1.0),
+            circle.to_width(20.0).animate(1.0),
         )
         .all(),
         play!(
@@ -162,12 +128,7 @@ fn vello_basic(mut commands: Commands) {
                 end = circle.vector.radius - 50.0,
             )
             .animate(1.0),
-            act!(
-                (circle.id, Stroke),
-                start = { circle.stroke }.style.width,
-                end = 4.0,
-            )
-            .animate(1.0),
+            circle.to_width(4.0).animate(1.0),
         )
         .all(),
     ]

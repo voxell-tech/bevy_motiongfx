@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy_vello_renderer::vello::kurbo;
+#[cfg(feature = "motiongfx")]
 use motiongfx_core::f32lerp::F32Lerp;
 
 use super::VelloVector;
@@ -26,6 +27,7 @@ impl VelloVector for VelloCircle {
     }
 }
 
+#[cfg(feature = "motiongfx")]
 impl F32Lerp for VelloCircle {
     fn f32lerp(&self, rhs: &Self, t: f32) -> Self {
         VelloCircle {

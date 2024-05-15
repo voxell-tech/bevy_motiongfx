@@ -1,11 +1,10 @@
 use bevy::{ecs::system::EntityCommands, prelude::*};
+use bevy_vello_graphics::prelude::*;
 use bevy_vello_renderer::{
     prelude::*,
     vello::{kurbo, peniko},
     vello_svg::usvg::{self, NodeExt},
 };
-
-use crate::prelude::{Brush, Fill, Stroke, VelloBezPath};
 
 /// Vello Bézier path group spawned from a Svg tree.
 pub struct SvgTreeBundle {
