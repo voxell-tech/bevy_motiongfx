@@ -31,7 +31,7 @@ fn hello_world(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
 
     for w in 0..WIDTH {
         for h in 0..HEIGHT {
-            let cube = commands.build_pbr(
+            let cube = commands.spawn(NotShadowCaster).build_pbr(
                 Transform::from_translation(Vec3::new(
                     (w as f32) - (WIDTH as f32) * 0.5 - 1.0,
                     (h as f32) - (HEIGHT as f32) * 0.5,
@@ -41,7 +41,6 @@ fn hello_world(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
                 mesh_handle.clone(),
                 material.clone(),
             );
-            commands.entity(cube.id).insert(NotShadowCaster);
             cubes.push(cube);
         }
     }

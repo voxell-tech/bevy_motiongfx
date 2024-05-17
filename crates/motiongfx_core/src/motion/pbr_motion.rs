@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{ecs::system::EntityCommands, prelude::*};
 
 use super::AddNewAssetCommandExtension;
 
@@ -53,6 +53,30 @@ impl BuildPbrMotionExt for Commands<'_, '_> {
     ) -> PbrMotion {
         let id = self
             .spawn(PbrBundle {
+                transform,
+                mesh,
+                ..default()
+            })
+            .add_new_asset(material.clone())
+            .id();
+
+        PbrMotion {
+            id,
+            transform,
+            material,
+        }
+    }
+}
+
+impl BuildPbrMotionExt for EntityCommands<'_> {
+    fn build_pbr(
+        &mut self,
+        transform: Transform,
+        mesh: Handle<Mesh>,
+        material: StandardMaterial,
+    ) -> PbrMotion {
+        let id = self
+            .insert(PbrBundle {
                 transform,
                 mesh,
                 ..default()

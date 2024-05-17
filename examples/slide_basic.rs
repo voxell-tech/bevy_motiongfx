@@ -18,7 +18,7 @@ fn slide_basic(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
 
     // Cube
     let x_offset = 2.0;
-    let mut cube = commands.build_pbr(
+    let mut cube = commands.spawn(NotShadowCaster).build_pbr(
         Transform::default().with_scale(Vec3::splat(0.0)),
         meshes.add(Cuboid::default()),
         StandardMaterial {
@@ -26,10 +26,9 @@ fn slide_basic(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
             ..default()
         },
     );
-    commands.entity(cube.id).insert(NotShadowCaster);
 
     // Sphere
-    let mut sphere = commands.build_pbr(
+    let mut sphere = commands.spawn(NotShadowCaster).build_pbr(
         Transform::default()
             .with_translation(Vec3::X * x_offset)
             .with_scale(Vec3::splat(0.0)),
@@ -39,7 +38,6 @@ fn slide_basic(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
             ..default()
         },
     );
-    commands.entity(sphere.id).insert(NotShadowCaster);
 
     // Create slides
     let slide0 = commands.play_motion(cube.to_scale(Vec3::ONE).animate(1.0));
