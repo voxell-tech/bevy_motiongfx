@@ -1,18 +1,10 @@
-use bevy::{
-    core_pipeline::{
-        bloom::BloomSettings,
-        experimental::taa::{TemporalAntiAliasBundle, TemporalAntiAliasPlugin},
-    },
-    pbr::{NotShadowCaster, ScreenSpaceAmbientOcclusionBundle},
-    prelude::*,
-};
+use bevy::{core_pipeline::bloom::BloomSettings, pbr::NotShadowCaster, prelude::*};
 use bevy_motiongfx::prelude::*;
 
 fn main() {
     App::new()
         // Bevy plugins
-        .add_plugins((DefaultPlugins, TemporalAntiAliasPlugin))
-        .insert_resource(Msaa::Off)
+        .add_plugins(DefaultPlugins)
         // Custom plugins
         .add_plugins(MotionGfxPlugin)
         .add_systems(Startup, (setup, slide_basic))
@@ -79,9 +71,7 @@ fn setup(mut commands: Commands) {
             tonemapping: bevy::core_pipeline::tonemapping::Tonemapping::AcesFitted,
             ..default()
         })
-        .insert(BloomSettings::default())
-        .insert(ScreenSpaceAmbientOcclusionBundle::default())
-        .insert(TemporalAntiAliasBundle::default());
+        .insert(BloomSettings::default());
 
     // Directional light
     commands.spawn(DirectionalLightBundle {
