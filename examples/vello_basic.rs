@@ -39,98 +39,106 @@ fn vello_basic(mut commands: Commands) {
 
     // Generate sequence
     let line_seq = [
-        play!(
-            commands,
-            line.to_translation_y(line.transform.translation.y - 100.0)
-                .animate(1.5),
-            act!(
-                (line.id, VelloLine),
-                start = { line.vector },
-                end = line.vector.extend(100.0),
+        commands
+            .add_motion(
+                line.to_translation_y(line.transform.translation.y - 100.0)
+                    .animate(1.5),
             )
-            .animate(1.0),
-            line.to_width(10.0).animate(1.0),
-        )
-        .all(),
-        play!(
-            commands,
-            line.to_translation_y(line.transform.translation.y + 100.0)
-                .animate(1.5),
-            act!(
-                (line.id, VelloLine),
-                start = { line.vector },
-                end = line.vector.extend(-100.0),
+            .add_motion(
+                act!(
+                    (line.id, VelloLine),
+                    start = { line.vector },
+                    end = line.vector.extend(100.0),
+                )
+                .animate(1.0),
             )
-            .animate(1.0),
-            line.to_width(1.0).animate(1.0),
-        )
-        .all(),
+            .add_motion(line.to_width(10.0).animate(1.0))
+            .all(),
+        commands
+            .add_motion(
+                line.to_translation_y(line.transform.translation.y + 100.0)
+                    .animate(1.5),
+            )
+            .add_motion(
+                act!(
+                    (line.id, VelloLine),
+                    start = { line.vector },
+                    end = line.vector.extend(-100.0),
+                )
+                .animate(1.0),
+            )
+            .add_motion(line.to_width(1.0).animate(1.0))
+            .all(),
     ]
     .chain();
 
     let rect_seq = [
-        play!(
-            commands,
-            act!(
-                (rect.id, VelloRect),
-                start = { rect.vector }.size,
-                end = rect.vector.size + 50.0,
+        commands
+            .add_motion(
+                act!(
+                    (rect.id, VelloRect),
+                    start = { rect.vector }.size,
+                    end = rect.vector.size + 50.0,
+                )
+                .animate(1.0),
             )
-            .animate(1.0),
-            rect.to_rotation(Quat::from_euler(
-                EulerRot::XYZ,
-                0.0,
-                0.0,
-                std::f32::consts::PI
-            ))
-            .animate(1.0),
-            rect.to_width(20.0).animate(1.0),
-        )
-        .all(),
-        play!(
-            commands,
-            act!(
-                (rect.id, VelloRect),
-                start = { rect.vector }.size,
-                end = rect.vector.size - 50.0,
+            .add_motion(
+                rect.to_rotation(Quat::from_euler(
+                    EulerRot::XYZ,
+                    0.0,
+                    0.0,
+                    std::f32::consts::PI,
+                ))
+                .animate(1.0),
             )
-            .animate(1.0),
-            rect.to_rotation(Quat::from_euler(
-                EulerRot::XYZ,
-                0.0,
-                0.0,
-                std::f32::consts::TAU
-            ))
-            .animate(1.0),
-            rect.to_width(4.0).animate(1.0),
-        )
-        .all(),
+            .add_motion(rect.to_width(20.0).animate(1.0))
+            .all(),
+        commands
+            .add_motion(
+                act!(
+                    (rect.id, VelloRect),
+                    start = { rect.vector }.size,
+                    end = rect.vector.size - 50.0,
+                )
+                .animate(1.0),
+            )
+            .add_motion(
+                rect.to_rotation(Quat::from_euler(
+                    EulerRot::XYZ,
+                    0.0,
+                    0.0,
+                    std::f32::consts::TAU,
+                ))
+                .animate(1.0),
+            )
+            .add_motion(rect.to_width(4.0).animate(1.0))
+            .all(),
     ]
     .chain();
 
     let cirlce_seq = [
-        play!(
-            commands,
-            act!(
-                (circle.id, VelloCircle),
-                start = { circle.vector }.radius,
-                end = circle.vector.radius + 50.0,
+        commands
+            .add_motion(
+                act!(
+                    (circle.id, VelloCircle),
+                    start = { circle.vector }.radius,
+                    end = circle.vector.radius + 50.0,
+                )
+                .animate(1.0),
             )
-            .animate(1.0),
-            circle.to_width(20.0).animate(1.0),
-        )
-        .all(),
-        play!(
-            commands,
-            act!(
-                (circle.id, VelloCircle),
-                start = { circle.vector }.radius,
-                end = circle.vector.radius - 50.0,
+            .add_motion(circle.to_width(20.0).animate(1.0))
+            .all(),
+        commands
+            .add_motion(
+                act!(
+                    (circle.id, VelloCircle),
+                    start = { circle.vector }.radius,
+                    end = circle.vector.radius - 50.0,
+                )
+                .animate(1.0),
             )
-            .animate(1.0),
-            circle.to_width(4.0).animate(1.0),
-        )
-        .all(),
+            .add_motion(circle.to_width(4.0).animate(1.0))
+            .all(),
     ]
     .chain();
 

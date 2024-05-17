@@ -20,88 +20,47 @@ fn main() {
         .run();
 }
 
-fn slide_basic(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
+fn slide_basic(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
     // Color palette
     let palette = ColorPalette::default();
 
-    // Materials
-    let mut cube_material = StandardMaterial {
-        base_color: palette.get(ColorKey::Green),
-        ..default()
-    };
-    let sphere_material = StandardMaterial {
-        base_color: palette.get(ColorKey::Blue),
-        ..default()
-    };
-
-    let x_offset = 2.0;
     // Cube
-    let mut cube_pbr = PbrBundle {
-        transform: Transform::default().with_scale(Vec3::splat(0.0)),
-        mesh: meshes.add(Cuboid::default()),
-        material: materials.add(cube_material.clone()),
-        ..default()
-    };
-    let cube_id = commands
-        .spawn(cube_pbr.clone())
-        .insert(NotShadowCaster)
-        .id();
+    let x_offset = 2.0;
+    let mut cube = commands.build_pbr(
+        Transform::default().with_scale(Vec3::splat(0.0)),
+        meshes.add(Cuboid::default()),
+        StandardMaterial {
+            base_color: palette.get(ColorKey::Green),
+            ..default()
+        },
+    );
+    commands.entity(cube.id).insert(NotShadowCaster);
 
     // Sphere
-    let mut sphere_pbr = PbrBundle {
-        transform: Transform::default()
+    let mut sphere = commands.build_pbr(
+        Transform::default()
             .with_translation(Vec3::X * x_offset)
             .with_scale(Vec3::splat(0.0)),
-        mesh: meshes.add(Sphere::default()),
-        material: materials.add(sphere_material),
-        ..default()
-    };
-    let sphere_id = commands
-        .spawn(sphere_pbr.clone())
-        .insert(NotShadowCaster)
-        .id();
+        meshes.add(Sphere::default()),
+        StandardMaterial {
+            base_color: palette.get(ColorKey::Blue),
+            ..default()
+        },
+    );
+    commands.entity(sphere.id).insert(NotShadowCaster);
 
     // Create slides
-    let slide0 = play!(
-        commands,
-        act!(
-            (cube_id, Transform),
-            start = { cube_pbr.transform }.scale,
-            end = Vec3::ONE,
-        )
-        .animate(1.0),
-    );
+    let slide0 = commands.play_motion(cube.to_scale(Vec3::ONE).animate(1.0));
 
     let slide1 = [
-        play!(
-            commands,
-            act!(
-                (cube_id, Transform),
-                start = { cube_pbr.transform }.translation.x,
-                end = -x_offset,
+        commands
+            .add_motion(cube.to_translation_x(-x_offset).animate(1.0))
+            .add_motion(
+                cube.to_base_color(palette.get(ColorKey::Base0))
+                    .animate(1.0),
             )
-            .animate(1.0),
-            act!(
-                (cube_id, StandardMaterial),
-                start = { cube_material }.base_color,
-                end = palette.get(ColorKey::Base0),
-            )
-            .animate(1.0),
-        )
-        .all(),
-        play!(
-            commands,
-            act!(
-                (sphere_id, Transform),
-                start = { sphere_pbr.transform }.scale,
-                end = Vec3::ONE,
-            )
-            .animate(1.0),
-        ),
+            .all(),
+        commands.play_motion(sphere.to_scale(Vec3::ONE).animate(1.0)),
     ]
     .flow(0.1);
 

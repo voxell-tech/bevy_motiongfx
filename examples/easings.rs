@@ -56,18 +56,19 @@ fn easings(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
         .iter_mut()
         .zip(easings)
         .map(|(s, e)| {
-            play!(
-                commands,
-                s.to_translation_x(s.transform.translation.x + 10.0)
-                    .with_ease(e)
-                    .animate(4.0),
-                s.to_emissive(palette.get(ColorKey::Red) * 100.0)
-                    .with_ease(e)
-                    .animate(4.0),
-            )
-            .all()
+            commands
+                .add_motion(
+                    s.to_translation_x(s.transform.translation.x + 10.0)
+                        .with_ease(e)
+                        .animate(4.0),
+                )
+                .add_motion(
+                    s.to_emissive(palette.get(ColorKey::Red) * 100.0)
+                        .animate(4.0),
+                )
+                .all()
         })
-        .collect::<Vec<Sequence>>()
+        .collect::<Vec<_>>()
         .all();
 
     commands.spawn(SequencePlayerBundle {
