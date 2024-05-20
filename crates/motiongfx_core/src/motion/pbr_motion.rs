@@ -44,30 +44,6 @@ pub trait BuildPbrMotionExt {
     ) -> PbrMotion;
 }
 
-impl BuildPbrMotionExt for Commands<'_, '_> {
-    fn build_pbr(
-        &mut self,
-        transform: Transform,
-        mesh: Handle<Mesh>,
-        material: StandardMaterial,
-    ) -> PbrMotion {
-        let id = self
-            .spawn(PbrBundle {
-                transform,
-                mesh,
-                ..default()
-            })
-            .add_new_asset(material.clone())
-            .id();
-
-        PbrMotion {
-            id,
-            transform,
-            material,
-        }
-    }
-}
-
 impl BuildPbrMotionExt for EntityCommands<'_> {
     fn build_pbr(
         &mut self,
@@ -89,5 +65,16 @@ impl BuildPbrMotionExt for EntityCommands<'_> {
             transform,
             material,
         }
+    }
+}
+
+impl BuildPbrMotionExt for Commands<'_, '_> {
+    fn build_pbr(
+        &mut self,
+        transform: Transform,
+        mesh: Handle<Mesh>,
+        material: StandardMaterial,
+    ) -> PbrMotion {
+        self.spawn_empty().build_pbr(transform, mesh, material)
     }
 }
