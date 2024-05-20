@@ -41,13 +41,12 @@ fn easings(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
     };
 
     for i in 0..capacity {
-        let sphere = commands.build_pbr(
+        let sphere = commands.spawn(NotShadowCaster).build_pbr(
             Transform::from_translation(Vec3::new(-5.0, (i as f32) - (capacity as f32) * 0.5, 0.0))
                 .with_scale(Vec3::ONE),
             mesh_handle.clone(),
             material.clone(),
         );
-        commands.entity(sphere.id).insert(NotShadowCaster);
         spheres.push(sphere);
     }
 
