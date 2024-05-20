@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{ecs::system::EntityCommands, prelude::*};
 
 use super::AddNewAssetCommandExtension;
 
@@ -44,7 +44,7 @@ pub trait BuildPbrMotionExt {
     ) -> PbrMotion;
 }
 
-impl BuildPbrMotionExt for Commands<'_, '_> {
+impl BuildPbrMotionExt for EntityCommands<'_> {
     fn build_pbr(
         &mut self,
         transform: Transform,
@@ -52,7 +52,7 @@ impl BuildPbrMotionExt for Commands<'_, '_> {
         material: StandardMaterial,
     ) -> PbrMotion {
         let id = self
-            .spawn(PbrBundle {
+            .insert(PbrBundle {
                 transform,
                 mesh,
                 ..default()
@@ -65,5 +65,16 @@ impl BuildPbrMotionExt for Commands<'_, '_> {
             transform,
             material,
         }
+    }
+}
+
+impl BuildPbrMotionExt for Commands<'_, '_> {
+    fn build_pbr(
+        &mut self,
+        transform: Transform,
+        mesh: Handle<Mesh>,
+        material: StandardMaterial,
+    ) -> PbrMotion {
+        self.spawn_empty().build_pbr(transform, mesh, material)
     }
 }

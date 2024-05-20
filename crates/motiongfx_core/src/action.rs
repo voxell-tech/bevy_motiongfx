@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use crate::{
     ease::{cubic, EaseFn},
     f32lerp::F32Lerp,
+    prelude::MultiSequenceOrdering,
     sequence::Sequence,
 };
 
@@ -54,23 +55,7 @@ macro_rules! act {
     };
 }
 
-#[macro_export]
-macro_rules! play {
-    ($commands:expr, $motion:expr,) => {
-        $crate::action::ActionBuilderExtension::play(&mut $commands, $motion)
-    };
-    ($commands:expr, $($motion:expr,)+) => {
-        {
-            let commands = &mut $commands;
-            [
-                $($crate::action::ActionBuilderExtension::play(commands, ($motion))),+
-            ]
-        }
-    };
-}
-
 pub use act;
-pub use play;
 
 /// Basic data structure to describe an animation action.
 #[derive(Component, Clone, Copy)]
@@ -184,13 +169,60 @@ impl ActionMeta {
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct Motion<T, U> {
     pub action: Action<T, U>,
     pub duration: f32,
 }
 
-pub trait ActionBuilderExtension {
-    fn play<T, U>(&mut self, motion: Motion<T, U>) -> Sequence
+pub struct SequenceBuilder<'w, 's> {
+    commands: Commands<'w, 's>,
+    sequences: Vec<Sequence>,
+}
+
+impl<'a> SequenceBuilder<'a, 'a> {
+    /// Converts a [`Motion`] into a [`SequenceBuilder`].
+    pub fn add_motion<T, U>(mut self, motion: Motion<T, U>) -> Self
+    where
+        T: Send + Sync + 'static,
+        U: Send + Sync + 'static,
+    {
+        self.sequences.push(self.commands.play_motion(motion));
+        self
+    }
+
+    pub fn build(self) -> Vec<Sequence> {
+        self.sequences
+    }
+}
+
+impl MultiSequenceOrdering for SequenceBuilder<'_, '_> {
+    fn chain(self) -> Sequence {
+        self.sequences.chain()
+    }
+
+    fn all(self) -> Sequence {
+        self.sequences.all()
+    }
+
+    fn any(self) -> Sequence {
+        self.sequences.any()
+    }
+
+    fn flow(self, delay: f32) -> Sequence {
+        self.sequences.flow(delay)
+    }
+}
+
+pub trait SequenceBuilderExt<'w> {
+    /// Converts a [`Motion`] into a [`Sequence`].
+    fn play_motion<T, U>(&mut self, motion: Motion<T, U>) -> Sequence
+    where
+        T: Send + Sync + 'static,
+        U: Send + Sync + 'static;
+
+    /// Converts a [`Motion`] into a [`SequenceBuilder`].
+    fn add_motion<T, U>(&mut self, motion: Motion<T, U>) -> SequenceBuilder<'w, '_>
     where
         T: Send + Sync + 'static,
         U: Send + Sync + 'static;
@@ -198,8 +230,8 @@ pub trait ActionBuilderExtension {
     fn sleep(&mut self, duration: f32) -> Sequence;
 }
 
-impl ActionBuilderExtension for Commands<'_, '_> {
-    fn play<T, U>(&mut self, motion: Motion<T, U>) -> Sequence
+impl<'w> SequenceBuilderExt<'w> for Commands<'w, '_> {
+    fn play_motion<T, U>(&mut self, motion: Motion<T, U>) -> Sequence
     where
         T: Send + Sync + 'static,
         U: Send + Sync + 'static,
@@ -209,6 +241,19 @@ impl ActionBuilderExtension for Commands<'_, '_> {
         action_meta.duration = motion.duration;
 
         Sequence::single(action_meta)
+    }
+
+    fn add_motion<T, U>(&mut self, motion: Motion<T, U>) -> SequenceBuilder<'w, '_>
+    where
+        T: Send + Sync + 'static,
+        U: Send + Sync + 'static,
+    {
+        let mut commands = self.reborrow();
+        let sequences = vec![commands.play_motion(motion)];
+        SequenceBuilder {
+            commands,
+            sequences,
+        }
     }
 
     fn sleep(&mut self, duration: f32) -> Sequence {

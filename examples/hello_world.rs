@@ -31,7 +31,7 @@ fn hello_world(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
 
     for w in 0..WIDTH {
         for h in 0..HEIGHT {
-            let cube = commands.build_pbr(
+            let cube = commands.spawn(NotShadowCaster).build_pbr(
                 Transform::from_translation(Vec3::new(
                     (w as f32) - (WIDTH as f32) * 0.5 - 1.0,
                     (h as f32) - (HEIGHT as f32) * 0.5,
@@ -41,7 +41,6 @@ fn hello_world(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
                 mesh_handle.clone(),
                 material.clone(),
             );
-            commands.entity(cube.id).insert(NotShadowCaster);
             cubes.push(cube);
         }
     }
@@ -56,24 +55,28 @@ fn hello_world(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
 
             let circ_ease = ease::circ::ease_in_out;
 
-            let sequence = play!(
-                commands,
-                cube.to_scale(Vec3::splat(0.9))
+            let sequence = commands
+                .add_motion(
+                    cube.to_scale(Vec3::splat(0.9))
+                        .with_ease(circ_ease)
+                        .animate(1.0),
+                )
+                .add_motion(
+                    cube.to_translation_x(cube.transform.translation.x + 1.0)
+                        .with_ease(circ_ease)
+                        .animate(1.0),
+                )
+                .add_motion(
+                    cube.to_rotation(Quat::from_euler(
+                        EulerRot::XYZ,
+                        0.0,
+                        f32::to_radians(90.0),
+                        0.0,
+                    ))
                     .with_ease(circ_ease)
                     .animate(1.0),
-                cube.to_translation_x(cube.transform.translation.x + 1.0)
-                    .with_ease(circ_ease)
-                    .animate(1.0),
-                cube.to_rotation(Quat::from_euler(
-                    EulerRot::XYZ,
-                    0.0,
-                    f32::to_radians(90.0),
-                    0.0,
-                ))
-                .with_ease(circ_ease)
-                .animate(1.0),
-            )
-            .all();
+                )
+                .all();
 
             cube_seqs.push(sequence);
         }

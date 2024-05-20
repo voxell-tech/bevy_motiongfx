@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{ecs::system::EntityCommands, prelude::*};
 use bevy_vello_graphics::prelude::*;
 use motiongfx_core::motion::{transform_motion::TransformMotion, GetId};
 
@@ -61,10 +61,10 @@ pub trait BuildVectorMotionExt<T> {
     ) -> FSVectorMotion<T>;
 }
 
-impl<T: Component + Clone> BuildVectorMotionExt<T> for Commands<'_, '_> {
+impl<T: Component + Clone> BuildVectorMotionExt<T> for EntityCommands<'_> {
     fn build_fvector(&mut self, transform: Transform, vector: T, fill: Fill) -> FVectorMotion<T> {
         let id = self
-            .spawn((transform, vector.clone(), fill.clone()))
+            .insert((transform, vector.clone(), fill.clone()))
             .add_vello_scene()
             .id();
 
@@ -83,7 +83,7 @@ impl<T: Component + Clone> BuildVectorMotionExt<T> for Commands<'_, '_> {
         stroke: Stroke,
     ) -> SVectorMotion<T> {
         let id = self
-            .spawn((transform, vector.clone(), stroke.clone()))
+            .insert((transform, vector.clone(), stroke.clone()))
             .add_vello_scene()
             .id();
 
@@ -103,7 +103,7 @@ impl<T: Component + Clone> BuildVectorMotionExt<T> for Commands<'_, '_> {
         stroke: Stroke,
     ) -> FSVectorMotion<T> {
         let id = self
-            .spawn((transform, vector.clone(), fill.clone(), stroke.clone()))
+            .insert((transform, vector.clone(), fill.clone(), stroke.clone()))
             .add_vello_scene()
             .id();
 
@@ -114,5 +114,31 @@ impl<T: Component + Clone> BuildVectorMotionExt<T> for Commands<'_, '_> {
             fill,
             stroke,
         }
+    }
+}
+
+impl<T: Component + Clone> BuildVectorMotionExt<T> for Commands<'_, '_> {
+    fn build_fvector(&mut self, transform: Transform, vector: T, fill: Fill) -> FVectorMotion<T> {
+        self.spawn_empty().build_fvector(transform, vector, fill)
+    }
+
+    fn build_svector(
+        &mut self,
+        transform: Transform,
+        vector: T,
+        stroke: Stroke,
+    ) -> SVectorMotion<T> {
+        self.spawn_empty().build_svector(transform, vector, stroke)
+    }
+
+    fn build_fsvector(
+        &mut self,
+        transform: Transform,
+        vector: T,
+        fill: Fill,
+        stroke: Stroke,
+    ) -> FSVectorMotion<T> {
+        self.spawn_empty()
+            .build_fsvector(transform, vector, fill, stroke)
     }
 }

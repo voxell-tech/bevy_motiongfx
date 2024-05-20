@@ -14,7 +14,7 @@ pub mod slide;
 
 pub mod prelude {
     pub use crate::{
-        action::{act, play, Action, ActionBuilderExtension},
+        action::{act, Action, SequenceBuilderExt},
         color_palette::{ColorKey, ColorPalette},
         cross_lerp::*,
         ease,
