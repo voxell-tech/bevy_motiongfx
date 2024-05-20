@@ -191,19 +191,25 @@ impl<'a> SequenceBuilder<'a, 'a> {
         self
     }
 
-    pub fn chain(&mut self) -> Sequence {
+    pub fn build(self) -> Vec<Sequence> {
+        self.sequences
+    }
+}
+
+impl MultiSequenceOrdering for SequenceBuilder<'_, '_> {
+    fn chain(self) -> Sequence {
         self.sequences.chain()
     }
 
-    pub fn all(&mut self) -> Sequence {
+    fn all(self) -> Sequence {
         self.sequences.all()
     }
 
-    pub fn any(&mut self) -> Sequence {
+    fn any(self) -> Sequence {
         self.sequences.any()
     }
 
-    pub fn flow(&mut self, delay: f32) -> Sequence {
+    fn flow(self, delay: f32) -> Sequence {
         self.sequences.flow(delay)
     }
 }
