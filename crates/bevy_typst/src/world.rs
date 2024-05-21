@@ -1,13 +1,12 @@
 use std::{
     fs, mem,
     path::{Path, PathBuf},
-    sync::OnceLock,
+    sync::{Mutex, OnceLock},
 };
 
 use bevy::utils::HashMap;
 use chrono::{DateTime, Datelike, Local};
 use comemo::Prehashed;
-use parking_lot::Mutex;
 use typst::{
     diag::{FileError, FileResult, StrResult},
     foundations::{Bytes, Datetime},
@@ -63,7 +62,7 @@ impl TypstWorld {
     where
         F: FnOnce(&mut FileSlot) -> T,
     {
-        let mut map = self.slots.lock();
+        let mut map = self.slots.lock().unwrap();
         f(map.entry(id).or_insert_with(|| FileSlot::new(id)))
     }
 }

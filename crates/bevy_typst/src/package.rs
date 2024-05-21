@@ -9,7 +9,7 @@ use codespan_reporting::term::{
 use ecow::eco_format;
 use typst::{
     diag::{PackageError, PackageResult},
-    syntax::PackageSpec,
+    syntax::package::PackageSpec,
 };
 
 use crate::download::download_with_progress;

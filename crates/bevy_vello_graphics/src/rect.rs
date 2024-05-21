@@ -1,5 +1,5 @@
 use bevy::{math::DVec2, prelude::*};
-use bevy_vello_renderer::vello::kurbo;
+use bevy_vello::prelude::*;
 #[cfg(feature = "motiongfx")]
 use motiongfx_core::f32lerp::F32Lerp;
 

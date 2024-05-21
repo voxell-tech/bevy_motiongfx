@@ -2,9 +2,9 @@ use bevy::{
     math::{DQuat, DVec2, DVec3, DVec4},
     prelude::*,
 };
-use bevy_vello_renderer::vello::{kurbo, peniko};
+use bevy_vello::prelude::*;
 
-use crate::cross_lerp::CrossLerp;
+use crate::cross_lerp::F32CrossLerp;
 
 pub trait F32Lerp {
     /// Lerp between 2 values based on a [`f32`] `t` value.

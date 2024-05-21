@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_vello_renderer::vello::{kurbo, peniko};
+use bevy_vello::prelude::*;
 
 #[derive(Default, Clone)]
 pub struct Brush {

@@ -1,12 +1,8 @@
 use std::path::PathBuf;
 
 use bevy::prelude::*;
-use bevy_vello_renderer::{
-    prelude::*,
-    vello_svg::usvg::{self, TreeParsing},
-};
+use bevy_vello::vello_svg::usvg;
 use ecow::EcoVec;
-use motiongfx_vello::svg;
 use typst::{diag::SourceDiagnostic, eval::Tracer, layout::Abs};
 
 use crate::world::TypstWorld;
@@ -98,25 +94,30 @@ impl TypstCompiler {
     /// Compiles the Typst content into Svg and flatten the Svg hierarchy into a [`SvgTreeBundle`].
     ///
     /// If an error occur during Typst compilation, an error message will be returned instead.
-    pub fn compile_flatten(
-        &mut self,
-        commands: &mut Commands,
-        scenes: &mut ResMut<Assets<VelloScene>>,
-        text: String,
-    ) -> Result<svg::SvgTreeBundle, EcoVec<SourceDiagnostic>> {
-        let tree = self.compile_text(text)?;
+    // pub fn compile_flatten(
+    //     &mut self,
+    //     commands: &mut Commands,
+    //     scenes: &mut ResMut<Assets<VelloScene>>,
+    //     text: String,
+    // ) -> Result<svg::SvgTreeBundle, EcoVec<SourceDiagnostic>> {
+    //     let tree = self.compile_text(text)?;
 
-        Ok(svg::spawn_tree_flatten(commands, scenes, &tree))
-    }
+    //     Ok(svg::spawn_tree_flatten(commands, scenes, &tree))
+    // }
 
     // TODO: take a look at typst_ide for getting FrameItem to svg output relation
-    fn compile_text(&mut self, text: String) -> Result<usvg::Tree, EcoVec<SourceDiagnostic>> {
+    pub fn compile_text(&mut self, text: String) -> Result<usvg::Tree, EcoVec<SourceDiagnostic>> {
         self.world.set_source(text);
         let document = typst::compile(&self.world, &mut self.tracer)?;
 
-        let svg = typst_svg::svg_merged(&document.pages, Abs::zero());
+        let svg = typst_svg::svg_merged(&document, Abs::zero());
 
         // Svg string should not have any issue if compilation succeeded
-        Ok(usvg::Tree::from_str(&svg, &usvg::Options::default()).unwrap())
+        Ok(usvg::Tree::from_str(
+            &svg,
+            &usvg::Options::default(),
+            &usvg::fontdb::Database::new(),
+        )
+        .unwrap())
     }
 }
