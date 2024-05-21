@@ -79,32 +79,6 @@ impl TypstCompiler {
         }
     }
 
-    // pub fn compile(
-    //     &mut self,
-    //     commands: &mut Commands,
-    //     scenes: &mut ResMut<Assets<VelloScene>>,
-    //     text: String,
-    // ) -> Result<Entity, EcoVec<SourceDiagnostic>> {
-    //     let tree: usvg::Tree = self.compile_text(text)?;
-
-    //     Ok(svg::spawn_tree(commands, scenes, &tree))
-    // }
-
-    /// [`SvgTreeBundle`]: svg::SvgTreeBundle
-    /// Compiles the Typst content into Svg and flatten the Svg hierarchy into a [`SvgTreeBundle`].
-    ///
-    /// If an error occur during Typst compilation, an error message will be returned instead.
-    // pub fn compile_flatten(
-    //     &mut self,
-    //     commands: &mut Commands,
-    //     scenes: &mut ResMut<Assets<VelloScene>>,
-    //     text: String,
-    // ) -> Result<svg::SvgTreeBundle, EcoVec<SourceDiagnostic>> {
-    //     let tree = self.compile_text(text)?;
-
-    //     Ok(svg::spawn_tree_flatten(commands, scenes, &tree))
-    // }
-
     // TODO: take a look at typst_ide for getting FrameItem to svg output relation
     pub fn compile_text(&mut self, text: String) -> Result<usvg::Tree, EcoVec<SourceDiagnostic>> {
         self.world.set_source(text);

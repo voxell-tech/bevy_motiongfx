@@ -153,7 +153,7 @@ fn populate_with_path(
     // FIXME: let path.paint_order determine the fill/stroke order.
 
     if let Some(fill) = &path.fill() {
-        if let Some((brush, transform)) = paint_to_brush(&fill.paint(), fill.opacity()) {
+        if let Some((brush, transform)) = paint_to_brush(fill.paint(), fill.opacity()) {
             let fill_rule = match fill.rule() {
                 usvg::FillRule::NonZero => peniko::Fill::NonZero,
                 usvg::FillRule::EvenOdd => peniko::Fill::EvenOdd,
@@ -169,7 +169,7 @@ fn populate_with_path(
     }
 
     if let Some(stroke) = &path.stroke() {
-        if let Some((brush, transform)) = paint_to_brush(&stroke.paint(), stroke.opacity()) {
+        if let Some((brush, transform)) = paint_to_brush(stroke.paint(), stroke.opacity()) {
             let mut conv_stroke = kurbo::Stroke::new(stroke.width().get() as f64)
                 .with_caps(match stroke.linecap() {
                     usvg::LineCap::Butt => kurbo::Cap::Butt,
