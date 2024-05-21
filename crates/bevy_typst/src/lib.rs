@@ -13,6 +13,7 @@ pub mod prelude {
     pub use crate::{world::TypstWorld, TypstCompiler, TypstCompilerPlugin};
 }
 
+pub mod asset;
 mod download;
 mod fonts;
 mod package;
@@ -34,35 +35,7 @@ impl Plugin for TypstCompilerPlugin {
     }
 }
 
-/// A compiler for compiling Typst content.
-///
-/// This compiler can be accessed from the resource:
-/// ```
-/// use bevy::prelude::*;
-/// use motiongfx_vello::prelude::*;
-/// use motiongfx_typst::TypstCompiler;
-///
-/// pub fn compile(
-///     mut commands: Commands,
-///     mut typst_compiler: ResMut<TypstCompiler>,
-///     mut scenes: ResMut<Assets<VelloScene>>,
-/// ) {
-///     let content: String = String::from(
-///         r###"
-///         = Introduction
-///         + First element.
-///         + Second element.
-///         "###,
-///     );
-///
-///     match typst_compiler.compile_flatten(&mut commands, &mut scenes, content) {
-///         Ok(tree) => {
-///             println!("{:#?}", tree.size);
-///         }
-///         Err(_) => todo!(),
-///     }
-/// }
-/// ```
+/// A resource compiler for compiling Typst content.
 #[derive(Resource)]
 pub struct TypstCompiler {
     world: TypstWorld,
@@ -79,9 +52,11 @@ impl TypstCompiler {
         }
     }
 
-    // TODO: take a look at typst_ide for getting FrameItem to svg output relation
-    pub fn compile_text(&mut self, text: String) -> Result<usvg::Tree, EcoVec<SourceDiagnostic>> {
-        self.world.set_source(text);
+    pub fn compile_string(
+        &mut self,
+        string: String,
+    ) -> Result<usvg::Tree, EcoVec<SourceDiagnostic>> {
+        self.world.set_source(string);
         let document = typst::compile(&self.world, &mut self.tracer)?;
 
         let svg = typst_svg::svg_merged(&document, Abs::zero());

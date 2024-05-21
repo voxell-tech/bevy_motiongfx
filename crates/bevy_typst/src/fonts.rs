@@ -80,12 +80,12 @@ impl FontSearcher {
         }
 
         // Embedded fonts have lowest priority.
-        // #[cfg(feature = "embed-fonts")]
+        #[cfg(feature = "embed-fonts")]
         self.add_embedded();
     }
 
     /// Add fonts that are embedded in the binary.
-    // #[cfg(feature = "embed-fonts")]
+    #[cfg(feature = "embed-fonts")]
     fn add_embedded(&mut self) {
         let mut process = |bytes: &'static [u8]| {
             let buffer = typst::foundations::Bytes::from_static(bytes);
@@ -101,7 +101,7 @@ impl FontSearcher {
 
         macro_rules! add {
             ($filename:literal) => {
-                process(include_bytes!(concat!("../../../assets/fonts/", $filename)));
+                process(include_bytes!(concat!("../fonts/", $filename)));
             };
         }
 

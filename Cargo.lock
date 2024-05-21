@@ -1012,9 +1012,6 @@ dependencies = [
  "env_proxy",
  "flate2",
  "fontdb",
- "motiongfx_core",
- "motiongfx_typst_macros",
- "motiongfx_vello",
  "tar",
  "typst",
  "typst-svg",
@@ -3177,14 +3174,6 @@ dependencies = [
 
 [[package]]
 name = "motiongfx_macro_utils"
-version = "0.1.0"
-dependencies = [
- "quote",
- "syn 2.0.46",
-]
-
-[[package]]
-name = "motiongfx_typst_macros"
 version = "0.1.0"
 dependencies = [
  "quote",

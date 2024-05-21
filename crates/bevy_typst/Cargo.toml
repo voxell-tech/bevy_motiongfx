@@ -1,15 +1,10 @@
 [package]
 name = "bevy_typst"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-repository.workspace = true
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
 
 [dependencies]
-motiongfx_core = { path = "../motiongfx_core" }
-motiongfx_vello = { path = "../motiongfx_vello" }
-motiongfx_typst_macros = { path = "macros" }
-
 bevy = "0.13"
 bevy_vello = "0.3"
 # typst dependencies
@@ -28,3 +23,7 @@ env_proxy = "0.4"
 
 [lints]
 workspace = true
+
+[features]
+default = ["embed-fonts"]
+embed-fonts = []
