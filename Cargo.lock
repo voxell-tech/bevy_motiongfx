@@ -1014,6 +1014,7 @@ dependencies = [
  "fontdb",
  "tar",
  "typst",
+ "typst-assets",
  "typst-svg",
  "ureq",
 ]
