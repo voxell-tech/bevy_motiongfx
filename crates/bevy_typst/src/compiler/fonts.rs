@@ -6,6 +6,7 @@ use fontdb::{Database, Source};
 use typst::text::{Font, FontBook, FontInfo};
 
 /// Searches for fonts.
+#[derive(Debug, Default, Clone)]
 pub struct FontSearcher {
     /// Metadata about all discovered fonts.
     pub book: FontBook,
@@ -14,6 +15,7 @@ pub struct FontSearcher {
 }
 
 /// Holds details about the location of a font and lazily the font itself.
+#[derive(Debug, Clone)]
 pub struct FontSlot {
     /// The path at which the font can be found on the system.
     path: PathBuf,
@@ -37,14 +39,6 @@ impl FontSlot {
 }
 
 impl FontSearcher {
-    /// Create a new, empty system searcher.
-    pub fn new() -> Self {
-        Self {
-            book: FontBook::new(),
-            fonts: vec![],
-        }
-    }
-
     /// Search everything that is available.
     pub fn search(&mut self, font_paths: &[PathBuf]) {
         let mut db = Database::new();

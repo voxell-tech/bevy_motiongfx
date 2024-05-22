@@ -39,7 +39,7 @@ pub struct TypstWorld {
 impl TypstWorld {
     /// Create a new [`TypstWorld`].
     pub fn new(root: PathBuf, font_paths: &[PathBuf]) -> StrResult<Self> {
-        let mut searcher = FontSearcher::new();
+        let mut searcher = FontSearcher::default();
         searcher.search(font_paths);
 
         Ok(Self {

@@ -26,7 +26,7 @@ impl RawTypstAsset {
 }
 
 #[derive(Default)]
-struct RawTypstAssetLoader;
+pub struct RawTypstAssetLoader;
 
 impl AssetLoader for RawTypstAssetLoader {
     type Asset = RawTypstAsset;
@@ -53,7 +53,7 @@ impl AssetLoader for RawTypstAssetLoader {
     }
 }
 
-/// Possible errors that can be produced by [`BvhAssetLoader`]
+/// Possible errors that can be produced by [`RawTypstAssetLoader`]
 #[non_exhaustive]
 #[derive(Debug, Error)]
 pub enum RawTypstAssetLoaderError {

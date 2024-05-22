@@ -1,5 +1,5 @@
 pub mod prelude {
-    // pub use crate::{world::TypstWorld, TypstCompiler, TypstCompilerPlugin};
+    pub use crate::compiler::{world::TypstWorld, TypstCompiler, TypstCompilerPlugin};
 }
 
 pub mod asset;
