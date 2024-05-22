@@ -1,15 +1,17 @@
 [package]
 name = "motiongfx_vello"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
 
 [dependencies]
 motiongfx_core = { path = "../motiongfx_core" }
 motiongfx_vello_macros = { path = "macros" }
 bevy_vello_graphics = { path = "../bevy_vello_graphics" }
 
-bevy_vello_renderer = { git = "https://github.com/nixon-voxell/bevy_vello_renderer", rev = "49ef841842b3170f225614c7d3ffffba31522150" }
 bevy = "0.13"
+bevy_vello = "0.3"
 
 [lints]
 workspace = true

@@ -24,14 +24,14 @@
 //! # Sequence
 //! A [`Sequence`] is made up of multiple [`Action`]s. You can think of it as a group of actions. A [`Sequence`] also defines the order of [`Action`]s through the use of [action ordering functions](motiongfx_core::sequence).
 
-pub use bevy_vello_graphics as vello_graphics;
+pub use bevy_typst;
+pub use bevy_vello_graphics;
 pub use motiongfx_core as core;
-pub use motiongfx_typst as typst;
 pub use motiongfx_vello as vello;
 
 pub mod prelude {
+    pub use bevy_typst::prelude::*;
     pub use bevy_vello_graphics::prelude::*;
     pub use motiongfx_core::prelude::*;
-    pub use motiongfx_typst::prelude::*;
     pub use motiongfx_vello::prelude::*;
 }

@@ -1,23 +1,29 @@
-[package]
-name = "bevy_motiongfx"
+[workspace]
+resolver = "2"
+members = ["crates/*", ]
+
+[workspace.package]
 version = "0.1.0"
 edition = "2021"
-categories = ["graphics", "gui", "rendering", "motion-graphics", "vector-graphics"]
-description = "Motion graphics creation tool in Bevy. (Highly inspired by Motion Canvas and Manim)"
-exclude = ["assets/", "tools/", ".github/", "crates/", "examples/wasm/assets/"]
-keywords = ["motion-graphics", "game", "gamedev", "graphics", "bevy", "vello"]
 license = "MIT OR Apache-2.0"
-readme = "README.md"
 repository = "https://github.com/nixon-voxell/bevy_motiongfx"
 
-[workspace]
-members = ["crates/*", ]
-resolver = "2"
+[package]
+name = "bevy_motiongfx"
+categories = ["graphics", "gui", "rendering", "motion-graphics", "vector-graphics"]
+description = "Motion graphics creation tool in Bevy. (Highly inspired by Motion Canvas and Manim)"
+exclude = ["/assets/", "/.github/", "/examples/"]
+keywords = ["motion-graphics", "game", "gamedev", "graphics", "bevy", "vello"]
+readme = "README.md"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
 
 [dependencies]
 motiongfx_core = { path = "crates/motiongfx_core" }
 motiongfx_vello = { path = "crates/motiongfx_vello" }
-motiongfx_typst = { path = "crates/motiongfx_typst" }
+bevy_typst = { path = "crates/bevy_typst" }
 bevy_vello_graphics = { path = "crates/bevy_vello_graphics" }
 
 [dev-dependencies]

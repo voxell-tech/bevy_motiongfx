@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_vello_renderer::vello::peniko;
+use bevy_vello::prelude::*;
 
 use crate::brush::Brush;
 

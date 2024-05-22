@@ -1,8 +1,9 @@
 use bevy::{ecs::system::EntityCommands, prelude::*};
+use bevy_vello::VelloSceneBundle;
 use bevy_vello_graphics::prelude::*;
 use motiongfx_core::motion::{transform_motion::TransformMotion, GetId};
 
-use super::{fill_motion::FillMotion, stroke_motion::StrokeMotion, AddVelloSceneCommandExt};
+use super::{fill_motion::FillMotion, stroke_motion::StrokeMotion};
 
 #[derive(FillMotion, TransformMotion, GetId, Clone)]
 pub struct FVectorMotion<T> {
@@ -64,8 +65,8 @@ pub trait BuildVectorMotionExt<T> {
 impl<T: Component + Clone> BuildVectorMotionExt<T> for EntityCommands<'_> {
     fn build_fvector(&mut self, transform: Transform, vector: T, fill: Fill) -> FVectorMotion<T> {
         let id = self
+            .insert(VelloSceneBundle::default())
             .insert((transform, vector.clone(), fill.clone()))
-            .add_vello_scene()
             .id();
 
         FVectorMotion {
@@ -83,8 +84,8 @@ impl<T: Component + Clone> BuildVectorMotionExt<T> for EntityCommands<'_> {
         stroke: Stroke,
     ) -> SVectorMotion<T> {
         let id = self
+            .insert(VelloSceneBundle::default())
             .insert((transform, vector.clone(), stroke.clone()))
-            .add_vello_scene()
             .id();
 
         SVectorMotion {
@@ -103,8 +104,8 @@ impl<T: Component + Clone> BuildVectorMotionExt<T> for EntityCommands<'_> {
         stroke: Stroke,
     ) -> FSVectorMotion<T> {
         let id = self
+            .insert(VelloSceneBundle::default())
             .insert((transform, vector.clone(), fill.clone(), stroke.clone()))
-            .add_vello_scene()
             .id();
 
         FSVectorMotion {
