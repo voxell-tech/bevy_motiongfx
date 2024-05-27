@@ -25,7 +25,7 @@ fn vello_basic(mut commands: Commands) {
 
     let mut rect = commands.build_fsvector(
         Transform::from_xyz(-200.0, 0.0, 0.0),
-        VelloRect::new(100.0, 100.0),
+        VelloRect::new(100.0, 100.0, 0.0),
         Fill::new().with_color(palette.get(ColorKey::Blue)),
         Stroke::new(4.0).with_color(palette.get(ColorKey::Blue) * 1.5),
     );
