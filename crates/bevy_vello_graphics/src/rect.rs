@@ -9,7 +9,7 @@ use super::VelloVector;
 pub struct VelloRect {
     pub size: DVec2,
     pub anchor: DVec2,
-    pub radius: f64
+    pub radius: f64,
 }
 
 impl VelloRect {
