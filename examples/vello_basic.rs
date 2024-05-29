@@ -32,7 +32,7 @@ fn vello_basic(mut commands: Commands) {
 
     let mut circle = commands.build_fsvector(
         Transform::from_xyz(200.0, 0.0, 0.0),
-        VelloCircle::new(50.0),
+        VelloArrow::default().with_size(50.0),
         Fill::new().with_color(palette.get(ColorKey::Purple)),
         Stroke::new(4.0).with_color(palette.get(ColorKey::Purple) * 1.5),
     );
@@ -120,9 +120,9 @@ fn vello_basic(mut commands: Commands) {
         commands
             .add_motion(
                 act!(
-                    (circle.id, VelloCircle),
-                    start = { circle.vector }.radius,
-                    end = circle.vector.radius + 50.0,
+                    (circle.id, VelloArrow),
+                    start = { circle.vector }.size,
+                    end = circle.vector.size + 50.0,
                 )
                 .animate(1.0),
             )
@@ -131,9 +131,9 @@ fn vello_basic(mut commands: Commands) {
         commands
             .add_motion(
                 act!(
-                    (circle.id, VelloCircle),
-                    start = { circle.vector }.radius,
-                    end = circle.vector.radius - 50.0,
+                    (circle.id, VelloArrow),
+                    start = { circle.vector }.size,
+                    end = circle.vector.size - 50.0,
                 )
                 .animate(1.0),
             )
