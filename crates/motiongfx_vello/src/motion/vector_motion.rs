@@ -1,5 +1,4 @@
 use bevy::{ecs::system::EntityCommands, prelude::*};
-use bevy_vello::VelloSceneBundle;
 use bevy_vello_graphics::prelude::*;
 use motiongfx_core::motion::{transform_motion::TransformMotion, GetId};
 

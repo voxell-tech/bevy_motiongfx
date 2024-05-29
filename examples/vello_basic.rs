@@ -44,14 +44,14 @@ fn vello_basic(mut commands: Commands) {
                 line.to_translation_y(line.transform.translation.y - 100.0)
                     .animate(1.5),
             )
-            .add_motion(
-                act!(
-                    (line.id, VelloLine),
-                    start = { line.vector },
-                    end = line.vector.extend(100.0),
-                )
-                .animate(1.0),
-            )
+            // .add_motion(
+            //     act!(
+            //         (line.id, VelloLine),
+            //         start = { line.vector },
+            //         end = line.vector.extend(100.0),
+            //     )
+            //     .animate(1.0),
+            // )
             .add_motion(line.to_width(10.0).animate(1.0))
             .all(),
         commands
@@ -59,14 +59,14 @@ fn vello_basic(mut commands: Commands) {
                 line.to_translation_y(line.transform.translation.y + 100.0)
                     .animate(1.5),
             )
-            .add_motion(
-                act!(
-                    (line.id, VelloLine),
-                    start = { line.vector },
-                    end = line.vector.extend(-100.0),
-                )
-                .animate(1.0),
-            )
+            // .add_motion(
+            //     act!(
+            //         (line.id, VelloLine),
+            //         start = { line.vector },
+            //         end = line.vector.extend(-100.0),
+            //     )
+            //     .animate(1.0),
+            // )
             .add_motion(line.to_width(1.0).animate(1.0))
             .all(),
     ]

@@ -1,7 +1,6 @@
 pub use motiongfx_vello_macros::FillMotion;
 
 use bevy::prelude::*;
-use bevy_vello::prelude::*;
 use bevy_vello_graphics::prelude::*;
 use motiongfx_core::{act, motion::GetId, prelude::Action};
 
