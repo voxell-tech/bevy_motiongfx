@@ -9,7 +9,7 @@ repository.workspace = true
 motiongfx_core_macros = { path = "macros" }
 
 bevy = "0.13"
-bevy_vello = "0.3"
+bevy_vello = "0.4"
 smallvec = "1.11"
 
 [lints]
