@@ -59,7 +59,7 @@ Bevy MotionGfx also supports [Typst](https://typst.app)! It comes with a compile
 
 ## Join the community!
 
-You can join us on the [Voxell discord server](https://discord.gg/WDBnuNH) or our project focused [VOS (Voxell Open Source) discord server](https://discord.gg/X3ZucbxXFc).
+You can join us on the [Voxell discord server](https://discord.gg/Mhnyp6VYEQ) or our project focused [VOS (Voxell Open Source) discord server](https://discord.gg/X3ZucbxXFc).
 
 ## License
 

@@ -5,7 +5,6 @@ use slide::slide_controller;
 
 pub mod action;
 pub mod color_palette;
-pub mod cross_lerp;
 pub mod ease;
 pub mod f32lerp;
 pub mod motion;
@@ -16,7 +15,6 @@ pub mod prelude {
     pub use crate::{
         action::{act, Action, SequenceBuilderExt},
         color_palette::{ColorKey, ColorPalette},
-        cross_lerp::*,
         ease,
         f32lerp::*,
         motion::{pbr_motion::BuildPbrMotionExt, transform_motion::TransformMotion, GetId},
