@@ -12,6 +12,26 @@ pub type InterpFn<T> = fn(start: &T, end: &T, t: f32) -> T;
 /// Function for getting a mutable reference of a field (or itself) of type `T` in type `U`.
 pub type GetFieldMut<T, U> = fn(comp: &mut U) -> &mut T;
 
+/// Creates an [`Action`] and changes the animated value to the end value.
+///
+/// # Example
+///
+/// ```rust
+/// use bevy::prelude::*;
+/// use motiongfx_core::prelude::*;
+///
+/// let mut world = World::new();
+/// let mut transform = Transform::default();
+/// let id = world.spawn(transform).id();
+///
+/// // Creates an action on `translation.x`
+/// // of a `Transform` component
+/// let action = act!(
+///     (id, Transform),
+///     start = { transform }.translation.x,
+///     end = transform.translation.x + 1.0,
+/// );
+/// ```
 #[macro_export]
 macro_rules! act {
     (
