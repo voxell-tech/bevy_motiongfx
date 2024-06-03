@@ -17,6 +17,6 @@ smallvec = "1.11"
 workspace = true
 
 [features]
-default = ["vello", "vello_graphics"]
+default = ["vello_graphics"]
+vello_graphics = ["dep:bevy_vello_graphics", "vello"]
 vello = ["dep:bevy_vello"]
-vello_graphics = ["dep:bevy_vello_graphics"]

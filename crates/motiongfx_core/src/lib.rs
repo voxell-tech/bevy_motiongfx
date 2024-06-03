@@ -3,6 +3,11 @@ use prelude::{update_asset, update_component};
 use sequence::{sequence_controller, sequence_player};
 use slide::slide_controller;
 
+#[cfg(feature = "vello")]
+pub use bevy_vello;
+#[cfg(feature = "vello_graphics")]
+pub use bevy_vello_graphics;
+
 pub mod action;
 pub mod color_palette;
 pub mod ease;
