@@ -1058,7 +1058,7 @@ dependencies = [
 [[package]]
 name = "bevy_vello_graphics"
 version = "0.1.0"
-source = "git+https://github.com/voxell-tech/bevy_vello_graphics#375a6e2277e53b52ca75ca7fd68a1bcfab336bf6"
+source = "git+https://github.com/voxell-tech/bevy_vello_graphics#539b2b355b54fae8f64e05bd6c4fc94063543dc0"
 dependencies = [
  "bevy",
  "bevy_vello",
@@ -2528,6 +2528,7 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy_vello",
+ "bevy_vello_graphics",
  "motiongfx_core_macros",
  "smallvec",
 ]
@@ -2536,6 +2537,7 @@ dependencies = [
 name = "motiongfx_core_macros"
 version = "0.1.0"
 dependencies = [
+ "bevy_macro_utils",
  "motiongfx_macro_utils",
  "quote",
  "syn 2.0.46",

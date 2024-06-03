@@ -16,7 +16,7 @@ pub mod prelude {
         action::{act, Action, SequenceBuilderExt},
         color_palette::{ColorKey, ColorPalette},
         ease,
-        f32lerp::*,
+        f32lerp::F32Lerp,
         motion::{pbr_motion::BuildPbrMotionExt, transform_motion::TransformMotion, GetId},
         sequence::{
             all, any, chain, delay, flow, update_asset, update_component, MultiSequenceOrdering,

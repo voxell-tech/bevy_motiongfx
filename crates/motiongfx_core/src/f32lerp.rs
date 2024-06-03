@@ -2,7 +2,10 @@ use bevy::prelude::*;
 
 pub mod bevy_f32lerp;
 pub mod glam_f32lerp;
+#[cfg(feature = "vello")]
 pub mod vello_f32lerp;
+#[cfg(feature = "vello_graphics")]
+pub mod vello_graphics_f32lerp;
 
 pub trait F32Lerp<T = Self, U = Self> {
     /// Lerp between 2 values based on a [`f32`] `t` value.

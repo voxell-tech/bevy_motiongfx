@@ -1,8 +1,6 @@
 use bevy::prelude::*;
 use bevy_vello::prelude::*;
 
-// use crate::prelude::F32CrossLerp;
-
 use super::F32Lerp;
 
 impl F32Lerp for kurbo::Stroke {
