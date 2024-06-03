@@ -56,13 +56,16 @@ fn easings(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
         .zip(easings)
         .map(|(s, e)| {
             commands
-                .add_motion(
-                    s.to_translation_x(s.transform.translation.x + 10.0)
+                .add_motion({
+                    let x = s.transform.translation.x;
+                    s.transform()
+                        .to_translation_x(x + 10.0)
                         .with_ease(e)
-                        .animate(4.0),
-                )
+                        .animate(4.0)
+                })
                 .add_motion(
-                    s.to_emissive(palette.get(ColorKey::Red) * 100.0)
+                    s.std_material()
+                        .to_emissive(palette.get(ColorKey::Red) * 100.0)
                         .animate(4.0),
                 )
                 .all()

@@ -2,36 +2,16 @@ use bevy::{ecs::system::EntityCommands, prelude::*};
 
 use super::AddNewAssetCommandExtension;
 
-use crate::{
-    act,
-    prelude::{Action, GetId, TransformMotion},
-};
+use crate::prelude::{GetId, StandardMaterialMotion, TransformMotion};
 
-#[derive(TransformMotion, GetId, Clone)]
+#[derive(StandardMaterialMotion, TransformMotion, GetId, Clone)]
 pub struct PbrMotion {
     #[id]
     pub id: Entity,
     #[transform]
     pub transform: Transform,
+    #[standard_material]
     pub material: StandardMaterial,
-}
-
-impl PbrMotion {
-    pub fn to_emissive(&mut self, color: Color) -> Action<Color, StandardMaterial> {
-        act!(
-            (self.get_id(), StandardMaterial),
-            start = { self.material }.emissive,
-            end = color,
-        )
-    }
-
-    pub fn to_base_color(&mut self, color: Color) -> Action<Color, StandardMaterial> {
-        act!(
-            (self.get_id(), StandardMaterial),
-            start = { self.material }.base_color,
-            end = color,
-        )
-    }
 }
 
 pub trait BuildPbrMotionExt {

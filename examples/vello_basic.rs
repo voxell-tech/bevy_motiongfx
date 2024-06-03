@@ -40,10 +40,10 @@ fn vello_basic(mut commands: Commands) {
     // Generate sequence
     let line_seq = [
         commands
-            .add_motion(
-                line.to_translation_y(line.transform.translation.y - 100.0)
-                    .animate(1.5),
-            )
+            .add_motion({
+                let y = line.transform.translation.y;
+                line.transform().to_translation_y(y - 100.0).animate(1.5)
+            })
             .add_motion(
                 act!(
                     (line.id, VelloLine),
@@ -55,10 +55,10 @@ fn vello_basic(mut commands: Commands) {
             .add_motion(line.to_width(10.0).animate(1.0))
             .all(),
         commands
-            .add_motion(
-                line.to_translation_y(line.transform.translation.y + 100.0)
-                    .animate(1.5),
-            )
+            .add_motion({
+                let y = line.transform.translation.y;
+                line.transform().to_translation_y(y + 100.0).animate(1.5)
+            })
             .add_motion(
                 act!(
                     (line.id, VelloLine),
@@ -83,13 +83,14 @@ fn vello_basic(mut commands: Commands) {
                 .animate(1.0),
             )
             .add_motion(
-                rect.to_rotation(Quat::from_euler(
-                    EulerRot::XYZ,
-                    0.0,
-                    0.0,
-                    std::f32::consts::PI,
-                ))
-                .animate(1.0),
+                rect.transform()
+                    .to_rotation(Quat::from_euler(
+                        EulerRot::XYZ,
+                        0.0,
+                        0.0,
+                        std::f32::consts::PI,
+                    ))
+                    .animate(1.0),
             )
             .add_motion(rect.to_width(20.0).animate(1.0))
             .all(),
@@ -103,13 +104,14 @@ fn vello_basic(mut commands: Commands) {
                 .animate(1.0),
             )
             .add_motion(
-                rect.to_rotation(Quat::from_euler(
-                    EulerRot::XYZ,
-                    0.0,
-                    0.0,
-                    std::f32::consts::TAU,
-                ))
-                .animate(1.0),
+                rect.transform()
+                    .to_rotation(Quat::from_euler(
+                        EulerRot::XYZ,
+                        0.0,
+                        0.0,
+                        std::f32::consts::TAU,
+                    ))
+                    .animate(1.0),
             )
             .add_motion(rect.to_width(4.0).animate(1.0))
             .all(),

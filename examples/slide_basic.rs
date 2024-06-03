@@ -40,17 +40,18 @@ fn slide_basic(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
     );
 
     // Create slides
-    let slide0 = commands.play_motion(cube.to_scale(Vec3::ONE).animate(1.0));
+    let slide0 = commands.play_motion(cube.transform().to_scale(Vec3::ONE).animate(1.0));
 
     let slide1 = [
         commands
-            .add_motion(cube.to_translation_x(-x_offset).animate(1.0))
+            .add_motion(cube.transform().to_translation_x(-x_offset).animate(1.0))
             .add_motion(
-                cube.to_base_color(palette.get(ColorKey::Base0))
+                cube.std_material()
+                    .to_base_color(palette.get(ColorKey::Base0))
                     .animate(1.0),
             )
             .all(),
-        commands.play_motion(sphere.to_scale(Vec3::ONE).animate(1.0)),
+        commands.play_motion(sphere.transform().to_scale(Vec3::ONE).animate(1.0)),
     ]
     .flow(0.1);
 

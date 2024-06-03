@@ -22,7 +22,10 @@ pub mod prelude {
         color_palette::{ColorKey, ColorPalette},
         ease,
         f32lerp::F32Lerp,
-        motion::{pbr_motion::BuildPbrMotionExt, transform_motion::TransformMotion, GetId},
+        motion::{
+            pbr_motion::BuildPbrMotionExt, standard_material_motion::StandardMaterialMotion,
+            transform_motion::TransformMotion, GetId,
+        },
         sequence::{
             all, any, chain, delay, flow, update_asset, update_component, MultiSequenceOrdering,
             Sequence, SequenceBundle, SequenceController, SequencePlayer, SequencePlayerBundle,

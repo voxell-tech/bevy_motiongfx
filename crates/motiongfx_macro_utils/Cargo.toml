@@ -8,6 +8,7 @@ repository.workspace = true
 [dependencies]
 syn = "2.0"
 quote = "1.0"
+toml_edit = "0.22"
 
 [lints]
 workspace = true

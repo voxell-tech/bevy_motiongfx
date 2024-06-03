@@ -7,84 +7,95 @@ use crate::{act, prelude::Action};
 use super::GetId;
 
 pub trait TransformMotion: GetId {
-    fn get_transform(&mut self) -> &mut Transform;
+    fn transform(&mut self) -> TransformMotionBuilder;
+}
 
-    fn to_transform(&mut self, transfrom: Transform) -> Action<Transform, Transform> {
+pub struct TransformMotionBuilder<'a> {
+    id: Entity,
+    pub transform: &'a mut Transform,
+}
+
+impl<'a> TransformMotionBuilder<'a> {
+    pub fn new(id: Entity, transform: &'a mut Transform) -> Self {
+        Self { id, transform }
+    }
+
+    pub fn to(&mut self, transfrom: Transform) -> Action<Transform, Transform> {
         act!(
-            (self.get_id(), Transform),
-            start = { *self.get_transform() },
+            (self.id, Transform),
+            start = { *self.transform },
             end = transfrom,
         )
     }
 
-    fn to_translation(&mut self, translation: Vec3) -> Action<Vec3, Transform> {
+    pub fn to_translation(&mut self, translation: Vec3) -> Action<Vec3, Transform> {
         act!(
-            (self.get_id(), Transform),
-            start = { self.get_transform() }.translation,
+            (self.id, Transform),
+            start = { self.transform }.translation,
             end = translation,
         )
     }
 
-    fn to_translation_x(&mut self, x: f32) -> Action<f32, Transform> {
+    pub fn to_translation_x(&mut self, x: f32) -> Action<f32, Transform> {
         act!(
-            (self.get_id(), Transform),
-            start = { self.get_transform() }.translation.x,
+            (self.id, Transform),
+            start = { self.transform }.translation.x,
             end = x,
         )
     }
 
-    fn to_translation_y(&mut self, y: f32) -> Action<f32, Transform> {
+    pub fn to_translation_y(&mut self, y: f32) -> Action<f32, Transform> {
         act!(
-            (self.get_id(), Transform),
-            start = { self.get_transform() }.translation.y,
+            (self.id, Transform),
+            start = { self.transform }.translation.y,
             end = y,
         )
     }
 
-    fn to_translation_z(&mut self, z: f32) -> Action<f32, Transform> {
+    pub fn to_translation_z(&mut self, z: f32) -> Action<f32, Transform> {
         act!(
-            (self.get_id(), Transform),
-            start = { self.get_transform() }.translation.z,
+            (self.id, Transform),
+            start = { self.transform }.translation.z,
             end = z,
         )
     }
 
-    fn to_scale(&mut self, scale: Vec3) -> Action<Vec3, Transform> {
+    pub fn to_scale(&mut self, scale: Vec3) -> Action<Vec3, Transform> {
         act!(
-            (self.get_id(), Transform),
-            start = { self.get_transform() }.scale,
+            (self.id, Transform),
+            start = { self.transform }.scale,
             end = scale,
         )
     }
 
-    fn to_scale_x(&mut self, x: f32) -> Action<f32, Transform> {
+    pub fn to_scale_x(&mut self, x: f32) -> Action<f32, Transform> {
         act!(
-            (self.get_id(), Transform),
-            start = { self.get_transform() }.scale.x,
+            (self.id, Transform),
+            start = { self.transform }.scale.x,
             end = x,
         )
     }
 
-    fn to_scale_y(&mut self, y: f32) -> Action<f32, Transform> {
+    pub fn to_scale_y(&mut self, y: f32) -> Action<f32, Transform> {
         act!(
-            (self.get_id(), Transform),
-            start = { self.get_transform() }.scale.y,
+            (self.id, Transform),
+            start = { self.transform }.scale.y,
             end = y,
         )
     }
 
-    fn to_scale_z(&mut self, z: f32) -> Action<f32, Transform> {
+    pub fn to_scale_z(&mut self, z: f32) -> Action<f32, Transform> {
         act!(
-            (self.get_id(), Transform),
-            start = { self.get_transform() }.scale.z,
+            (self.id, Transform),
+            start = { self.transform }.scale.z,
             end = z,
         )
     }
 
-    fn to_rotation(&mut self, rotation: Quat) -> Action<Quat, Transform> {
+    pub fn to_rotation(&mut self, rotation: Quat) -> Action<Quat, Transform> {
         act!(
-            (self.get_id(), Transform),
-            start = { self.get_transform() }.rotation,
+            (self.id, Transform),
+            start = { self.transform }.rotation,
             end = rotation,
         )
     }
