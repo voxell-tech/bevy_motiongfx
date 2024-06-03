@@ -24,7 +24,7 @@ macro_rules! act {
                 $target_id,
                 $root.$($path).+.clone(),
                 $value.clone(),
-                |source: &mut $comp_ty| &mut source.$($path).+
+                |source: &mut $comp_ty| &mut source.$($path).+,
             );
 
             $root.$($path).+ = $value;
@@ -42,7 +42,50 @@ macro_rules! act {
                 $target_id,
                 $root.clone(),
                 $value.clone(),
-                |source: &mut $comp_ty| source
+                |source: &mut $comp_ty| source,
+            );
+
+            #[allow(unused_assignments)]
+            {
+                $root = $value;
+            }
+
+            action
+        }
+    };
+    (
+        ($target_id:expr, $comp_ty:ty),
+        start = { $root:expr }.$($path:tt).+,
+        end = $value:expr,
+        interp = $interp:expr,
+    ) => {
+        {
+            let action = $crate::action::Action::new(
+                $target_id,
+                $root.$($path).+.clone(),
+                $value.clone(),
+                |source: &mut $comp_ty| &mut source.$($path).+,
+                $interp,
+            );
+
+            $root.$($path).+ = $value;
+
+            action
+        }
+    };
+    (
+        ($target_id:expr, $comp_ty:ty),
+        start = { $root:expr },
+        end = $value:expr,
+        interp = $interp:expr,
+    ) => {
+        {
+            let action = $crate::action::Action::new_f32lerp(
+                $target_id,
+                $root.clone(),
+                $value.clone(),
+                |source: &mut $comp_ty| source,
+                $interp,
             );
 
             #[allow(unused_assignments)]
@@ -66,15 +109,16 @@ pub struct Action<T, U> {
     pub(crate) start: T,
     /// Final value of the action.
     pub(crate) end: T,
-    /// Function for interpolating the value based on a [`f32`] time.
-    pub(crate) interp_fn: InterpFn<T>,
     /// Function for getting a mutable reference of a field (or itself) from the component.
     pub(crate) get_field_fn: GetFieldMut<T, U>,
+    /// Function for interpolating the value based on a [`f32`] time.
+    pub(crate) interp_fn: InterpFn<T>,
     /// Function for easing the [`f32`] time value for the action.
     pub(crate) ease_fn: EaseFn,
 }
 
 impl<T, U> Action<T, U> {
+    /// Creates a new [`Action`].
     pub fn new(
         target_id: Entity,
         start: T,
@@ -86,22 +130,25 @@ impl<T, U> Action<T, U> {
             target_id,
             start,
             end,
-            interp_fn,
             get_field_fn,
+            interp_fn,
             ease_fn: cubic::ease_in_out,
         }
     }
 
+    /// Overwrite the existing [easing function](EaseFn).
     pub fn with_ease(mut self, ease_fn: EaseFn) -> Self {
         self.ease_fn = ease_fn;
         self
     }
 
+    /// Overwrite the existing [interpolation function](InterpFn).
     pub fn with_interp(mut self, interp_fn: InterpFn<T>) -> Self {
         self.interp_fn = interp_fn;
         self
     }
 
+    /// Convert an [`Action`] into a [`Motion`] by adding a duration.
     pub fn animate(self, duration: f32) -> Motion<T, U> {
         Motion {
             action: self,
@@ -114,6 +161,8 @@ impl<T, U> Action<T, U>
 where
     T: F32Lerp,
 {
+    /// Creates a new [`Action`] with [`F32Lerp`] as the default
+    /// [interpolation function](InterpFn).
     pub fn new_f32lerp(
         target_id: Entity,
         start: T,
@@ -124,8 +173,8 @@ where
             target_id,
             start,
             end,
-            interp_fn: T::f32lerp,
             get_field_fn,
+            interp_fn: T::f32lerp,
             ease_fn: cubic::ease_in_out,
         }
     }
