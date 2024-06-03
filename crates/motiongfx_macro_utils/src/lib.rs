@@ -1,7 +1,7 @@
 use syn::DeriveInput;
 
-pub fn get_one_field_of_attribute(input: &DeriveInput, attr_name: &str) -> syn::Ident {
-    let syn::Data::Struct(struct_data) = &input.data else {
+pub fn get_one_field_of_attribute(ast: &DeriveInput, attr_name: &str) -> syn::Ident {
+    let syn::Data::Struct(struct_data) = &ast.data else {
         panic!("Can only be implemented on a Struct.");
     };
 
