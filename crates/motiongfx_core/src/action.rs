@@ -10,7 +10,7 @@ use crate::{
 /// Function for interpolating a type based on a [`f32`] time.
 pub type InterpFn<T> = fn(start: &T, end: &T, t: f32) -> T;
 /// Function for getting a mutable reference of a field (or itself) of type `T` in type `U`.
-pub type GetFieldMut<T, U> = fn(comp: &mut U) -> &mut T;
+pub type GetFieldMut<T, U> = fn(source: &mut U) -> &mut T;
 
 /// Creates an [`Action`] and changes the animated value to the end value.
 ///

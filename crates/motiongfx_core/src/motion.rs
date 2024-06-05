@@ -13,6 +13,22 @@ pub trait GetId {
     fn get_id(&self) -> Entity;
 }
 
+impl<T> GetId for (Entity, T) {
+    fn get_id(&self) -> Entity {
+        self.0
+    }
+}
+
+pub trait GetMutValue<T> {
+    fn get_value(&mut self) -> &mut T;
+}
+
+impl<T, U> GetMutValue<T> for (U, &mut T) {
+    fn get_value(&mut self) -> &mut T {
+        self.1
+    }
+}
+
 pub trait AddNewAssetCommandExtension<A: Asset> {
     /// Adds a new asset and attach the handle to this entity.
     fn add_new_asset(&mut self, asset: A) -> &mut Self;
