@@ -32,6 +32,15 @@ jobs:
       - run: sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
       - run: cargo check --workspace --no-default-features
 
+  check-examples:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
+      - run: cargo check --examples
+
   clippy:
     runs-on: ubuntu-latest
     steps:
