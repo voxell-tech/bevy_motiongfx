@@ -28,18 +28,27 @@ impl<T> GetMutValue<T, 0> for T {
     }
 }
 
-pub trait GetMut<const N: usize, U> {
+pub trait GetMut<U, const N: usize> {
     fn get_mut<T>(&mut self) -> &mut T
     where
         U: GetMutValue<T, N>;
 }
 
-impl<const N: usize, U> GetMut<N, U> for (Entity, U) {
+impl<U, const N: usize> GetMut<U, N> for (Entity, U) {
     fn get_mut<T>(&mut self) -> &mut T
     where
         U: GetMutValue<T, N>,
     {
         self.1.get_mut_value()
+    }
+}
+
+impl<U, const N: usize> GetMut<U, N> for U {
+    fn get_mut<T>(&mut self) -> &mut T
+    where
+        U: GetMutValue<T, N>,
+    {
+        self.get_mut_value()
     }
 }
 
