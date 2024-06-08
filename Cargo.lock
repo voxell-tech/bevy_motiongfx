@@ -2538,19 +2538,9 @@ name = "motiongfx_core_macros"
 version = "0.1.0"
 dependencies = [
  "bevy_macro_utils",
- "motiongfx_macro_utils",
  "proc-macro2",
  "quote",
  "syn 2.0.46",
-]
-
-[[package]]
-name = "motiongfx_macro_utils"
-version = "0.1.0"
-dependencies = [
- "quote",
- "syn 2.0.46",
- "toml_edit 0.22.12",
 ]
 
 [[package]]
@@ -2560,16 +2550,6 @@ dependencies = [
  "bevy",
  "bevy_vello_graphics",
  "motiongfx_core",
- "motiongfx_vello_macros",
-]
-
-[[package]]
-name = "motiongfx_vello_macros"
-version = "0.1.0"
-dependencies = [
- "motiongfx_macro_utils",
- "quote",
- "syn 2.0.46",
 ]
 
 [[package]]
@@ -3606,7 +3586,7 @@ checksum = "1b5bb770da30e5cbfde35a2d7b9b8a2c4b8ef89548a7a6aeab5c9a576e3e7421"
 dependencies = [
  "indexmap",
  "toml_datetime",
- "winnow 0.5.15",
+ "winnow",
 ]
 
 [[package]]
@@ -3617,18 +3597,7 @@ checksum = "d34d383cd00a163b4a5b85053df514d45bc330f6de7737edfe0a93311d1eaa03"
 dependencies = [
  "indexmap",
  "toml_datetime",
- "winnow 0.5.15",
-]
-
-[[package]]
-name = "toml_edit"
-version = "0.22.12"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d3328d4f68a705b2a4498da1d580585d39a6510f98318a2cec3018a7ec61ddef"
-dependencies = [
- "indexmap",
- "toml_datetime",
- "winnow 0.6.9",
+ "winnow",
 ]
 
 [[package]]
@@ -4468,15 +4437,6 @@ name = "winnow"
 version = "0.5.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7c2e3184b9c4e92ad5167ca73039d0c42476302ab603e2fec4487511f38ccefc"
-dependencies = [
- "memchr",
-]
-
-[[package]]
-name = "winnow"
-version = "0.6.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "86c949fede1d13936a99f14fafd3e76fd642b556dd2ce96287fbe2e0151bfac6"
 dependencies = [
  "memchr",
 ]

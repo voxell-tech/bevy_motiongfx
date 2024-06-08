@@ -1,5 +1,3 @@
-pub use motiongfx_vello_macros::StrokeMotion;
-
 use bevy::prelude::*;
 use bevy_vello_graphics::prelude::*;
 use motiongfx_core::{

@@ -7,7 +7,6 @@ repository.workspace = true
 
 [dependencies]
 motiongfx_core = { version = "0.1.0", path = "../motiongfx_core" }
-motiongfx_vello_macros = { version = "0.1.0", path = "macros" }
 bevy_vello_graphics = { version = "0.1.0", git = "https://github.com/voxell-tech/bevy_vello_graphics" }
 bevy = "0.13"
 
