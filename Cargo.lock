@@ -2539,6 +2539,7 @@ version = "0.1.0"
 dependencies = [
  "bevy_macro_utils",
  "motiongfx_macro_utils",
+ "proc-macro2",
  "quote",
  "syn 2.0.46",
 ]

@@ -18,26 +18,44 @@ fn slide_basic(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
 
     // Cube
     let x_offset = 2.0;
-    let mut cube = commands.spawn(NotShadowCaster).build_pbr(
-        Transform::default().with_scale(Vec3::splat(0.0)),
-        meshes.add(Cuboid::default()),
-        StandardMaterial {
-            base_color: palette.get(ColorKey::Green),
-            ..default()
-        },
-    );
+    let transform = Transform::default().with_scale(Vec3::splat(0.0));
+    let material = StandardMaterial {
+        base_color: palette.get(ColorKey::Green),
+        ..default()
+    };
+    let id = commands
+        .spawn((
+            NotShadowCaster,
+            PbrBundle {
+                transform,
+                mesh: meshes.add(Cuboid::default()),
+                ..default()
+            },
+        ))
+        .add_new_asset(material.clone())
+        .id();
+    let mut cube = (id, (transform, material));
 
     // Sphere
-    let mut sphere = commands.spawn(NotShadowCaster).build_pbr(
-        Transform::default()
-            .with_translation(Vec3::X * x_offset)
-            .with_scale(Vec3::splat(0.0)),
-        meshes.add(Sphere::default()),
-        StandardMaterial {
-            base_color: palette.get(ColorKey::Blue),
-            ..default()
-        },
-    );
+    let transform = Transform::default()
+        .with_translation(Vec3::X * x_offset)
+        .with_scale(Vec3::splat(0.0));
+    let material = StandardMaterial {
+        base_color: palette.get(ColorKey::Blue),
+        ..default()
+    };
+    let id = commands
+        .spawn((
+            NotShadowCaster,
+            PbrBundle {
+                transform,
+                mesh: meshes.add(Sphere::default()),
+                ..default()
+            },
+        ))
+        .add_new_asset(material.clone())
+        .id();
+    let mut sphere = (id, (transform, material));
 
     // Create slides
     let slide0 = commands.play_motion(cube.transform().to_scale(Vec3::ONE).animate(1.0));

@@ -23,8 +23,8 @@ pub mod prelude {
         ease,
         f32lerp::F32Lerp,
         motion::{
-            pbr_motion::BuildPbrMotionExt, standard_material_motion::StandardMaterialMotion,
-            transform_motion::TransformMotion, GetId,
+            standard_material_motion::StandardMaterialMotion, transform_motion::TransformMotion,
+            AddNewAssetCommandExtension, GetId, GetMut, GetMutValue,
         },
         sequence::{
             all, any, chain, delay, flow, update_asset, update_component, MultiSequenceOrdering,

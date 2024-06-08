@@ -1,13 +1,19 @@
-pub use motiongfx_core_macros::StandardMaterialMotion;
-
 use bevy::prelude::*;
 
 use crate::{act, prelude::Action};
 
-use super::GetId;
+use super::{GetId, GetMutValue};
 
-pub trait StandardMaterialMotion: GetId {
+pub trait StandardMaterialMotion<const N: usize> {
     fn std_material(&mut self) -> StandardMaterialMotionBuilder;
+}
+
+impl<const N: usize, T: GetMutValue<StandardMaterial, N>> StandardMaterialMotion<N>
+    for (Entity, T)
+{
+    fn std_material(&mut self) -> StandardMaterialMotionBuilder {
+        StandardMaterialMotionBuilder::new(self.id(), self.1.get_mut_value())
+    }
 }
 
 pub struct StandardMaterialMotionBuilder<'a> {

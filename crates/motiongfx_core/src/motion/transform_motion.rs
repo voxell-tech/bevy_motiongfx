@@ -1,13 +1,17 @@
-pub use motiongfx_core_macros::TransformMotion;
-
 use bevy::prelude::*;
 
 use crate::{act, prelude::Action};
 
-use super::GetId;
+use super::{GetId, GetMutValue};
 
-pub trait TransformMotion: GetId {
+pub trait TransformMotion<const N: usize> {
     fn transform(&mut self) -> TransformMotionBuilder;
+}
+
+impl<const N: usize, T: GetMutValue<Transform, N>> TransformMotion<N> for (Entity, T) {
+    fn transform(&mut self) -> TransformMotionBuilder {
+        TransformMotionBuilder::new(self.id(), self.1.get_mut_value())
+    }
 }
 
 pub struct TransformMotionBuilder<'a> {

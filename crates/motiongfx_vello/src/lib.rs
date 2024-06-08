@@ -9,10 +9,7 @@ pub mod motion;
 
 pub mod prelude {
     pub use crate::{
-        motion::{
-            fill_motion::FillMotion, stroke_motion::StrokeMotion,
-            vector_motion::BuildVectorMotionExt,
-        },
+        motion::{fill_motion::FillMotion, stroke_motion::StrokeMotion},
         MotionGfxVelloPlugin,
     };
 

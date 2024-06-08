@@ -13,6 +13,7 @@ syn = "2.0"
 quote = "1.0"
 bevy_macro_utils = "0.13"
 motiongfx_macro_utils = { path = "../../motiongfx_macro_utils" }
+proc-macro2 = "1.0"
 
 [lints]
 workspace = true
