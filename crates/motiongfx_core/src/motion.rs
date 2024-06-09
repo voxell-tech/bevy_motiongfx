@@ -43,15 +43,6 @@ impl<U, const N: usize> GetMut<U, N> for (Entity, U) {
     }
 }
 
-impl<U, const N: usize> GetMut<U, N> for U {
-    fn get_mut<T>(&mut self) -> &mut T
-    where
-        U: GetMutValue<T, N>,
-    {
-        self.get_mut_value()
-    }
-}
-
 macro_rules! impl_get_mut_value {
     ([$($generic:ident),+], $main_generic:ident, $number:tt) => {
         impl <$($generic),+> GetMutValue<$main_generic, $number> for ($($generic),+) {
