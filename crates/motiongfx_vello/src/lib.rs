@@ -1,21 +1,19 @@
+pub use bevy_vello_graphics;
+
 use bevy::{math::DVec2, prelude::*};
-use bevy_vello::prelude::*;
 use bevy_vello_graphics::prelude::*;
 use motiongfx_core::{sequence::update_component, UpdateSequenceSet};
 
 pub mod motion;
-pub mod svg;
+// pub mod svg;
 
 pub mod prelude {
     pub use crate::{
-        motion::{
-            fill_motion::FillMotion, stroke_motion::StrokeMotion,
-            vector_motion::BuildVectorMotionExt,
-        },
+        motion::{fill_motion::FillMotion, stroke_motion::StrokeMotion},
         MotionGfxVelloPlugin,
     };
 
-    pub use bevy_vello::prelude::*;
+    pub use bevy_vello_graphics::prelude::*;
 }
 
 pub struct MotionGfxVelloPlugin;
@@ -28,7 +26,6 @@ impl Plugin for MotionGfxVelloPlugin {
                 // Fill & Stroke
                 update_component::<Fill, Brush>,
                 update_component::<Stroke, Brush>,
-                update_component::<Stroke, kurbo::Stroke>,
                 update_component::<Stroke, f64>,
                 // VelloCircle
                 update_component::<VelloCircle, VelloCircle>,

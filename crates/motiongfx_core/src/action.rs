@@ -10,8 +10,28 @@ use crate::{
 /// Function for interpolating a type based on a [`f32`] time.
 pub type InterpFn<T> = fn(start: &T, end: &T, t: f32) -> T;
 /// Function for getting a mutable reference of a field (or itself) of type `T` in type `U`.
-pub type GetFieldMut<T, U> = fn(comp: &mut U) -> &mut T;
+pub type GetFieldMut<T, U> = fn(source: &mut U) -> &mut T;
 
+/// Creates an [`Action`] and changes the animated value to the end value.
+///
+/// # Example
+///
+/// ```rust
+/// use bevy::prelude::*;
+/// use motiongfx_core::prelude::*;
+///
+/// let mut world = World::new();
+/// let mut transform = Transform::default();
+/// let id = world.spawn(transform).id();
+///
+/// // Creates an action on `translation.x`
+/// // of a `Transform` component
+/// let action = act!(
+///     (id, Transform),
+///     start = { transform }.translation.x,
+///     end = transform.translation.x + 1.0,
+/// );
+/// ```
 #[macro_export]
 macro_rules! act {
     (
@@ -24,7 +44,7 @@ macro_rules! act {
                 $target_id,
                 $root.$($path).+.clone(),
                 $value.clone(),
-                |source: &mut $comp_ty| &mut source.$($path).+
+                |source: &mut $comp_ty| &mut source.$($path).+,
             );
 
             $root.$($path).+ = $value;
@@ -42,7 +62,50 @@ macro_rules! act {
                 $target_id,
                 $root.clone(),
                 $value.clone(),
-                |source: &mut $comp_ty| source
+                |source: &mut $comp_ty| source,
+            );
+
+            #[allow(unused_assignments)]
+            {
+                $root = $value;
+            }
+
+            action
+        }
+    };
+    (
+        ($target_id:expr, $comp_ty:ty),
+        start = { $root:expr }.$($path:tt).+,
+        end = $value:expr,
+        interp = $interp:expr,
+    ) => {
+        {
+            let action = $crate::action::Action::new(
+                $target_id,
+                $root.$($path).+.clone(),
+                $value.clone(),
+                |source: &mut $comp_ty| &mut source.$($path).+,
+                $interp,
+            );
+
+            $root.$($path).+ = $value;
+
+            action
+        }
+    };
+    (
+        ($target_id:expr, $comp_ty:ty),
+        start = { $root:expr },
+        end = $value:expr,
+        interp = $interp:expr,
+    ) => {
+        {
+            let action = $crate::action::Action::new_f32lerp(
+                $target_id,
+                $root.clone(),
+                $value.clone(),
+                |source: &mut $comp_ty| source,
+                $interp,
             );
 
             #[allow(unused_assignments)]
@@ -66,15 +129,16 @@ pub struct Action<T, U> {
     pub(crate) start: T,
     /// Final value of the action.
     pub(crate) end: T,
-    /// Function for interpolating the value based on a [`f32`] time.
-    pub(crate) interp_fn: InterpFn<T>,
     /// Function for getting a mutable reference of a field (or itself) from the component.
     pub(crate) get_field_fn: GetFieldMut<T, U>,
+    /// Function for interpolating the value based on a [`f32`] time.
+    pub(crate) interp_fn: InterpFn<T>,
     /// Function for easing the [`f32`] time value for the action.
     pub(crate) ease_fn: EaseFn,
 }
 
 impl<T, U> Action<T, U> {
+    /// Creates a new [`Action`].
     pub fn new(
         target_id: Entity,
         start: T,
@@ -86,22 +150,25 @@ impl<T, U> Action<T, U> {
             target_id,
             start,
             end,
-            interp_fn,
             get_field_fn,
+            interp_fn,
             ease_fn: cubic::ease_in_out,
         }
     }
 
+    /// Overwrite the existing [easing function](EaseFn).
     pub fn with_ease(mut self, ease_fn: EaseFn) -> Self {
         self.ease_fn = ease_fn;
         self
     }
 
+    /// Overwrite the existing [interpolation function](InterpFn).
     pub fn with_interp(mut self, interp_fn: InterpFn<T>) -> Self {
         self.interp_fn = interp_fn;
         self
     }
 
+    /// Convert an [`Action`] into a [`Motion`] by adding a duration.
     pub fn animate(self, duration: f32) -> Motion<T, U> {
         Motion {
             action: self,
@@ -114,6 +181,8 @@ impl<T, U> Action<T, U>
 where
     T: F32Lerp,
 {
+    /// Creates a new [`Action`] with [`F32Lerp`] as the default
+    /// [interpolation function](InterpFn).
     pub fn new_f32lerp(
         target_id: Entity,
         start: T,
@@ -124,8 +193,8 @@ where
             target_id,
             start,
             end,
-            interp_fn: T::f32lerp,
             get_field_fn,
+            interp_fn: T::f32lerp,
             ease_fn: cubic::ease_in_out,
         }
     }

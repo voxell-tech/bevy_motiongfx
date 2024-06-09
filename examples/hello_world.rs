@@ -12,7 +12,11 @@ fn main() {
         .run();
 }
 
-fn hello_world(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
+fn hello_world(
+    mut commands: Commands,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut meshes: ResMut<Assets<Mesh>>,
+) {
     const WIDTH: usize = 10;
     const HEIGHT: usize = 10;
 
@@ -24,24 +28,31 @@ fn hello_world(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
     // Create cubes
     let mut cubes = Vec::with_capacity(CAPACITY);
     let mesh_handle = meshes.add(Cuboid::default());
-    let material = StandardMaterial {
+    let material_handle = materials.add(StandardMaterial {
         base_color: palette.get(ColorKey::Green),
         ..default()
-    };
+    });
 
     for w in 0..WIDTH {
         for h in 0..HEIGHT {
-            let cube = commands.spawn(NotShadowCaster).build_pbr(
-                Transform::from_translation(Vec3::new(
-                    (w as f32) - (WIDTH as f32) * 0.5 - 1.0,
-                    (h as f32) - (HEIGHT as f32) * 0.5,
-                    0.0,
+            let transform = Transform::from_translation(Vec3::new(
+                (w as f32) - (WIDTH as f32) * 0.5 - 1.0,
+                (h as f32) - (HEIGHT as f32) * 0.5,
+                0.0,
+            ))
+            .with_scale(Vec3::ZERO);
+            let id = commands
+                .spawn((
+                    NotShadowCaster,
+                    PbrBundle {
+                        transform,
+                        mesh: mesh_handle.clone(),
+                        material: material_handle.clone(),
+                        ..default()
+                    },
                 ))
-                .with_scale(Vec3::ZERO),
-                mesh_handle.clone(),
-                material.clone(),
-            );
-            cubes.push(cube);
+                .id();
+            cubes.push((id, transform));
         }
     }
 
@@ -57,24 +68,28 @@ fn hello_world(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
 
             let sequence = commands
                 .add_motion(
-                    cube.to_scale(Vec3::splat(0.9))
+                    cube.transform()
+                        .to_scale(Vec3::splat(0.9))
                         .with_ease(circ_ease)
                         .animate(1.0),
                 )
+                .add_motion({
+                    let x = cube.transform().transform.translation.x;
+                    cube.transform()
+                        .to_translation_x(x + 1.0)
+                        .with_ease(circ_ease)
+                        .animate(1.0)
+                })
                 .add_motion(
-                    cube.to_translation_x(cube.transform.translation.x + 1.0)
+                    cube.transform()
+                        .to_rotation(Quat::from_euler(
+                            EulerRot::XYZ,
+                            0.0,
+                            f32::to_radians(90.0),
+                            0.0,
+                        ))
                         .with_ease(circ_ease)
                         .animate(1.0),
-                )
-                .add_motion(
-                    cube.to_rotation(Quat::from_euler(
-                        EulerRot::XYZ,
-                        0.0,
-                        f32::to_radians(90.0),
-                        0.0,
-                    ))
-                    .with_ease(circ_ease)
-                    .animate(1.0),
                 )
                 .all();
 

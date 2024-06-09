@@ -41,13 +41,23 @@ fn easings(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
     };
 
     for i in 0..capacity {
-        let sphere = commands.spawn(NotShadowCaster).build_pbr(
+        let transform =
             Transform::from_translation(Vec3::new(-5.0, (i as f32) - (capacity as f32) * 0.5, 0.0))
-                .with_scale(Vec3::ONE),
-            mesh_handle.clone(),
-            material.clone(),
-        );
-        spheres.push(sphere);
+                .with_scale(Vec3::ONE);
+
+        let id = commands
+            .spawn((
+                NotShadowCaster,
+                PbrBundle {
+                    transform,
+                    mesh: mesh_handle.clone(),
+                    ..default()
+                },
+            ))
+            .add_new_asset(material.clone())
+            .id();
+
+        spheres.push((id, (transform, material.clone())));
     }
 
     // Generate sequence
@@ -56,19 +66,22 @@ fn easings(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
         .zip(easings)
         .map(|(s, e)| {
             commands
-                .add_motion(
-                    s.to_translation_x(s.transform.translation.x + 10.0)
+                .add_motion({
+                    let x = s.transform().transform.translation.x;
+                    s.transform()
+                        .to_translation_x(x + 10.0)
                         .with_ease(e)
-                        .animate(4.0),
-                )
+                        .animate(1.0)
+                })
                 .add_motion(
-                    s.to_emissive(palette.get(ColorKey::Red) * 100.0)
-                        .animate(4.0),
+                    s.std_material()
+                        .to_emissive(palette.get(ColorKey::Red) * 100.0)
+                        .animate(1.0),
                 )
                 .all()
         })
         .collect::<Vec<_>>()
-        .all();
+        .chain();
 
     commands.spawn(SequencePlayerBundle {
         sequence,

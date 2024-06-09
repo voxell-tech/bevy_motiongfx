@@ -59,11 +59,11 @@ Bevy MotionGfx also supports [Typst](https://typst.app)! It comes with a compile
 
 ## Join the community!
 
-You can join us on the [Voxell discord server](https://discord.gg/WDBnuNH) or our project focused [VOS (Voxell Open Source) discord server](https://discord.gg/X3ZucbxXFc).
+You can join us on the [Voxell discord server](https://discord.gg/Mhnyp6VYEQ) or our project focused [VOS (Voxell Open Source) discord server](https://discord.gg/X3ZucbxXFc).
 
 ## License
 
-The `bevy_motiongfx` is dual-licensed under either:
+`bevy_motiongfx` is dual-licensed under either:
 
 - MIT License ([LICENSE-MIT](LICENSE-MIT) or [http://opensource.org/licenses/MIT](http://opensource.org/licenses/MIT))
 - Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0))

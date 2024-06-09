@@ -11,7 +11,8 @@ proc-macro = true
 [dependencies]
 syn = "2.0"
 quote = "1.0"
-motiongfx_macro_utils = { path = "../../motiongfx_macro_utils" }
+bevy_macro_utils = "0.13"
+proc-macro2 = "1.0"
 
 [lints]
 workspace = true
