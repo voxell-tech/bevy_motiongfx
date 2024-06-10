@@ -6,9 +6,9 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-motiongfx_core = { version = "0.1.0", path = "../motiongfx_core" }
+bevy = { version = "0.13", default-features = false }
 bevy_vello_graphics = { version = "0.1.0", git = "https://github.com/voxell-tech/bevy_vello_graphics" }
-bevy = "0.13"
+motiongfx_core = { version = "0.1.0", path = "../motiongfx_core", features = ["vello_graphics"] }
 
 [lints]
 workspace = true

@@ -751,6 +751,7 @@ name = "bevy_motiongfx"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "motiongfx_common",
  "motiongfx_core",
  "motiongfx_vello",
 ]
@@ -2523,6 +2524,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e53debba6bda7a793e5f99b8dacf19e626084f525f7829104ba9898f367d85ff"
 
 [[package]]
+name = "motiongfx_common"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "motiongfx_core",
+]
+
+[[package]]
 name = "motiongfx_core"
 version = "0.1.0"
 dependencies = [
@@ -2530,7 +2539,6 @@ dependencies = [
  "bevy_vello",
  "bevy_vello_graphics",
  "motiongfx_core_macros",
- "smallvec",
 ]
 
 [[package]]

@@ -1,10 +1,6 @@
 use bevy::prelude::*;
 use bevy_vello_graphics::prelude::*;
-use motiongfx_core::{
-    act,
-    action::Action,
-    motion::{GetId, GetMutValue},
-};
+use motiongfx_core::prelude::*;
 
 pub trait StrokeMotion<const N: usize> {
     fn stroke(&mut self) -> StrokeMotionBuilder;

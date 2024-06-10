@@ -24,12 +24,34 @@
 //! # Sequence
 //! A [`Sequence`] is made up of multiple [`Action`]s. You can think of it as a group of actions. A [`Sequence`] also defines the order of [`Action`]s through the use of [action ordering functions](motiongfx_core::sequence).
 
+use bevy::prelude::*;
+
 pub use motiongfx_core;
-#[cfg(feature = "vello")]
+
+#[cfg(feature = "common")]
+pub use motiongfx_common;
+
+#[cfg(feature = "vello_graphics")]
 pub use motiongfx_vello;
 
 pub mod prelude {
     pub use motiongfx_core::prelude::*;
-    #[cfg(feature = "vello")]
+
+    #[cfg(feature = "common")]
+    pub use motiongfx_common::prelude::*;
+
+    #[cfg(feature = "vello_graphics")]
     pub use motiongfx_vello::prelude::*;
+}
+
+pub struct BevyMotionGfxPlugin;
+
+impl Plugin for BevyMotionGfxPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_plugins(motiongfx_core::MotionGfxPlugin);
+        #[cfg(feature = "common")]
+        app.add_plugins(motiongfx_common::MotionGfxCommonPlugin);
+        #[cfg(feature = "vello_graphics")]
+        app.add_plugins(motiongfx_vello::MotionGfxVelloPlugin);
+    }
 }

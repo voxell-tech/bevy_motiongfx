@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::prelude::{MultiSequenceOrdering, Sequence, SequenceController};
+use crate::prelude::{MultiSeqOrd, Sequence, SequenceController};
 
 #[derive(Bundle, Default)]
 pub struct SlideBundle {
