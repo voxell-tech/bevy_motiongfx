@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
 pub mod bevy_f32lerp;
-pub mod glam_f32lerp;
-#[cfg(feature = "vello")]
+pub mod math_f32lerp;
+#[cfg(feature = "vello_graphics")]
 pub mod vello_f32lerp;
 #[cfg(feature = "vello_graphics")]
 pub mod vello_graphics_f32lerp;

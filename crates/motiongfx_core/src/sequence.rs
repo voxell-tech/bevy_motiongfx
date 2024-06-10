@@ -89,7 +89,7 @@ pub struct SequencePlayer {
 
 // SEQUENCE ORDERING FUNCTIONS
 
-pub trait MultiSequenceOrdering {
+pub trait MultiSeqOrd {
     /// Run one [`Sequence`] after another.
     fn chain(self) -> Sequence;
     /// Run all [`Sequence`]s concurrently and wait for all of them to finish.
@@ -100,7 +100,7 @@ pub trait MultiSequenceOrdering {
     fn flow(self, delay: f32) -> Sequence;
 }
 
-impl MultiSequenceOrdering for &[Sequence] {
+impl MultiSeqOrd for &[Sequence] {
     fn chain(self) -> Sequence {
         chain(self)
     }
@@ -118,12 +118,12 @@ impl MultiSequenceOrdering for &[Sequence] {
     }
 }
 
-pub trait SingleSequenceOrdering {
+pub trait SingleSeqOrd {
     /// Run a [`Sequence`] after a fixed delay time.
     fn delay(self, t: f32) -> Sequence;
 }
 
-impl SingleSequenceOrdering for Sequence {
+impl SingleSeqOrd for Sequence {
     fn delay(self, t: f32) -> Sequence {
         delay(t, self)
     }

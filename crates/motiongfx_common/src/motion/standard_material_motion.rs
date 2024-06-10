@@ -1,8 +1,5 @@
 use bevy::prelude::*;
-
-use crate::{act, prelude::Action};
-
-use super::{GetId, GetMutValue};
+use motiongfx_core::prelude::*;
 
 pub trait StandardMaterialMotion<const N: usize> {
     fn std_material(&mut self) -> StandardMaterialMotionBuilder;

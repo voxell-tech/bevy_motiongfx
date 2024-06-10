@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::{
     ease::{cubic, EaseFn},
     f32lerp::F32Lerp,
-    prelude::MultiSequenceOrdering,
+    prelude::MultiSeqOrd,
     sequence::Sequence,
 };
 
@@ -265,7 +265,7 @@ impl<'a> SequenceBuilder<'a, 'a> {
     }
 }
 
-impl MultiSequenceOrdering for SequenceBuilder<'_, '_> {
+impl MultiSeqOrd for SequenceBuilder<'_, '_> {
     fn chain(self) -> Sequence {
         self.sequences.chain()
     }

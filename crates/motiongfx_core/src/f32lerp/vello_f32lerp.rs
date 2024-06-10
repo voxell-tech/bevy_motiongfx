@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::smallvec};
 use bevy_vello::prelude::*;
 
 use super::F32Lerp;

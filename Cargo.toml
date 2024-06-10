@@ -21,12 +21,15 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+bevy = { version = "0.13", default-features = false }
 motiongfx_core = { version = "0.1.0", path = "crates/motiongfx_core" }
+motiongfx_common = { version = "0.1.0", path = "crates/motiongfx_common", optional = true }
 motiongfx_vello = { version = "0.1.0", path = "crates/motiongfx_vello", optional = true }
 
 [features]
-default = ["vello"]
-vello = ["dep:motiongfx_vello"]
+default = ["common", "vello_graphics"]
+common = ["dep:motiongfx_common"]
+vello_graphics = ["dep:motiongfx_vello"]
 
 [dev-dependencies]
 bevy = "0.13"
