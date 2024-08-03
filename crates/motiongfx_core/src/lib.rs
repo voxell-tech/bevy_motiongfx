@@ -22,7 +22,6 @@ pub mod prelude {
         },
         slide::{create_slide, SlideBundle, SlideController, SlideCurrState, SlideTargetState},
         tuple_motion::{GetId, GetMut, GetMutValue},
-        MotionGfxPlugin, UpdateSequenceSet,
     };
 }
 

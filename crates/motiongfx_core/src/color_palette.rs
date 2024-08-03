@@ -36,22 +36,22 @@ impl Default for ColorPalette<ColorKey> {
         Self::new(
             [
                 // Primary colors
-                (ColorKey::Red, Color::hex("FF6188").unwrap()),
-                (ColorKey::Orange, Color::hex("FC9867").unwrap()),
-                (ColorKey::Yellow, Color::hex("FFD866").unwrap()),
-                (ColorKey::Green, Color::hex("A9DC76").unwrap()),
-                (ColorKey::Blue, Color::hex("78DCE8").unwrap()),
-                (ColorKey::Purple, Color::hex("AB9DF2").unwrap()),
+                (ColorKey::Red, Srgba::hex("FF6188").unwrap().into()),
+                (ColorKey::Orange, Srgba::hex("FC9867").unwrap().into()),
+                (ColorKey::Yellow, Srgba::hex("FFD866").unwrap().into()),
+                (ColorKey::Green, Srgba::hex("A9DC76").unwrap().into()),
+                (ColorKey::Blue, Srgba::hex("78DCE8").unwrap().into()),
+                (ColorKey::Purple, Srgba::hex("AB9DF2").unwrap().into()),
                 // Base colors, sorted from darkest to lightest
-                (ColorKey::Base0, Color::hex("19181A").unwrap()),
-                (ColorKey::Base1, Color::hex("221F22").unwrap()),
-                (ColorKey::Base2, Color::hex("2D2A2E").unwrap()),
-                (ColorKey::Base3, Color::hex("403E41").unwrap()),
-                (ColorKey::Base4, Color::hex("5B595C").unwrap()),
-                (ColorKey::Base5, Color::hex("727072").unwrap()),
-                (ColorKey::Base6, Color::hex("939293").unwrap()),
-                (ColorKey::Base7, Color::hex("C1C0C0").unwrap()),
-                (ColorKey::Base8, Color::hex("FCFCFA").unwrap()),
+                (ColorKey::Base0, Srgba::hex("19181A").unwrap().into()),
+                (ColorKey::Base1, Srgba::hex("221F22").unwrap().into()),
+                (ColorKey::Base2, Srgba::hex("2D2A2E").unwrap().into()),
+                (ColorKey::Base3, Srgba::hex("403E41").unwrap().into()),
+                (ColorKey::Base4, Srgba::hex("5B595C").unwrap().into()),
+                (ColorKey::Base5, Srgba::hex("727072").unwrap().into()),
+                (ColorKey::Base6, Srgba::hex("939293").unwrap().into()),
+                (ColorKey::Base7, Srgba::hex("C1C0C0").unwrap().into()),
+                (ColorKey::Base8, Srgba::hex("FCFCFA").unwrap().into()),
             ]
             .into(),
         )

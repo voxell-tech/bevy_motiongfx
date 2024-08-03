@@ -23,14 +23,15 @@ impl<'a> FillMotionBuilder<'a> {
     }
 
     pub fn to_color(&mut self, color: Color) -> Action<peniko::Brush, Fill> {
+        let linear = color.to_linear();
         act!(
             (self.id, Fill),
             start = { self.fill }.brush.value,
             end = peniko::Brush::Solid(peniko::Color::rgba(
-                color.r() as f64,
-                color.g() as f64,
-                color.b() as f64,
-                color.a() as f64
+                linear.red as f64,
+                linear.green as f64,
+                linear.blue as f64,
+                linear.alpha as f64
             )),
         )
     }

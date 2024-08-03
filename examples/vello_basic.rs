@@ -1,12 +1,12 @@
 use bevy::{math::DVec2, prelude::*};
-use bevy_motiongfx::prelude::*;
+use bevy_motiongfx::{prelude::*, BevyMotionGfxPlugin};
 
 fn main() {
     App::new()
         // Bevy plugins
         .add_plugins(DefaultPlugins)
         // Custom plugins
-        .add_plugins((MotionGfxPlugin, MotionGfxVelloPlugin))
+        .add_plugins(BevyMotionGfxPlugin)
         .add_systems(Startup, (setup, vello_basic))
         .add_systems(Update, timeline_movement)
         .run();
@@ -31,7 +31,7 @@ fn vello_basic(mut commands: Commands) {
     let rect = (
         VelloRect::new(100.0, 100.0),
         Fill::new().with_color(palette.get(ColorKey::Blue)),
-        Stroke::new(4.0).with_color(palette.get(ColorKey::Blue) * 1.5),
+        Stroke::new(4.0).with_color(palette.get(ColorKey::Blue).lighter(0.2)),
         Transform::from_xyz(-200.0, 0.0, 0.0),
     );
     let id = commands
@@ -43,7 +43,7 @@ fn vello_basic(mut commands: Commands) {
     let circle = (
         VelloCircle::new(50.0),
         Fill::new().with_color(palette.get(ColorKey::Purple)),
-        Stroke::new(4.0).with_color(palette.get(ColorKey::Purple) * 1.5),
+        Stroke::new(4.0).with_color(palette.get(ColorKey::Purple).lighter(0.2)),
         Transform::from_xyz(200.0, 0.0, 0.0),
     );
     let id = commands

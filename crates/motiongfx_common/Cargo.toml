@@ -6,7 +6,7 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-bevy = { version = "0.13", default-features = false }
+bevy = { workspace = true }
 motiongfx_core = { version = "0.1.0", path = "../motiongfx_core" }
 
 [lints]

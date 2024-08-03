@@ -6,9 +6,9 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-bevy = { version = "0.13", default-features = false }
-bevy_vello = { version = "0.4", optional = true }
-bevy_vello_graphics = { version = "0.1.0", git = "https://github.com/voxell-tech/bevy_vello_graphics", optional = true }
+bevy = { workspace = true }
+bevy_vello_graphics = { workspace = true, optional = true }
+smallvec = { workspace = true }
 motiongfx_core_macros = { version = "0.1.0", path = "macros" }
 
 [lints]
@@ -16,4 +16,4 @@ workspace = true
 
 [features]
 default = []
-vello_graphics = ["dep:bevy_vello_graphics", "dep:bevy_vello"]
+vello_graphics = ["dep:bevy_vello_graphics"]

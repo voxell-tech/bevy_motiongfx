@@ -23,7 +23,7 @@ impl<'a> StandardMaterialMotionBuilder<'a> {
         Self { id, material }
     }
 
-    pub fn to_emissive(&mut self, color: Color) -> Action<Color, StandardMaterial> {
+    pub fn to_emissive(&mut self, color: LinearRgba) -> Action<LinearRgba, StandardMaterial> {
         act!(
             (self.id, StandardMaterial),
             start = { self.material }.emissive,

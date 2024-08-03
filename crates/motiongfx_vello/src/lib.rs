@@ -8,10 +8,7 @@ pub mod motion;
 // pub mod svg;
 
 pub mod prelude {
-    pub use crate::{
-        motion::{fill_motion::FillMotion, stroke_motion::StrokeMotion},
-        MotionGfxVelloPlugin,
-    };
+    pub use crate::motion::{fill_motion::FillMotion, stroke_motion::StrokeMotion};
 
     pub use bevy_vello_graphics::prelude::*;
 }

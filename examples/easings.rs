@@ -1,12 +1,12 @@
 use bevy::{core_pipeline::bloom::BloomSettings, pbr::NotShadowCaster, prelude::*};
-use bevy_motiongfx::prelude::*;
+use bevy_motiongfx::{prelude::*, BevyMotionGfxPlugin};
 
 fn main() {
     App::new()
         // Bevy plugins
         .add_plugins(DefaultPlugins)
         // Custom plugins
-        .add_plugins(MotionGfxPlugin)
+        .add_plugins(BevyMotionGfxPlugin)
         .add_systems(Startup, (setup, easings))
         .add_systems(Update, timeline_movement)
         .run();
@@ -36,7 +36,7 @@ fn easings(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
     let mesh_handle = meshes.add(Sphere::default());
     let material = StandardMaterial {
         base_color: Color::WHITE,
-        emissive: palette.get(ColorKey::Blue) * 100.0,
+        emissive: palette.get(ColorKey::Blue).to_linear() * 100.0,
         ..default()
     };
 
@@ -75,7 +75,7 @@ fn easings(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>) {
                 })
                 .add_motion(
                     s.std_material()
-                        .to_emissive(palette.get(ColorKey::Red) * 100.0)
+                        .to_emissive(palette.get(ColorKey::Red).to_linear() * 100.0)
                         .animate(1.0),
                 )
                 .all()

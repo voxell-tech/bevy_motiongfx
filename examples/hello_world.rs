@@ -1,12 +1,12 @@
 use bevy::{core_pipeline::tonemapping::Tonemapping, pbr::NotShadowCaster, prelude::*};
-use bevy_motiongfx::prelude::*;
+use bevy_motiongfx::{prelude::*, BevyMotionGfxPlugin};
 
 fn main() {
     App::new()
         // Bevy plugins
         .add_plugins(DefaultPlugins)
         // Custom plugins
-        .add_plugins(MotionGfxPlugin)
+        .add_plugins(BevyMotionGfxPlugin)
         .add_systems(Startup, (setup, hello_world))
         .add_systems(Update, timeline_movement)
         .run();
@@ -130,6 +130,8 @@ fn timeline_movement(
     time: Res<Time>,
 ) {
     for (mut sequence_player, mut sequence_time) in q_timelines.iter_mut() {
+        println!("timeline movement");
+        println!("target_time: {}", sequence_time.target_time);
         if keys.pressed(KeyCode::KeyD) {
             sequence_time.target_time += time.delta_seconds();
         }

@@ -4,12 +4,13 @@ use super::F32Lerp;
 
 impl F32Lerp for Color {
     fn f32lerp(&self, rhs: &Self, t: f32) -> Self {
-        Self::rgba(
-            f32::lerp(self.r(), rhs.r(), t),
-            f32::lerp(self.g(), rhs.g(), t),
-            f32::lerp(self.b(), rhs.b(), t),
-            f32::lerp(self.a(), rhs.a(), t),
-        )
+        Color::mix(self, rhs, t)
+    }
+}
+
+impl F32Lerp for LinearRgba {
+    fn f32lerp(&self, rhs: &Self, t: f32) -> Self {
+        LinearRgba::mix(self, rhs, t)
     }
 }
 

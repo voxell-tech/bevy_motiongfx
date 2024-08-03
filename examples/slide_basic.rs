@@ -1,12 +1,12 @@
 use bevy::{core_pipeline::bloom::BloomSettings, pbr::NotShadowCaster, prelude::*};
-use bevy_motiongfx::prelude::*;
+use bevy_motiongfx::{prelude::*, BevyMotionGfxPlugin};
 
 fn main() {
     App::new()
         // Bevy plugins
         .add_plugins(DefaultPlugins)
         // Custom plugins
-        .add_plugins(MotionGfxPlugin)
+        .add_plugins(BevyMotionGfxPlugin)
         .add_systems(Startup, (setup, slide_basic))
         .add_systems(Update, slide_movement)
         .run();

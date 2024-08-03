@@ -2,7 +2,7 @@ use bevy::{
     ecs::system::{EntityCommand, EntityCommands},
     prelude::*,
 };
-use motiongfx_core::prelude::*;
+use motiongfx_core::{prelude::*, UpdateSequenceSet};
 
 pub mod motion;
 
@@ -28,6 +28,7 @@ impl Plugin for MotionGfxCommonPlugin {
                 update_component::<Sprite, Color>,
                 update_component::<Sprite, f32>,
                 update_asset::<StandardMaterial, Color>,
+                update_asset::<StandardMaterial, LinearRgba>,
                 update_asset::<StandardMaterial, f32>,
                 update_asset::<ColorMaterial, Color>,
                 update_asset::<ColorMaterial, f32>,

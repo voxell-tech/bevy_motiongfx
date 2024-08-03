@@ -8,6 +8,11 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/nixon-voxell/bevy_motiongfx"
 
+[workspace.dependencies]
+bevy = { version = "0.14", default-features = false }
+bevy_vello_graphics = { version = "0.1.0", git = "https://github.com/voxell-tech/bevy_vello_graphics" }
+smallvec = "1"
+
 [package]
 name = "bevy_motiongfx"
 categories = ["graphics", "gui", "rendering", "motion-graphics", "vector-graphics"]
@@ -21,7 +26,7 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-bevy = { version = "0.13", default-features = false }
+bevy = { workspace = true }
 motiongfx_core = { version = "0.1.0", path = "crates/motiongfx_core" }
 motiongfx_common = { version = "0.1.0", path = "crates/motiongfx_common", optional = true }
 motiongfx_vello = { version = "0.1.0", path = "crates/motiongfx_vello", optional = true }
@@ -32,7 +37,7 @@ common = ["dep:motiongfx_common"]
 vello_graphics = ["dep:motiongfx_vello"]
 
 [dev-dependencies]
-bevy = "0.13"
+bevy = "0.14"
 
 [workspace.lints.clippy]
 redundant_type_annotations = "warn"

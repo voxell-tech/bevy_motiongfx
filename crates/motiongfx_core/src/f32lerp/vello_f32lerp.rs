@@ -1,5 +1,5 @@
-use bevy::{prelude::*, utils::smallvec};
-use bevy_vello::prelude::*;
+use bevy::prelude::*;
+use bevy_vello_graphics::prelude::*;
 
 use super::F32Lerp;
 
