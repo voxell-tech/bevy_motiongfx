@@ -7,6 +7,7 @@ version = "0.1.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/nixon-voxell/bevy_motiongfx"
+readme = "README.md"
 
 [workspace.dependencies]
 bevy = { version = "0.14", default-features = false }
@@ -19,17 +20,17 @@ categories = ["graphics", "gui", "rendering", "motion-graphics", "vector-graphic
 description = "Motion graphics creation tool in Bevy. (Highly inspired by Motion Canvas and Manim)"
 exclude = ["/assets/", "/.github/", "/examples/"]
 keywords = ["motion-graphics", "game", "gamedev", "graphics", "bevy", "vello"]
-readme = "README.md"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
+readme.workspace = true
 
 [dependencies]
-bevy = { workspace = true }
 motiongfx_core = { version = "0.1.0", path = "crates/motiongfx_core" }
 motiongfx_common = { version = "0.1.0", path = "crates/motiongfx_common", optional = true }
 motiongfx_vello = { version = "0.1.0", path = "crates/motiongfx_vello", optional = true }
+bevy = { workspace = true }
 
 [features]
 default = ["common", "vello_graphics"]
