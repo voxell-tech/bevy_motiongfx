@@ -35,7 +35,7 @@ bevy = { workspace = true }
 [features]
 default = ["common", "vello_graphics"]
 common = ["dep:motiongfx_common"]
-vello_graphics = ["dep:motiongfx_vello"]
+vello_graphics = ["dep:motiongfx_vello", "motiongfx_core/vello_graphics"]
 
 [dev-dependencies]
 bevy = "0.14"

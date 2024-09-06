@@ -130,8 +130,6 @@ fn timeline_movement(
     time: Res<Time>,
 ) {
     for (mut sequence_player, mut sequence_time) in q_timelines.iter_mut() {
-        println!("timeline movement");
-        println!("target_time: {}", sequence_time.target_time);
         if keys.pressed(KeyCode::KeyD) {
             sequence_time.target_time += time.delta_seconds();
         }
