@@ -25,9 +25,9 @@ pub mod prelude {
     };
 }
 
-pub struct MotionGfxPlugin;
+pub struct MotionGfxCorePlugin;
 
-impl Plugin for MotionGfxPlugin {
+impl Plugin for MotionGfxCorePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,

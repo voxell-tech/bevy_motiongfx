@@ -44,11 +44,11 @@ pub mod prelude {
     pub use motiongfx_vello::prelude::*;
 }
 
-pub struct BevyMotionGfxPlugin;
+pub struct MotionGfxPlugin;
 
-impl Plugin for BevyMotionGfxPlugin {
+impl Plugin for MotionGfxPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(motiongfx_core::MotionGfxPlugin);
+        app.add_plugins(motiongfx_core::MotionGfxCorePlugin);
         #[cfg(feature = "common")]
         app.add_plugins(motiongfx_common::MotionGfxCommonPlugin);
         #[cfg(feature = "vello_graphics")]

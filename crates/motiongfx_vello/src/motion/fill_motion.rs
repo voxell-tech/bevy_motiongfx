@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_vello_graphics::prelude::*;
+use bevy_vello_graphics::{bevy_vello::vello::peniko, prelude::*};
 use motiongfx_core::prelude::*;
 
 pub trait FillMotion<const N: usize> {
