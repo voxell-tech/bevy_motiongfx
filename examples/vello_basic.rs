@@ -1,12 +1,12 @@
 use bevy::{math::DVec2, prelude::*};
-use bevy_motiongfx::{prelude::*, BevyMotionGfxPlugin};
+use bevy_motiongfx::motiongfx_vello::bevy_vello_graphics::bevy_vello::{prelude::*, VelloPlugin};
+use bevy_motiongfx::{prelude::*, MotionGfxPlugin};
 
 fn main() {
     App::new()
-        // Bevy plugins
-        .add_plugins(DefaultPlugins)
+        .add_plugins((DefaultPlugins, VelloPlugin::default()))
         // Custom plugins
-        .add_plugins(BevyMotionGfxPlugin)
+        .add_plugins(MotionGfxPlugin)
         .add_systems(Startup, (setup, vello_basic))
         .add_systems(Update, timeline_movement)
         .run();

@@ -1115,9 +1115,9 @@ dependencies = [
 
 [[package]]
 name = "bevy_vello"
-version = "0.5.1"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ecda71cb3f341a43d3a9838097dd0441b27716fba243df6bd8f4df07e8fcda12"
+checksum = "1ea1ddb3dd4b9410797bcb09ef810d43a5db66df2ca2010e48626e1a984a9e42"
 dependencies = [
  "bevy",
  "once_cell",
@@ -1130,9 +1130,13 @@ dependencies = [
 [[package]]
 name = "bevy_vello_graphics"
 version = "0.1.0"
-source = "git+https://github.com/voxell-tech/bevy_vello_graphics#18cba862dbe94c8c3d294679402471e7f37b323c"
+source = "git+https://github.com/voxell-tech/bevy_vello_graphics#ecf902f5f4f0e6eb745f679c8e3272a5b855ddec"
 dependencies = [
- "bevy",
+ "bevy_app",
+ "bevy_color",
+ "bevy_ecs",
+ "bevy_math",
+ "bevy_utils",
  "bevy_vello",
 ]
 
