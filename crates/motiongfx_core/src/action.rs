@@ -200,6 +200,27 @@ where
     }
 }
 
+pub struct ActionBuidler<T> {
+    pub entity: Entity,
+    pub start: T,
+    pub end: T,
+}
+
+impl<T> ActionBuidler<T> {
+    pub fn new(start: T, end: T) -> Self {
+        Self {
+            entity: Entity::PLACEHOLDER,
+            start,
+            end,
+        }
+    }
+
+    pub fn with_entity(mut self, entity: Entity) -> Self {
+        self.entity = entity;
+        self
+    }
+}
+
 #[derive(Clone, Copy)]
 pub(crate) struct ActionMeta {
     /// Target `Entity` for `Action`.

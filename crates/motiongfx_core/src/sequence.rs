@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use smallvec::SmallVec;
 
 use crate::action::{Action, ActionMeta};
 
@@ -39,15 +40,14 @@ impl SequencePlayerBundle {
 #[derive(Component, Default, Clone)]
 pub struct Sequence {
     duration: f32,
-    // TODO(perf): Use SmallVec to prevent heap allocations for single action sequences.
-    pub(crate) action_metas: Vec<ActionMeta>,
+    pub(crate) action_metas: SmallVec<[ActionMeta; 1]>,
 }
 
 impl Sequence {
     pub(crate) fn single(action_meta: ActionMeta) -> Self {
         let duration = action_meta.duration;
         Self {
-            action_metas: vec![action_meta],
+            action_metas: SmallVec::from_buf([action_meta]),
             duration,
         }
     }
@@ -218,7 +218,7 @@ pub fn delay(t: f32, sequence: Sequence) -> Sequence {
 }
 
 /// System for mutating the [`Component`] related [`Action`]s that are inside the [`Sequence`].
-pub fn update_component<U, T>(
+pub fn animate_component<U, T>(
     mut q_components: Query<&mut U>,
     q_actions: Query<&'static Action<T, U>>,
     q_sequences: Query<(&Sequence, &SequenceController)>,
@@ -234,17 +234,7 @@ pub fn update_component<U, T>(
                     continue;
                 };
 
-                let mut unit_time = (sequence_controller.target_time - action_meta.start_time)
-                    / action_meta.duration;
-
-                // In case of division by 0.0
-                if f32::is_nan(unit_time) {
-                    unit_time = 0.0;
-                }
-
-                unit_time = f32::clamp(unit_time, 0.0, 1.0);
-                // Calculate unit time using ease function
-                unit_time = (action.ease_fn)(unit_time);
+                let unit_time = calc_unit_time(sequence_controller, action_meta, action);
 
                 // Mutate the component using interpolate function
                 let field = (action.get_field_fn)(&mut component);
@@ -255,7 +245,7 @@ pub fn update_component<U, T>(
 }
 
 /// System for mutating the [`Asset`] related [`Action`]s that are inside the [`Sequence`].
-pub fn update_asset<U, T>(
+pub fn animate_asset<U, T>(
     q_handles: Query<&Handle<U>>,
     mut assets: ResMut<Assets<U>>,
     q_actions: Query<&'static Action<T, U>>,
@@ -277,20 +267,37 @@ pub fn update_asset<U, T>(
                     continue;
                 };
 
-                let mut unit_time = (sequence_controller.target_time - action_meta.start_time)
-                    / action_meta.duration;
-
-                // In case of division by 0.0
-                if f32::is_nan(unit_time) {
-                    unit_time = 0.0;
-                }
-
-                unit_time = f32::clamp(unit_time, 0.0, 1.0);
-                // Calculate unit time using ease function
-                unit_time = (action.ease_fn)(unit_time);
+                let unit_time = calc_unit_time(sequence_controller, action_meta, action);
 
                 // Mutate the component using interpolate function
                 let field = (action.get_field_fn)(asset);
+                *field = (action.interp_fn)(&action.start, &action.end, unit_time);
+            }
+        }
+    }
+}
+
+/// System for mutating the [`Resource`] related [`Action`]s that are inside the [`Sequence`].
+pub fn animate_resource<U, T>(
+    // mut q_resources: Query<&mut U>,
+    q_actions: Query<&'static Action<T, U>>,
+    q_sequences: Query<(&Sequence, &SequenceController)>,
+    resource: Option<ResMut<U>>,
+) where
+    T: Send + Sync + 'static,
+    U: Resource,
+{
+    let Some(mut resource) = resource else {
+        return;
+    };
+
+    for (sequence, sequence_controller) in q_sequences.iter() {
+        if let Some(action) = generate_action_iter(&q_actions, sequence, sequence_controller) {
+            for (action, action_meta) in action {
+                let unit_time = calc_unit_time(sequence_controller, action_meta, action);
+
+                // Mutate the resource using interpolate function
+                let field = (action.get_field_fn)(&mut resource);
                 *field = (action.interp_fn)(&action.start, &action.end, unit_time);
             }
         }
@@ -403,4 +410,23 @@ where
 /// Calculate if 2 time range (in float) overlaps.
 fn time_range_overlap(a_begin: f32, a_end: f32, b_begin: f32, b_end: f32) -> bool {
     a_begin <= b_end && b_begin <= a_end
+}
+
+fn calc_unit_time<T, U>(
+    sequence_controller: &SequenceController,
+    action_meta: &ActionMeta,
+    action: &Action<T, U>,
+) -> f32 {
+    let mut unit_time =
+        (sequence_controller.target_time - action_meta.start_time) / action_meta.duration;
+
+    // In case of division by 0.0
+    if f32::is_nan(unit_time) {
+        unit_time = 0.0;
+    }
+
+    unit_time = f32::clamp(unit_time, 0.0, 1.0);
+    // Calculate unit time using ease function
+    unit_time = (action.ease_fn)(unit_time);
+    unit_time
 }

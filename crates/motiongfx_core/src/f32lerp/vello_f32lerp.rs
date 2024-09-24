@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_vello_graphics::bevy_vello::vello::{kurbo, peniko};
+use bevy_vello::vello::{kurbo, peniko};
 
 use super::F32Lerp;
 

@@ -22,16 +22,16 @@ impl Plugin for MotionGfxCommonPlugin {
         app.add_systems(
             Update,
             (
-                update_component::<Transform, Vec3>,
-                update_component::<Transform, Quat>,
-                update_component::<Transform, f32>,
-                update_component::<Sprite, Color>,
-                update_component::<Sprite, f32>,
-                update_asset::<StandardMaterial, Color>,
-                update_asset::<StandardMaterial, LinearRgba>,
-                update_asset::<StandardMaterial, f32>,
-                update_asset::<ColorMaterial, Color>,
-                update_asset::<ColorMaterial, f32>,
+                animate_component::<Transform, Vec3>,
+                animate_component::<Transform, Quat>,
+                animate_component::<Transform, f32>,
+                animate_component::<Sprite, Color>,
+                animate_component::<Sprite, f32>,
+                animate_asset::<StandardMaterial, Color>,
+                animate_asset::<StandardMaterial, LinearRgba>,
+                animate_asset::<StandardMaterial, f32>,
+                animate_asset::<ColorMaterial, Color>,
+                animate_asset::<ColorMaterial, f32>,
             )
                 .in_set(UpdateSequenceSet),
         );

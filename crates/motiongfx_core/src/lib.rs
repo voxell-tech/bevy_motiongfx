@@ -17,8 +17,9 @@ pub mod prelude {
         ease,
         f32lerp::F32Lerp,
         sequence::{
-            all, any, chain, delay, flow, update_asset, update_component, MultiSeqOrd, Sequence,
-            SequenceBundle, SequenceController, SequencePlayer, SequencePlayerBundle, SingleSeqOrd,
+            all, animate_asset, animate_component, animate_resource, any, chain, delay, flow,
+            MultiSeqOrd, Sequence, SequenceBundle, SequenceController, SequencePlayer,
+            SequencePlayerBundle, SingleSeqOrd,
         },
         slide::{create_slide, SlideBundle, SlideController, SlideCurrState, SlideTargetState},
         tuple_motion::{GetId, GetMut, GetMutValue},
