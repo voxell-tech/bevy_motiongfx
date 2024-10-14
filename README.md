@@ -43,15 +43,15 @@ Bevy MotionGfx also comes with built-in easing functions which are crucial for a
 
 ## Vector Graphics
 
-In Bevy MotionGfx, all vector graphics are rendered using [Vello](https://github.com/linebender/vello)! This is done using the minimal [Bevy Vello Renderer](https://github.com/nixon-voxell/bevy_vello_renderer).
+In Bevy MotionGfx, all vector graphics are rendered using [Bevy Vello]([https://github.com/linebender/vello](https://github.com/linebender/bevy_vello))!.
 
 ![vello_basic_gif](./.github/assets/vello_basic.gif)
 
 *Associated example [here](./examples/vello_basic.rs)!*
 
-## Typst Integration
+## Typst Integration (Coming soon...)
 
-Bevy MotionGfx also supports [Typst](https://typst.app)! It comes with a compiler that compiles Typst content into Svg and display them using [Vello](https://github.com/linebender/vello).
+Bevy MotionGfx seamlessly integrates with [Typst](https://typst.app) via the [Velyst](https://github.com/voxell-tech/velyst) crate.
 
 ![typst_basic_gif](./.github/assets/typst_basic.gif)
 
