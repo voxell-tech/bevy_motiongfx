@@ -43,7 +43,7 @@ Bevy MotionGfx also comes with built-in easing functions which are crucial for a
 
 ## Vector Graphics
 
-In Bevy MotionGfx, all vector graphics are rendered using [Bevy Vello]([https://github.com/linebender/vello](https://github.com/linebender/bevy_vello))!.
+In Bevy MotionGfx, all vector graphics are rendered using [Bevy Vello](https://github.com/linebender/bevy_vello).
 
 ![vello_basic_gif](./.github/assets/vello_basic.gif)
 
