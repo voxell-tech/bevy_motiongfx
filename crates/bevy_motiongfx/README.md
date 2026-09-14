@@ -4,6 +4,7 @@
 [![Crates.io](https://img.shields.io/crates/v/bevy_motiongfx.svg)](https://crates.io/crates/bevy_motiongfx)
 [![Downloads](https://img.shields.io/crates/d/bevy_motiongfx.svg)](https://crates.io/crates/bevy_motiongfx)
 [![Docs](https://docs.rs/bevy_motiongfx/badge.svg)](https://docs.rs/bevy_motiongfx/latest/bevy_motiongfx/)
+[![CI](https://github.com/voxell-tech/motiongfx/workflows/CI/badge.svg)](https://github.com/voxell-tech/motiongfx/actions)
 [![Discord](https://img.shields.io/discord/442334985471655946.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/Mhnyp6VYEQ)
 
 An integration of the
@@ -53,11 +54,10 @@ fn build_timeline(
         .act(entity, path!(<Transform>::translation::x), |x| {
             x + 6.0
         })
-        .play(1.0)
+        .play(s(1))
         .compile();
 
-    b.add_tracks(track);
-    let timeline = b.compile();
+    let timeline = b.compile(track);
 
     // Spawn the timeline.
     commands.spawn(motiongfx.add_timeline(timeline));
@@ -90,11 +90,10 @@ fn build_timeline(
           path!(<StandardMaterial>::base_color),
           |_| Srgba::RED.into(),
         )
-        .play(1.0)
+        .play(s(1))
         .compile();
 
-    b.add_tracks(track);
-    let timeline = b.compile();
+    let timeline = b.compile(track);
 
     // Spawn the timeline.
     commands.spawn(motiongfx.add_timeline(timeline));
@@ -116,8 +115,9 @@ fn build_timeline(
 ) {
     // Build the timeline.
     let mut b = motiongfx.create_builder();
-    // Add tracks here...
-    let timeline = b.compile();
+    // Add actions here...
+    let track = TrackFragment::new().compile();
+    let timeline = b.compile(track);
 
     // Spawn the timeline with a controller.
     commands.spawn((
@@ -161,6 +161,10 @@ play the animation.
 | 0.19    | 0.3        | 0.3             |
 | 0.18    | 0.2        | 0.2             |
 | 0.17    | 0.1        | 0.1             |
+
+## Join the community!
+
+You can join us on the [Voxell discord server](https://discord.gg/Mhnyp6VYEQ).
 
 ## License
 

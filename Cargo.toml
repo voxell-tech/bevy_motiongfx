@@ -3,17 +3,18 @@ resolver = "2"
 members = ["crates/*", "examples/*", ]
 
 [workspace.package]
-version = "0.3.0"
+version = "0.3.1"
 edition = "2024"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/voxell-tech/motiongfx"
 
 [workspace.dependencies]
 # motiongfx
-motiongfx = { version = "0.3.0", path = "crates/motiongfx" }
-bevy_motiongfx = { version = "0.3.0", path = "crates/bevy_motiongfx" }
-peniko_motiongfx = { version = "0.3.0", path = "crates/peniko_motiongfx" }
-motiongfx_editor = { version = "0.3.0", path = "crates/motiongfx_editor" }
+motiongfx = { version = "0.3.1", path = "crates/motiongfx", default-features = false }
+motiongfx_interp = { version = "0.3.1", path = "crates/motiongfx_interp", default-features = false }
+motiongfx_scene = { version = "0.3.1", path = "crates/motiongfx_scene", default-features = false }
+bevy_motiongfx = { version = "0.3.1", path = "crates/bevy_motiongfx", default-features = false }
+peniko_motiongfx = { version = "0.3.1", path = "crates/peniko_motiongfx", default-features = false }
 
 # bevy
 bevy = { version = "0.19", default-features = false }
@@ -23,6 +24,7 @@ bevy_platform = { version = "0.19", default-features = false }
 bevy_derive = { version = "0.19", default-features = false }
 bevy_math = { version = "0.19", default-features = false, features = [ "libm" ] }
 bevy_asset = { version = "0.19", default-features = false }
+bevy_reflect = { version = "0.19", default-features = false }
 bevy_time = { version = "0.19", default-features = false }
 bevy_transform = { version = "0.19", default-features = false, features = ["bevy-support"] }
 bevy_color = { version = "0.19", default-features = false }
@@ -32,7 +34,16 @@ velyst = { git = "https://github.com/voxell-tech/velyst", branch = "nixon/bevy-0
 
 # other
 field_path = "0.4.1"
+typarena = { version = "0.1.0", features = ["send", "sync"] }
+libm = "0.2"
 nonempty = { version = "0.12", default-features = false }
+hashbrown = { version = "0.17", default-features = false }
+indexmap = { version = "2.14", default-features = false }
+uuid = { version = "1.24", default-features = false }
+tracing = { version = "0.1", default-features = false }
+serde = { version = "1", default-features = false }
+educe = { version = "0.7.4", default-features = false }
+ron = { version = "0.12", default-features = false, features = ["std"] }
 peniko = { version = "0.6", default-features = false }
 vello = "0.9.0"
 winit = "0.30"
@@ -40,6 +51,11 @@ pollster = "0.4"
 
 [workspace.lints.clippy]
 redundant_type_annotations = "warn"
+
+# `VelystFunc<F>` needs `Clone` for `TimelineBuilder::act`; not yet
+# upstream. Points at a sibling checkout with that derive added.
+[patch."https://github.com/voxell-tech/velyst"]
+velyst = { path = "../velyst/crates/velyst" }
 
 # Enable a small amount of optimization in the dev profile.
 [profile.dev]

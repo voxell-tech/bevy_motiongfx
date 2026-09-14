@@ -42,12 +42,10 @@ fn spawn_timeline(
         })
         .with_interp(|start, end, t| arc_lerp_3d(*start, *end, t))
         .with_ease(ease::cubic::ease_in_out)
-        .play(1.0)
+        .play(s(1))
         .compile();
 
-    b.add_tracks(track);
-
-    let timeline = b.compile();
+    let timeline = b.compile(track);
     commands.spawn((
         motiongfx.add_timeline(timeline),
         RealtimePlayer::new().with_playing(true),

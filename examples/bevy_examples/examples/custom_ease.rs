@@ -40,12 +40,10 @@ fn spawn_timeline(
         })
         // A custom 10 step easing.
         .with_ease(|t| ((t * 10.0) as u32) as f32 / 10.0)
-        .play(1.0)
+        .play(s(1))
         .compile();
 
-    b.add_tracks(track);
-
-    let timeline = b.compile();
+    let timeline = b.compile(track);
     commands.spawn((
         motiongfx.add_timeline(timeline),
         RealtimePlayer::new().with_playing(true),

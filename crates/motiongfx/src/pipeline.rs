@@ -1,23 +1,24 @@
-pub mod func_pointers;
+pub mod bake;
+mod func_pointers;
+pub mod sample;
 
 use core::any::TypeId;
 use core::marker::PhantomData;
 
-use func_pointers::{BakeFnPtr, SampleFnPtr};
+use bake::{BakeClipCtx, bake_clip};
+use func_pointers::{BakeClipFnPtr, SampleFnPtr};
+use sample::{SampleCtx, sample};
 
 use crate::ThreadSafe;
-use crate::action::{
-    ActionClip, ActionKey, ActionWorld, EaseStorage, InterpStorage,
-    SampleMode, Segment,
-};
-use crate::pipeline::func_pointers::{BakeFn, SampleFn};
-use crate::registry::AccessorRegistry;
+use crate::action::ActionKey;
+use crate::pipeline::func_pointers::{BakeClipFn, SampleFn};
 use crate::subject::SubjectId;
-use crate::track::Track;
 use crate::world::SubjectSource;
 
+pub use bake::BakeScratch;
+
 pub struct PipelineHandle<W, I, S, T> {
-    #[expect(clippy::complexity)]
+    #[expect(clippy::type_complexity)]
     _marker: PhantomData<fn() -> (W, I, S, T)>,
 }
 
@@ -105,9 +106,9 @@ impl PipelineKey {
 /// The world type `W` is erased at storage; it must match at call sites.
 #[derive(Debug, Clone, Copy)]
 pub struct Pipeline<W, I, S, T> {
-    bake: BakeFn<W>,
+    bake_clip: BakeClipFn<W>,
     sample: SampleFn<W>,
-    #[expect(clippy::complexity)]
+    #[expect(clippy::type_complexity)]
     _marker: PhantomData<fn() -> (I, S, T)>,
 }
 
@@ -116,11 +117,11 @@ impl<W, I, S, T> Pipeline<W, I, S, T> {
     where
         W: SubjectSource<I, S>,
         I: SubjectId,
-        S: 'static,
+        S: Clone + ThreadSafe,
         T: Clone + ThreadSafe,
     {
         Self {
-            bake: bake::<W, I, S, T>,
+            bake_clip: bake_clip::<W, I, S, T>,
             sample: sample::<W, I, S, T>,
             _marker: PhantomData,
         }
@@ -128,7 +129,7 @@ impl<W, I, S, T> Pipeline<W, I, S, T> {
 
     pub fn untyped(&self) -> PipelineUntyped {
         PipelineUntyped {
-            bake: BakeFnPtr::new(self.bake),
+            bake_clip: BakeClipFnPtr::new(self.bake_clip),
             sample: SampleFnPtr::new(self.sample),
         }
     }
@@ -138,7 +139,7 @@ impl<W, I, S, T> Default for Pipeline<W, I, S, T>
 where
     W: SubjectSource<I, S>,
     I: SubjectId,
-    S: 'static,
+    S: Clone + ThreadSafe,
     T: Clone + ThreadSafe,
 {
     fn default() -> Self {
@@ -148,7 +149,7 @@ where
 
 #[derive(Debug, Clone, Copy)]
 pub struct PipelineUntyped {
-    bake: BakeFnPtr,
+    bake_clip: BakeClipFnPtr,
     sample: SampleFnPtr,
 }
 
@@ -156,8 +157,8 @@ impl PipelineUntyped {
     /// # Safety
     ///
     /// `W` must match the type used when registering this pipeline.
-    pub(crate) unsafe fn bake<W>(&self, ctx: BakeCtx<W>) {
-        let f = unsafe { self.bake.typed_unchecked::<W>() };
+    pub(crate) unsafe fn bake_clip<W>(&self, ctx: BakeClipCtx<W>) {
+        let f = unsafe { self.bake_clip.typed_unchecked::<W>() };
         f(ctx)
     }
 
@@ -170,159 +171,4 @@ impl PipelineUntyped {
     }
 }
 
-pub struct BakeCtx<'a, W> {
-    pub world: &'a W,
-    pub track: &'a Track,
-    pub action_world: &'a mut ActionWorld,
-    pub accessor_registry: &'a AccessorRegistry,
-}
-
-pub fn bake<W, I, S, T>(ctx: BakeCtx<W>)
-where
-    W: SubjectSource<I, S>,
-    I: SubjectId,
-    S: 'static,
-    T: Clone + ThreadSafe,
-{
-    for (key, span) in ctx.track.sequences_spans() {
-        let Some(accessor) =
-            ctx.accessor_registry.get::<S, T>(key.field())
-        else {
-            continue;
-        };
-
-        let Some(&id) =
-            ctx.action_world.get_id(&key.subject_id().uid())
-        else {
-            continue;
-        };
-
-        let Some(source) = ctx.world.get_source(id) else {
-            continue;
-        };
-
-        let mut start = accessor.get_ref(source).clone();
-
-        for ActionClip { id, .. } in ctx.track.clips(*span) {
-            let Some(action) = ctx.action_world.get_action::<T>(*id)
-            else {
-                continue;
-            };
-
-            let end = action(&start);
-            let segment = Segment::new(start.clone(), end.clone());
-
-            ctx.action_world.edit_action(*id).set_segment(segment);
-
-            start = end;
-        }
-    }
-}
-
-pub struct SampleCtx<'a, W> {
-    pub world: &'a mut W,
-    pub action_world: &'a ActionWorld,
-    pub accessor_registry: &'a AccessorRegistry,
-}
-
-pub fn sample<W, I, S, T>(ctx: SampleCtx<W>)
-where
-    W: SubjectSource<I, S>,
-    I: SubjectId,
-    S: 'static,
-    T: Clone + ThreadSafe,
-{
-    let Some(mut q) = ctx.action_world.world().try_query::<(
-        &ActionKey,
-        &SampleMode,
-        &Segment<T>,
-        &InterpStorage<T>,
-        Option<&EaseStorage>,
-    )>() else {
-        return;
-    };
-
-    for (key, sample_mode, segment, interp, ease) in
-        q.iter(ctx.action_world.world())
-    {
-        let Some(accessor) =
-            ctx.accessor_registry.get::<S, T>(key.field())
-        else {
-            continue;
-        };
-
-        let Some(&id) =
-            ctx.action_world.get_id(&key.subject_id().uid())
-        else {
-            continue;
-        };
-
-        let target = match sample_mode {
-            SampleMode::Start => segment.start.clone(),
-            SampleMode::End => segment.end.clone(),
-            SampleMode::Interp(t) => {
-                let t = match ease {
-                    Some(ease) => ease.0(*t),
-                    None => *t,
-                };
-
-                interp.0(&segment.start, &segment.end, t)
-            }
-        };
-
-        ctx.world.apply_source(id, |source| {
-            *accessor.get_mut(source) = target;
-        });
-    }
-}
-
-#[derive(Default, Debug, PartialEq, Clone, Copy)]
-pub struct Range {
-    pub start: f32,
-    pub end: f32,
-}
-
-impl Range {
-    /// Calculate if 2 [`Range`]s overlap.
-    pub fn overlap(&self, other: &Self) -> bool {
-        self.start <= other.end && other.start <= self.end
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn range_overlap_behavior() {
-        let a = Range {
-            start: 0.0,
-            end: 5.0,
-        };
-        let b = Range {
-            start: 3.0,
-            end: 8.0,
-        };
-        let c = Range {
-            start: 6.0,
-            end: 10.0,
-        };
-        let d = Range {
-            start: 5.0,
-            end: 5.0,
-        }; // touching boundary
-
-        assert!(
-            a.overlap(&b),
-            "Overlapping ranges should return true"
-        );
-        assert!(
-            !a.overlap(&c),
-            "Separated ranges should return false"
-        );
-        assert!(
-            a.overlap(&d),
-            "Touching at end should count as overlap"
-        );
-    }
-}
+pub use crate::time::Range;

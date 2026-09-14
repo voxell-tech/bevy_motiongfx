@@ -54,19 +54,18 @@ fn build_timeline(
         b.act(cube_id, path!(<Transform>::translation::x), |x| {
             x + 6.0
         })
-        .play(1.0),
+        .play(s(1)),
         b.act(
             cube_mat_id,
             path!(<StandardMaterial>::base_color),
             |_| Srgba::RED.into(),
         )
-        .play(1.0),
+        .play(s(1)),
     ]
     .ord_all()
     .compile();
 
-    b.add_tracks(track);
-    let timeline = b.compile();
+    let timeline = b.compile(track);
 
     // Spawns the timeline and start playing.
     commands.spawn((

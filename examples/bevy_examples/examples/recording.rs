@@ -113,12 +113,10 @@ fn spawn_timeline(
             x + Vec3::ZERO.with_x(10.0).with_z(1.0)
         })
         .with_interp(|start, end, t| arc_lerp_3d(*start, *end, t))
-        .play(1.0)
+        .play(s(1))
         .compile();
 
-    b.add_tracks(track);
-
-    let timeline = b.compile();
+    let timeline = b.compile(track);
     commands.spawn((
         motiongfx.add_timeline(timeline),
         FixedRatePlayer::new(144),

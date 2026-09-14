@@ -87,25 +87,23 @@ fn setup(
     let frag = [
         b.act(grid, path!(<KanvaAnim>::t), |_| 1.0)
             .with_ease(ease::cubic::ease_in_out)
-            .play(2.0),
+            .play(s(2)),
         b.act(circle, path!(<KanvaAnim>::t), |_| 1.0)
             .with_ease(ease::cubic::ease_in_out)
-            .play(1.0),
+            .play(s(1)),
         b.act(equation, path!(<KanvaAnim>::t), |_| 1.0)
             .with_ease(ease::cubic::ease_in_out)
-            .play(2.0),
+            .play(s(2)),
         b.act(plot, path!(<VPlotFunc>::data::circle_x), |_| 3.0)
             .with_ease(ease::cubic::ease_in_out)
-            .play(2.0),
+            .play(s(2)),
         b.act(plot, path!(<VPlotFunc>::data::circle_y), |_| 4.0)
             .with_ease(ease::cubic::ease_in_out)
-            .play(2.0),
+            .play(s(2)),
     ]
     .ord_chain();
 
-    b.add_tracks(frag.compile());
-
-    let timeline = b.compile();
+    let timeline = b.compile(frag.compile());
     commands.spawn((
         motiongfx.add_timeline(timeline),
         RealtimePlayer::new().with_playing(true),
@@ -151,7 +149,7 @@ type VPlotFunc = VelystFunc<PlotFunc>;
 
 typst_func!(
     "plot",
-    #[derive(Default)]
+    #[derive(Default, Clone)]
     struct PlotFunc {},
     positional_args {
         circle_x: f64,

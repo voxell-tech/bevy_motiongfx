@@ -68,35 +68,34 @@ fn main() {
         builder
             .act_builder(Id(0), path!(<Point>::x), |x| x + 72.0)
             .with_interp(linear_f32)
-            .play(1.0),
+            .play(s(1)),
         [
             builder
                 .act_builder(Id(1), path!(<Line>::p0::y), |y| {
                     y + 42.0
                 })
                 .with_interp(linear_f32)
-                .play(2.0),
+                .play(s(2)),
             builder
                 .act_builder(Id(1), path!(<Line>::p1), |_| Point {
                     x: 6.0,
                     y: 6.0,
                 })
                 .with_interp(linear_point)
-                .play(2.0),
+                .play(s(2)),
         ]
         .ord_all(),
     ]
     .ord_chain();
 
     // Compile into a timeline.
-    builder.add_tracks(track.compile());
-    let mut timeline = builder.compile();
+    let mut timeline = builder.compile(track.compile());
 
     // Bake actions into segments.
     timeline.bake_actions(&world.registry, &world.subject_world);
 
     // Change the target time.
-    timeline.set_target_time(1.5);
+    timeline.set_target_time(cs(150));
 
     // Check the values before sampling:
     println!("Before: {:?}", world.subject_world);
@@ -111,19 +110,22 @@ fn main() {
     // Check the values after sampling:
     println!("After:  {:?}\n", world.subject_world);
 
-    let new_target_time = 7.0;
+    let new_target_time = s(7);
 
     // Set target time to after total track duration
     timeline.set_target_time(new_target_time);
 
-    println!("timeline target time set to: {}s", new_target_time);
+    println!("timeline target time set to: {:?}", new_target_time);
 
     println!(
-        "# Before sampling \ncurrent time: {}s,\ntarget time: {}s",
+        "# Before sampling \ncurrent time: {:?},\ntarget time: {:?}",
         timeline.curr_time(),
-        timeline.target_time()
+        timeline.target_time(),
     );
-    println!("target time clamped to timeline duration (3s)\n");
+    println!(
+        "target time clamped to current track's duration ({:?})\n",
+        timeline.curr_track().duration()
+    );
 
     // Queue and sample the actions.
     timeline.queue_actions();
@@ -133,9 +135,9 @@ fn main() {
     );
 
     println!(
-        "# After sampling: \ncurrent time: {}s,\ntarget time: {}s\n",
+        "# After sampling: \ncurrent time: {:?},\ntarget time: {:?}\n",
         timeline.curr_time(),
-        timeline.target_time()
+        timeline.target_time(),
     );
 }
 

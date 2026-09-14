@@ -9,8 +9,7 @@ publish = false
 
 [dependencies]
 bevy = { workspace = true, default-features = true, features = ["debug", "file_watcher"] }
-bevy_motiongfx = { workspace = true, features = ["velyst"] }
-motiongfx_editor = { workspace = true }
+bevy_motiongfx = { workspace = true, default-features = true, features = ["scene", "velyst"] }
 
 [lints]
 workspace = true

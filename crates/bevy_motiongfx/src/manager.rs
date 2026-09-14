@@ -37,7 +37,7 @@ impl Plugin for MotionGfxManagerPlugin {
 ///
 /// Panics if the [`Timeline`] component is sampling itself.
 fn sample_timelines(world: &mut World) {
-    world.try_resource_scope::<MotionGfxManager, _>(
+    world.resource_scope::<MotionGfxManager, _>(
         |world, mut motiongfx| {
             motiongfx.load_pending_timelines(world);
             motiongfx.sample_timelines(world);
@@ -97,6 +97,12 @@ impl Default for MotionGfxManager {
 impl MotionGfxManager {
     pub fn create_builder(&mut self) -> BevyTimelineBuilder<'_> {
         TimelineBuilder::new(&mut self.registry)
+    }
+
+    /// The runtime [`Registry`] backing this manager's timelines.
+    #[cfg(feature = "scene")]
+    pub(crate) fn registry_mut(&mut self) -> &mut Registry {
+        &mut self.registry
     }
 
     pub fn add_timeline(

@@ -7,9 +7,8 @@
 [![CI](https://github.com/voxell-tech/motiongfx/workflows/CI/badge.svg)](https://github.com/voxell-tech/motiongfx/actions)
 [![Discord](https://img.shields.io/discord/442334985471655946.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/Mhnyp6VYEQ)
 
-**MotionGfx** is a backend-agnostic motion graphics framework
-built on top of [Bevy](https://bevyengine.org) ECS. It provides a
-modular foundation for procedural animations.
+**MotionGfx** is a backend-agnostic motion graphics framework. It
+provides a modular foundation for procedural animations.
 
 ## Key Features
 
@@ -17,7 +16,8 @@ modular foundation for procedural animations.
 - **Procedural**: Write animations with code - loops, functions,
   logic.
 - **Type-erased**: Powered by
-  [Field Path](https://github.com/voxell-tech/field_path), allowing
+  [Field Path](https://github.com/voxell-tech/field_path) &
+  [Typarena](https://github.com/voxell-tech/typarena), allowing
   runtime-flexible animation of arbitrary data.
 - **Two-way playback**: Play animations both forward and backward with
   no extra computation.
@@ -60,20 +60,19 @@ let id = 0;
 let action = b.act(id, path!(<f32>), |x| x + 10.0);
 
 // "Play" the action into a `TrackFragment` with a duration.
-let frag = action.play(1.0);
+let frag = action.play(s(1));
 
 // Compile into a `Track`
 // See "Track Ordering" section for composing fragments.
 let track = frag.compile();
 
-b.add_tracks(track);
-let mut timeline = b.compile();
+let mut timeline = b.compile(track);
 
 // Bake must run once before sampling.
 timeline.bake_actions(&registry, &world);
 
 // Sample at t = 0.5, world.0[0] should now be 5.0.
-timeline.set_target_time(0.5);
+timeline.set_target_time(cs(50));
 timeline.queue_actions();
 timeline.sample_queued_actions(&registry, &mut world);
 
@@ -147,7 +146,7 @@ let mut b = registry.create_builder::<World>();
 Animations are built up in layers:
 
 1. An **action** says what to animate and how to transform it.
-2. A **track fragment** gives the action a duration by calling `.play(seconds)`.
+2. A **track fragment** gives the action a duration by calling `.play(duration)`.
 3. A **track** is one or more fragments compiled together. You can
    order fragments before compiling (see [Track Ordering](#track-ordering)).
 4. A **timeline** combines all your tracks into one playable sequence.
@@ -165,14 +164,13 @@ let action = b
     .with_ease(ease::cubic::ease_in_out);
 
 // Play: turn the action into a fragment with a 1-second duration.
-let frag = action.play(1.0);
+let frag = action.play(s(1));
 
 // Compile the fragment into a Track.
 let track = frag.compile();
 
 // Add the track and compile into a Timeline.
-b.add_tracks(track);
-let timeline = b.compile();
+let timeline = b.compile(track);
 ```
 
 ### Bake and Sample
@@ -196,7 +194,7 @@ Use `set_target_track` to jump between them.
 timeline.bake_actions(&registry, &subjects);
 
 // Set target time, queue, then sample.
-timeline.set_target_time(0.5);
+timeline.set_target_time(cs(50));
 timeline.queue_actions();
 timeline.sample_queued_actions(&registry, &mut subjects);
 
@@ -261,7 +259,7 @@ use motiongfx::prelude::*;
 let f0 = TrackFragment::new();
 let f1 = TrackFragment::new();
 
-let f = [f0, f1].ord_flow(0.5);
+let f = [f0, f1].ord_flow(cs(50));
 ```
 
 `f1` starts 0.5 seconds after `f0` begins, regardless of how long
@@ -279,14 +277,6 @@ You can join us on the [Voxell discord server](https://discord.gg/Mhnyp6VYEQ).
 
 - [Motion Canvas](https://motioncanvas.io/)
 - [Manim](https://www.manim.community/)
-
-## Version Matrix
-
-| Bevy    | MotionGfx  |
-| ------- | ---------- |
-| 0.19    | 0.3        |
-| 0.18    | 0.2        |
-| 0.17    | 0.1        |
 
 ## License
 

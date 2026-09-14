@@ -18,6 +18,9 @@ pub mod manager;
 pub mod velyst_integration;
 pub mod world;
 
+#[cfg(feature = "scene")]
+pub mod scene;
+
 pub mod prelude {
     pub use motiongfx::prelude::*;
 
@@ -31,6 +34,9 @@ pub mod prelude {
     };
     #[cfg(feature = "velyst")]
     pub use velyst::prelude::*;
+
+    #[cfg(feature = "scene")]
+    pub use crate::scene::id::EntityUid;
 }
 
 pub use motiongfx;
@@ -54,10 +60,17 @@ impl Plugin for BevyMotionGfxPlugin {
             )
                 .chain(),
         );
+
         app.add_plugins((MotionGfxManagerPlugin, ControllerPlugin));
 
         #[cfg(feature = "velyst")]
         app.add_plugins(VelystIntegrationPlugin);
+
+        #[cfg(feature = "scene")]
+        {
+            app.add_plugins(scene::MotionGfxScenePlugin);
+            scene::value_pool::register_scene_values(app);
+        }
     }
 }
 

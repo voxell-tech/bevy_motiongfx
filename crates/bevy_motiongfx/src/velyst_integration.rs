@@ -84,6 +84,7 @@ pub enum KanvaGroupKind {
 /// `t_start` and `t_end` define where this phase sits within the path's
 /// `[0, 1]` local-t window. The phase function receives a `[0, 1]` t
 /// normalized to that sub-window.
+#[derive(Clone, Copy)]
 pub struct KanvaPhase {
     /// Per-path animation function called with the normalized phase t.
     pub func: fn(&mut Kanva, path_idx: usize, t: f32),
@@ -108,7 +109,7 @@ impl KanvaPhase {
 }
 
 /// Drives staggered, multi-phase path animation on a [`KanvaGroup`].
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub struct KanvaAnim {
     /// Overall animation progress `[0, 1]`.
     pub t: f32,

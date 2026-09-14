@@ -1,5 +1,5 @@
 use core::f64;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 use kurbo::{Affine, BezPath, Vec2};
 use motiongfx::prelude::*;
@@ -16,9 +16,9 @@ const CELL_H: f64 = 113.0;
 const CURVE_R: f64 = 42.0;
 const REF_R: f64 = 36.0;
 const DELTA: f64 = f64::consts::PI / 4.0;
-const DRAW_DUR: f32 = 1.5;
-const HOLD_DUR: f32 = 0.8;
-const STAGGER: f32 = 0.08; // per diagonal
+const DRAW_DUR: Duration = cs(150);
+const HOLD_DUR: Duration = cs(80);
+const STAGGER: Duration = cs(8); // per diagonal
 
 fn curve_color(c: usize) -> Color {
     let t = (c - 1) as f64 / (N_X - 1) as f64;
@@ -38,12 +38,14 @@ fn lissajous_pt(
     )
 }
 
+#[derive(Clone)]
 struct GridLine {
     line: kurbo::Line,
     width: f64,
     color: Color,
 }
 
+#[derive(Clone)]
 struct CurveState {
     tracer: PathTracer,
 }
@@ -90,8 +92,8 @@ struct LissajousTableDemo {
     world: TableWorld,
     start: Instant,
     timeline: Timeline<TableWorld>,
-    grid_duration: f32,
-    curve_duration: f32,
+    grid_duration: Duration,
+    curve_duration: Duration,
     window_size: kurbo::Size,
 }
 
@@ -169,23 +171,22 @@ impl LissajousTableDemo {
             let v = vert_entries.get(i).map(|&(id, p1)| {
                 b.act(id, path!(<GridLine>::line::p1), move |_| p1)
                     .with_ease(ease::cubic::ease_in_out)
-                    .play(0.6)
+                    .play(cs(60))
             });
             let h = horiz_entries.get(i).map(|&(id, p1)| {
                 b.act(id, path!(<GridLine>::line::p1), move |_| p1)
                     .with_ease(ease::cubic::ease_in_out)
-                    .play(0.6)
+                    .play(cs(60))
             });
             pair_tracks.push(match (v, h) {
-                (Some(v), Some(h)) => [v, h].ord_flow(0.025),
+                (Some(v), Some(h)) => [v, h].ord_flow(ms(25)),
                 (Some(v), None) => v,
                 (None, Some(h)) => h,
                 (None, None) => unreachable!(),
             });
         }
         let grid_track =
-            pair_tracks.into_iter().ord_flow(0.05).compile();
-        b.add_tracks(grid_track);
+            pair_tracks.into_iter().ord_flow(cs(5)).compile();
 
         // Track 1: curves draw in and out, looped by the caller.
         let max_diag = N_X + N_Y;
@@ -223,9 +224,8 @@ impl LissajousTableDemo {
             })
             .ord_flow(STAGGER)
             .compile();
-        b.add_tracks(curve_track);
-
-        let mut timeline = b.compile();
+        let mut timeline =
+            b.compile(TrackList(nonempty![grid_track, curve_track]));
         timeline.bake_actions(&registry, &world);
         let grid_duration = timeline.tracks()[0].duration();
         let curve_duration = timeline.tracks()[1].duration();
@@ -263,17 +263,20 @@ impl VelloDemo for LissajousTableDemo {
         scene: &mut vello::Scene,
         scale_factor: f64,
     ) {
-        let elapsed = self.start.elapsed().as_secs_f32();
+        let elapsed = self.start.elapsed();
 
         // Track 0 plays once; once done we lock to track 1 and loop it.
         if elapsed < self.grid_duration {
             self.timeline.set_target_track(0);
             self.timeline.set_target_time(elapsed);
         } else {
+            // `Duration` has no `Rem`, so wrap through nanoseconds.
+            let into_loop = (elapsed - self.grid_duration).as_nanos();
+            let period = self.curve_duration.as_nanos().max(1);
+
             self.timeline.set_target_track(1);
-            self.timeline.set_target_time(
-                (elapsed - self.grid_duration) % self.curve_duration,
-            );
+            self.timeline
+                .set_target_time(ns((into_loop % period) as u64));
         }
         self.timeline.queue_actions();
         self.timeline

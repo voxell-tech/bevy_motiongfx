@@ -85,22 +85,22 @@ fn spawn_timeline(
                     |x| x + 10.0,
                 )
                 .with_ease(ease_fn)
-                .play(1.0),
+                .play(s(1)),
                 b.act(
                     sphere_mat_ids[i],
                     path!(<StandardMaterial>::emissive),
                     move |_| red,
                 )
                 .with_ease(ease_fn)
-                .play(1.0),
+                .play(s(1)),
             ]
             .ord_all()
         })
         .ord_chain();
 
-    b.add_tracks(track.compile());
+    let tracks = track.compile();
 
-    let timeline = b.compile();
+    let timeline = b.compile(tracks);
     commands.spawn((
         motiongfx.add_timeline(timeline),
         RealtimePlayer::new().with_playing(true),
